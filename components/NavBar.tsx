@@ -166,7 +166,9 @@ export default function NavBar() {
                   </span>
                   {/* Glow indicator */}
                   <span
-                    className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className={`absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent transition-opacity duration-300 ${
+                      isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
                     style={{ color: game.color }}
                   />
                 </Link>
