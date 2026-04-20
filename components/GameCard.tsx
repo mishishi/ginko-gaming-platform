@@ -181,11 +181,23 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
                 </span>
               ) : game.playable && isReachable ? (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1"
+                  className="text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1 group/-status relative"
                   style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--accent-green)' }}
                 >
                   <span className="w-1 h-1 rounded-full bg-current opacity-60" />
                   可玩{gameStatus?.latency != null && <span className="opacity-50">{gameStatus.latency}ms</span>}
+                  {/* Latency quality tooltip on hover */}
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/status:opacity-100 transition-opacity pointer-events-none z-10">
+                    {gameStatus.latency != null && (
+                      <>
+                        {gameStatus.latency < 50 ? '极低延迟' :
+                         gameStatus.latency < 100 ? '低延迟' :
+                         gameStatus.latency < 200 ? '中等延迟' :
+                         gameStatus.latency < 500 ? '较高延迟' : '高延迟'}
+                        <span className="opacity-50 ml-1">{gameStatus.latency}ms</span>
+                      </>
+                    )}
+                  </span>
                 </span>
               ) : game.playable ? (
                 <span
