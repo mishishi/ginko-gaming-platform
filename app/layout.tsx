@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import ResourceHints from '@/components/ResourceHints'
 import { notoSansSC, notoSerifSC } from '@/lib/fonts'
 import TourGuide from '@/components/TourGuide'
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 
 export const metadata: Metadata = {
   title: '银古客栈',
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ResourceHints />
       </head>
       <body>
+        <ServiceWorkerRegistration />
         <GameStatusProvider>
           <ThemeProvider>
             <TourGuide />
