@@ -59,6 +59,28 @@ export default function GamePage({ params }: GamePageProps) {
         <div className="w-20" />
       </div>
 
+      {/* Game metadata bar */}
+      <div className="flex items-center justify-center gap-6 py-3 border-b border-[#1a1f24] bg-[#0a0d0f]/50">
+        <span className="flex items-center gap-1.5 text-xs text-[#8a8680]">
+          <span>难度</span>
+          <span style={{ color: game.color }}>{'★'.repeat(game.difficulty)}{'☆'.repeat(5 - game.difficulty)}</span>
+        </span>
+        <span className="w-px h-3 bg-[#2a2d2f]" />
+        <span className="text-xs text-[#8a8680]">
+          <span className="text-[#6b6560]">玩家</span> {game.playerCount}
+        </span>
+        <span className="w-px h-3 bg-[#2a2d2f]" />
+        <span
+          className={`text-xs px-2 py-0.5 rounded ${
+            game.playable
+              ? 'bg-emerald-900/40 text-emerald-400'
+              : 'bg-amber-900/40 text-amber-400'
+          }`}
+        >
+          {game.playable ? '可玩' : '维护中'}
+        </span>
+      </div>
+
       {/* Game iframe */}
       <GameFrame game={game} />
     </div>
