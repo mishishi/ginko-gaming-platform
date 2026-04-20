@@ -1,10 +1,7 @@
 import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
 import ScrollReveal from '@/components/ScrollReveal'
-import { useGameStats } from '@/hooks/useGameStats'
-import AchievementWall from '@/components/AchievementWall'
-import StatsSummary from '@/components/StatsSummary'
-import type { AchievementId } from '@/components/AchievementBadge'
+import StatsSection from '@/components/StatsSection'
 
 function LanternIcon({ className }: { className?: string }) {
   return (
@@ -50,8 +47,6 @@ function ScrollIndicator() {
 }
 
 export default function HomePage() {
-  const { stats, unlockedIds } = useGameStats()
-
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section - 古典客栈意境 */}
@@ -162,10 +157,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats & Achievements Section */}
-      <section className="max-w-5xl mx-auto px-4 py-16 space-y-16">
-        <StatsSummary stats={stats} />
-        <AchievementWall unlockedIds={unlockedIds as AchievementId[]} />
-      </section>
+      <StatsSection />
 
       {/* Footer - 简约雅致 */}
       <ScrollReveal>
