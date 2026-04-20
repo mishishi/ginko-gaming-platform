@@ -20,9 +20,32 @@ export async function generateMetadata({ params }: GamePageProps) {
   const game = getGameBySlug(params.slug)
   if (!game) return {}
 
+  const baseUrl = 'https://ginko.example.com'
+  const gameUrl = `${baseUrl}/games/${game.slug}`
+
   return {
     title: `${game.title} - 银古客栈`,
     description: game.description,
+    openGraph: {
+      title: game.title,
+      description: game.description,
+      url: gameUrl,
+      type: 'website',
+      siteName: '银古客栈',
+      images: [
+        {
+          url: `${baseUrl}/api/og?title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.color)}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary',
+      title: game.title,
+      description: game.description,
+      images: [`${baseUrl}/api/og?title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.color)}`],
+    },
   }
 }
 
