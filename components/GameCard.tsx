@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
+import GameScreenshot from './GameScreenshots'
 
 interface GameCardProps {
   game: Game
@@ -129,26 +130,9 @@ export default function GameCard({ game, index }: GameCardProps) {
         >
           {/* Noise texture overlay */}
           <div className="noise-overlay rounded-2xl" aria-hidden="true" />
-          {/* Theme gradient placeholder */}
-          <div
-            className="h-36 w-full relative overflow-hidden"
-            style={{ background: game.theme }}
-          >
-            {/* Decorative pattern overlay */}
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: `radial-gradient(circle at 25% 25%, ${game.color}40 0%, transparent 50%),
-                                  radial-gradient(circle at 75% 75%, ${game.color}30 0%, transparent 50%)`,
-              }}
-            />
-            {/* Top decorative line */}
-            <div
-              className="absolute top-0 left-0 right-0 h-1"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${game.color}60, transparent)`,
-              }}
-            />
+          {/* Game screenshot */}
+          <div className="h-36 w-full relative overflow-hidden">
+            <GameScreenshot game={game} />
             {/* Bottom fade */}
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent opacity-70" />
           </div>
