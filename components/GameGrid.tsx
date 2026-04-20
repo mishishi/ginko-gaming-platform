@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useGameStatus } from '@/components/GameStatusProvider'
+import { useRecentlyPlayed } from '@/hooks/useRecentlyPlayed'
 import GameCard from '@/components/GameCard'
 import HomepageSkeleton from '@/components/HomepageSkeleton'
 import { games, Game } from '@/lib/games'
@@ -27,8 +28,81 @@ type FilterOption = 'all' | 'playable' | 'coming-soon'
 
 export default function GameGrid() {
   const { isLoading } = useGameStatus()
+  const { recentlyPlayed } = useRecentlyPlayed()
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
+  const [focusedIndex, setFocusedIndex] = useState(-1)
+  const cardRefs = useRef<(HTMLAnchorElement | null)[]>([])
+
+  // Get recently played games in order
+  const recentGames = useMemo(() => {
+    return recentlyPlayed
+      .map((entry) => games.find((g) => g.slug === entry.slug))
+      .filter((g): g is Game => g !== undefined)
+  }, [recentlyPlayed])
+
+  const columnsCount = 3 // md:grid-cols-3
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number) => {
+    const totalCards = filteredGames.length
+    if (totalCards === 0) return
+
+    let newIndex = -1
+
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault()
+        newIndex = index > 0 ? index - 1 : totalCards - 1 // wrap to end
+        break
+      case 'ArrowRight':
+        e.preventDefault()
+        newIndex = index < totalCards - 1 ? index + 1 : 0 // wrap to start
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        newIndex = index >= columnsCount ? index - columnsCount : index + (Math.ceil(totalCards / columnsCount) - 1) * columnsCount
+        // Adjust for wrap-around on last row
+        if (newIndex >= totalCards) {
+          newIndex = totalCards - 1
+        }
+        break
+      case 'ArrowDown':
+        e.preventDefault()
+        newIndex = index + columnsCount
+        // Wrap to start if beyond last
+        if (newIndex >= totalCards) {
+          newIndex = index % columnsCount
+          if (newIndex >= totalCards) newIndex = totalCards - 1
+        }
+        break
+      case 'Home':
+        e.preventDefault()
+        newIndex = 0
+        break
+      case 'End':
+        e.preventDefault()
+        newIndex = totalCards - 1
+        break
+      default:
+        return
+    }
+
+    if (newIndex >= 0 && newIndex < totalCards) {
+      setFocusedIndex(newIndex)
+    }
+  }, [filteredGames.length])
+
+  // Focus the card when focusedIndex changes
+  useEffect(() => {
+    if (focusedIndex >= 0 && cardRefs.current[focusedIndex]) {
+      cardRefs.current[focusedIndex]?.focus()
+    }
+  }, [focusedIndex])
+
+  // Reset focused index when filtered games change
+  useEffect(() => {
+    setFocusedIndex(-1)
+  }, [searchQuery, filter])
 
   const filteredGames = useMemo(() => {
     return games.filter((game: Game) => {
@@ -99,13 +173,49 @@ export default function GameGrid() {
         </p>
       )}
 
+      {/* Recently Played Section */}
+      {!searchQuery && recentGames.length > 0 && (
+        <section aria-labelledby="recently-played-heading">
+          <h2
+            id="recently-played-heading"
+            className="text-center text-[var(--text-secondary)] text-sm uppercase tracking-widest mb-6 animate-fade-in"
+          >
+            最近游玩
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {recentGames.slice(0, 5).map((game, index) => (
+              <GameCard
+                key={game.slug}
+                game={game}
+                index={index}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Game Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        role="grid"
+        aria-label="游戏列表"
+      >
         {isLoading ? (
           <HomepageSkeleton />
         ) : filteredGames.length > 0 ? (
           filteredGames.map((game, index) => (
-            <GameCard key={game.slug} game={game} index={index} />
+            <div
+              key={game.slug}
+              role="gridcell"
+              ref={(el) => { cardRefs.current[index] = el }}
+            >
+              <GameCard
+                game={game}
+                index={index}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                tabIndex={focusedIndex === index || (focusedIndex === -1 && index === 0) ? 0 : -1}
+              />
+            </div>
           ))
         ) : (
           <div className="col-span-full py-12 text-center">

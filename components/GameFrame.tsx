@@ -61,23 +61,35 @@ export default function GameFrame({ game }: GameFrameProps) {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle if user is typing in an input
+      if (document.activeElement?.tagName === 'INPUT' ||
+          document.activeElement?.tagName === 'TEXTAREA') {
+        return
+      }
+
       // ESC - exit game
       if (e.key === 'Escape' && !isFullscreen) {
         handleExitGame()
       }
       // F - toggle fullscreen
       if (e.key === 'f' || e.key === 'F') {
-        if (document.activeElement?.tagName !== 'INPUT' &&
-            document.activeElement?.tagName !== 'TEXTAREA') {
-          e.preventDefault()
-          toggleFullscreen()
+        e.preventDefault()
+        toggleFullscreen()
+      }
+      // R - reload iframe
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault()
+        if (iframeRef.current) {
+          setIsLoading(true)
+          setHasError(false)
+          iframeRef.current.src = game.devUrl
         }
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isFullscreen, handleExitGame, toggleFullscreen])
+  }, [isFullscreen, handleExitGame, toggleFullscreen, game.devUrl])
 
   // Hide keyboard hints after 5 seconds
   useEffect(() => {
@@ -204,6 +216,11 @@ export default function GameFrame({ game }: GameFrameProps) {
           <span className="flex items-center gap-1.5">
             <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] font-mono text-[10px]">ESC</kbd>
             退出
+          </span>
+          <span className="w-px h-3 bg-[var(--border-subtle)]" />
+          <span className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] font-mono text-[10px]">R</kbd>
+            刷新
           </span>
           <span className="w-px h-3 bg-[var(--border-subtle)]" />
           <span className="flex items-center gap-1.5">

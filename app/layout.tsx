@@ -9,6 +9,7 @@ import { notoSansSC, notoSerifSC } from '@/lib/fonts'
 import TourGuide from '@/components/TourGuide'
 import InstallPrompt from '@/components/InstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
+import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
 
 export const metadata: Metadata = {
   title: '银古客栈',
@@ -50,6 +51,7 @@ export default function RootLayout({
 
             <div className="fog-bg" />
             <NavBar />
+            <KeyboardShortcutsProvider />
             <main id="main-content" className="relative z-10">
               <PageTransition>
                 {children}
