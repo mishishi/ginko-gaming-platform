@@ -18,20 +18,37 @@ interface TiltCardProps {
 function TiltCard({ game, index, children }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+  const isMobile = typeof window !== 'undefined' && 'ontouchstart' in window
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMove = (clientX: number, clientY: number) => {
     if (!cardRef.current) return
     const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     const centerX = rect.width / 2
     const centerY = rect.height / 2
-    const rotateX = ((y - centerY) / centerY) * -6
-    const rotateY = ((x - centerX) / centerX) * 6
+    // Reduced intensity on mobile for subtler effect
+    const intensity = isMobile ? 4 : 6
+    const rotateX = ((y - centerY) / centerY) * -intensity
+    const rotateY = ((x - centerX) / centerX) * intensity
     setTilt({ rotateX, rotateY })
   }
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleMove(e.clientX, e.clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 0) return
+    const touch = e.touches[0]
+    handleMove(touch.clientX, touch.clientY)
+  }
+
   const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 })
+  }
+
+  const handleTouchEnd = () => {
     setTilt({ rotateX: 0, rotateY: 0 })
   }
 
@@ -42,6 +59,8 @@ function TiltCard({ game, index, children }: TiltCardProps) {
       style={{ perspective: '1000px' }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="transition-transform duration-200 ease-out"
