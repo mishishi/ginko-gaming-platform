@@ -38,44 +38,71 @@ export default function GamePage({ params }: GamePageProps) {
       <div className="h-12 flex items-center px-4 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/90 backdrop-blur-sm">
         <Link
           href="/"
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 text-sm flex items-center gap-2"
+          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 text-sm"
         >
-          <span>←</span>
-          <span>返回首页</span>
+          ← 返回首页
         </Link>
 
         <div className="flex-1 flex justify-center">
-          <h1
-            className="text-lg"
-            style={{
-              color: game.color,
-              fontFamily: "'Noto Serif SC', serif",
-            }}
-          >
-            {game.title}
-          </h1>
+          <nav aria-label="面包屑导航">
+            <ol className="flex items-center gap-2 text-sm">
+              <li>
+                <Link
+                  href="/"
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
+                >
+                  首页
+                </Link>
+              </li>
+              <li className="text-[var(--text-muted)]" aria-hidden="true">/</li>
+              <li>
+                <span
+                  style={{
+                    color: game.color,
+                    fontFamily: "'Noto Serif SC', serif",
+                  }}
+                >
+                  {game.title}
+                </span>
+              </li>
+            </ol>
+          </nav>
         </div>
 
         <div className="w-20" />
       </div>
 
-      {/* Game metadata bar */}
-      <div className="flex items-center justify-center gap-6 py-3 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/50">
+      {/* Game metadata bar with icons */}
+      <div className="flex items-center justify-center gap-5 py-3 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/30">
+        {/* Difficulty with star icon */}
         <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-          <span>难度</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none">
+            <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
+          </svg>
           <span style={{ color: game.color }}>{'★'.repeat(game.difficulty)}{'☆'.repeat(5 - game.difficulty)}</span>
         </span>
+
         <span className="w-px h-3 bg-[var(--border-subtle)]" />
-        <span className="text-xs text-[var(--text-secondary)]">
-          <span className="text-[var(--text-muted)]">玩家</span> {game.playerCount}
+
+        {/* Player count with user icon */}
+        <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span className="text-[var(--text-muted)]">玩家</span>
+          <span>{game.playerCount}</span>
         </span>
+
         <span className="w-px h-3 bg-[var(--border-subtle)]" />
+
+        {/* Status badge */}
         <span
-          className={`text-xs px-2 py-0.5 rounded ${
-            game.playable
-              ? 'bg-emerald-900/40 text-emerald-400'
-              : 'bg-amber-900/40 text-amber-400'
-          }`}
+          className="text-xs px-2 py-0.5 rounded"
+          style={{
+            backgroundColor: game.playable ? 'rgba(74, 92, 79, 0.4)' : 'rgba(184, 148, 95, 0.4)',
+            color: game.playable ? 'var(--accent-green)' : 'var(--accent-amber)',
+          }}
         >
           {game.playable ? '可玩' : '维护中'}
         </span>
@@ -108,7 +135,17 @@ export default function GamePage({ params }: GamePageProps) {
           </Link>
         </div>
       ) : (
-        <GameFrame game={game} />
+        /* Game iframe with decorative frame */
+        <div className="relative">
+          {/* Decorative inner border */}
+          <div
+            className="absolute inset-0 pointer-events-none z-10"
+            style={{
+              boxShadow: `inset 0 0 0 1px ${game.color}15, inset 0 0 60px ${game.color}08`,
+            }}
+          />
+          <GameFrame game={game} />
+        </div>
       )}
     </div>
   )

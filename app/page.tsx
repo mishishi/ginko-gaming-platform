@@ -8,7 +8,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative py-20 px-4 text-center overflow-hidden">
         {/* Floating lantern */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 animate-float opacity-20 pointer-events-none">
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 animate-float opacity-20 pointer-events-none" aria-hidden="true">
           <svg
             width="32"
             height="32"
@@ -23,7 +23,7 @@ export default function HomePage() {
         </div>
 
         {/* Lantern glow pulse */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
           <div
             className="w-48 h-48 rounded-full animate-lantern-pulse"
             style={{
@@ -33,27 +33,57 @@ export default function HomePage() {
         </div>
 
         <div className="max-w-4xl mx-auto relative">
-          <h1
-            className="font-serif text-5xl md:text-6xl text-[var(--accent-amber)] mb-4 animate-fade-in-up"
-            style={{ fontFamily: "'Noto Serif SC', serif" }}
-          >
-            银古客栈
-          </h1>
-          <p className="text-[var(--text-secondary)] text-lg md:text-xl animate-fade-in-up stagger-2">
+          {/* Main title with enhanced glow */}
+          <div className="relative inline-block">
+            <h1
+              className="font-serif text-6xl md:text-7xl text-[var(--accent-amber)] mb-2 animate-fade-in-up"
+              style={{
+                fontFamily: "'Noto Serif SC', serif",
+                textShadow: '0 0 60px rgba(212,165,116,0.5), 0 0 120px rgba(212,165,116,0.3)',
+              }}
+            >
+              银古客栈
+            </h1>
+            {/* Subtle glow underline */}
+            <div
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 w-32 rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
+                boxShadow: '0 0 20px var(--accent-amber)',
+              }}
+            />
+          </div>
+
+          {/* Tagline - clearly secondary */}
+          <p className="text-[var(--text-secondary)] text-base md:text-lg animate-fade-in-up stagger-2 tracking-wide">
             旅人的游戏驿站
           </p>
-          {/* Poetic description */}
+
+          {/* Poetic description - tertiary, subtle */}
           <p
-            className="text-[var(--text-muted)] text-sm mt-3 italic animate-fade-in-up stagger-3"
+            className="text-[var(--text-muted)] text-xs mt-2 italic animate-fade-in-up stagger-3"
             style={{ fontFamily: "'Noto Serif SC', serif" }}
           >
             穿越迷雾，遇见珍藏
           </p>
+
+          {/* Scroll indicator CTA */}
+          <div className="mt-12 animate-fade-in stagger-4">
+            <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
+              <span className="text-[10px] uppercase tracking-widest">探索</span>
+              <div
+                className="w-5 h-8 rounded-full border border-[var(--text-muted)]/30 flex items-start justify-center p-1"
+                style={{ animation: 'scroll-hint 2s ease-in-out infinite' }}
+              >
+                <div className="w-1 h-2 rounded-full bg-[var(--accent-amber)]/60" />
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Decorative line */}
-        <div className="mt-8 flex justify-center animate-fade-in stagger-4">
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)] to-transparent opacity-50" />
+        {/* Decorative line - subtle separator */}
+        <div className="mt-6 flex justify-center animate-fade-in stagger-4">
+          <div className="w-16 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/20 to-transparent" />
         </div>
       </section>
 
@@ -77,30 +107,57 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {/* Brand column */}
             <div className="text-center md:text-left">
-              <h3
-                className="text-xl text-[var(--accent-amber)] mb-2"
-                style={{ fontFamily: "'Noto Serif SC', serif" }}
-              >
-                银古客栈
-              </h3>
+              {/* Decorative element */}
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-8 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, var(--accent-amber), transparent)',
+                  }}
+                />
+                <h3
+                  className="text-xl text-[var(--accent-amber)]"
+                  style={{ fontFamily: "'Noto Serif SC', serif" }}
+                >
+                  银古客栈
+                </h3>
+                <div
+                  className="w-8 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, var(--accent-amber))',
+                  }}
+                />
+              </div>
               <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                 穿越迷雾，遇见珍藏<br />
                 每一个游戏，都是一段旅程
               </p>
             </div>
 
-            {/* Quick links */}
+            {/* Quick links with underline hover */}
             <div className="text-center">
               <h4 className="text-[var(--text-primary)] text-sm font-medium mb-4">快速导航</h4>
-              <div className="flex flex-col gap-2">
-                <Link href="/games/idol" className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-colors duration-300">
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/games/idol"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
                   偶像收藏
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link href="/games/quiz" className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-colors duration-300">
+                <Link
+                  href="/games/quiz"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
                   知识竞技
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link href="/games/fate" className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-colors duration-300">
+                <Link
+                  href="/games/fate"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
                   命运占卜
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
                 </Link>
               </div>
             </div>
@@ -120,8 +177,8 @@ export default function HomePage() {
             <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/30 to-transparent" />
           </div>
 
-          {/* Copyright */}
-          <p className="text-center text-[var(--text-muted)] text-xs">
+          {/* Copyright - subtle and elegant */}
+          <p className="text-center text-[var(--text-muted)] text-[11px] tracking-wide">
             © {new Date().getFullYear()} 银古客栈 · 保留所有权利
           </p>
         </div>

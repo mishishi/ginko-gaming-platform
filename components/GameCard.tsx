@@ -19,9 +19,11 @@ function DifficultyStars({ level }: { level: number }) {
 function StatusBadge({ playable }: { playable: boolean }) {
   return (
     <span
-      className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${
-        playable ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'
-      }`}
+      className="text-[9px] px-1.5 py-0.5 rounded font-medium"
+      style={{
+        backgroundColor: playable ? 'rgba(74, 92, 79, 0.6)' : 'rgba(184, 148, 95, 0.6)',
+        color: playable ? 'var(--accent-green)' : 'var(--accent-amber)',
+      }}
     >
       {playable ? '可玩' : '维护中'}
     </span>
@@ -36,11 +38,13 @@ export default function GameCard({ game, index }: GameCardProps) {
       <div className="group relative">
         {/* Card container */}
         <div
-          className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:-translate-y-2"
+          className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1"
           style={{
-            boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03)`,
+            boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.2)`,
           }}
         >
+          {/* Noise texture overlay */}
+          <div className="noise-overlay rounded-2xl" aria-hidden="true" />
           {/* Theme gradient placeholder */}
           <div
             className="h-36 w-full relative overflow-hidden"
@@ -105,14 +109,15 @@ export default function GameCard({ game, index }: GameCardProps) {
               {game.description}
             </p>
 
-            {/* Bottom CTA */}
-            <div className="flex items-center justify-center min-h-[3rem] -my-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 delay-0 group-hover:delay-100">
+            {/* Bottom CTA - spring animation on appear */}
+            <div className="flex items-center justify-center min-h-[3rem] -my-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:scale-100 scale-95 md:translate-y-0 translate-y-2 transition-all duration-300 ease-out">
               <span
-                className="px-4 py-1.5 rounded text-xs font-medium border"
+                className="px-5 py-2 rounded-lg text-xs font-medium border"
                 style={{
                   color: game.color,
-                  borderColor: `${game.color}40`,
-                  backgroundColor: `${game.color}10`,
+                  borderColor: `${game.color}50`,
+                  backgroundColor: `${game.color}08`,
+                  boxShadow: `0 0 20px ${game.color}15`,
                 }}
               >
                 进入游戏
@@ -120,11 +125,12 @@ export default function GameCard({ game, index }: GameCardProps) {
             </div>
           </div>
 
-          {/* Hover glow effect */}
+          {/* Hover glow effect - breathing animation */}
           <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
             style={{
-              boxShadow: `inset 0 0 60px ${game.glowColor}`,
+              boxShadow: `inset 0 0 80px ${game.glowColor}30`,
+              animation: 'glow-breathe 3s ease-in-out infinite',
             }}
           />
 
