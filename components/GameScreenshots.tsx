@@ -68,74 +68,130 @@ export function QuizScreenshot({ game }: GameScreenshotProps) {
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a1a] via-[#0d2424] to-[#0a1a1a]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#050f1a] via-[#0a2535] to-[#050f1a]" />
 
-      {/* Decorative grid */}
-      <div className="absolute inset-0 opacity-10"
+      {/* Glowing orb background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0,245,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.3) 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
+          background: 'radial-gradient(circle, rgba(0,245,255,0.15) 0%, transparent 70%)',
+          filter: 'blur(20px)'
         }}
       />
 
-      {/* VS Layout */}
-      <div className="absolute inset-0 flex items-center justify-center gap-8">
-        {/* Player 1 */}
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-500/30 border-2 border-cyan-400/50 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8 text-cyan-300">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </div>
-          <div className="mt-2 text-cyan-300/80 text-xs">玩家一</div>
-          <div className="text-xl font-bold text-white">7 分</div>
-        </div>
+      {/* Decorative circles */}
+      <div className="absolute top-8 right-8 w-20 h-20 rounded-full border border-cyan-500/20" />
+      <div className="absolute bottom-12 left-6 w-12 h-12 rounded-full border border-cyan-500/10" />
 
-        {/* VS Badge */}
+      {/* Knowledge symbol floating elements */}
+      <div className="absolute top-12 left-1/4 text-cyan-500/30 text-2xl animate-pulse">✦</div>
+      <div className="absolute top-20 right-1/4 text-cyan-400/20 text-lg animate-pulse" style={{ animationDelay: '0.5s' }}>✦</div>
+      <div className="absolute bottom-24 right-1/3 text-cyan-500/25 text-sm animate-pulse" style={{ animationDelay: '1s' }}>✦</div>
+
+      {/* Central brain/lightbulb symbol */}
+      <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative">
-          <div className="absolute inset-0 w-12 h-12 bg-cyan-500/20 rounded-full blur-xl animate-pulse" />
-          <div className="relative w-12 h-12 rounded-full border-2 border-cyan-400/50 flex items-center justify-center">
-            <span className="text-cyan-300 font-bold text-sm">VS</span>
-          </div>
-        </div>
+          {/* Glow behind */}
+          <div className="absolute inset-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl" />
 
-        {/* Player 2 */}
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-500/30 border-2 border-cyan-400/50 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8 text-cyan-300">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
+          {/* Brain icon with circuit pattern */}
+          <div className="relative w-32 h-32 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="w-full h-full text-cyan-400/80">
+              <defs>
+                <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#00f5ff" />
+                  <stop offset="100%" stopColor="#0088aa" />
+                </linearGradient>
+              </defs>
+              {/* Brain outline */}
+              <path
+                d="M50 15 C25 15 15 35 15 50 C15 65 25 80 35 85 C40 87 45 88 50 88 C55 88 60 87 65 85 C75 80 85 65 85 50 C85 35 75 15 50 15"
+                fill="none"
+                stroke="url(#brainGrad)"
+                strokeWidth="1.5"
+              />
+              {/* Brain folds */}
+              <path d="M30 45 Q40 35 50 45 Q60 55 70 45" fill="none" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.6" />
+              <path d="M28 55 Q40 45 50 55 Q60 65 72 55" fill="none" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.6" />
+              <path d="M35 70 Q45 60 50 70 Q55 80 65 72" fill="none" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.6" />
+              {/* Center spark */}
+              <circle cx="50" cy="50" r="8" fill="none" stroke="url(#brainGrad)" strokeWidth="1.5" />
+              <circle cx="50" cy="50" r="3" fill="#00f5ff" opacity="0.8" />
+              {/* Circuit lines from brain */}
+              <line x1="50" y1="42" x2="50" y2="30" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.4" />
+              <line x1="58" y1="50" x2="70" y2="50" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.4" />
+              <line x1="50" y1="58" x2="50" y2="70" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.4" />
+              <line x1="42" y1="50" x2="30" y2="50" stroke="url(#brainGrad)" strokeWidth="1" opacity="0.4" />
+              {/* Small nodes */}
+              <circle cx="50" cy="30" r="2" fill="#00f5ff" opacity="0.5" />
+              <circle cx="70" cy="50" r="2" fill="#00f5ff" opacity="0.5" />
+              <circle cx="50" cy="70" r="2" fill="#00f5ff" opacity="0.5" />
+              <circle cx="30" cy="50" r="2" fill="#00f5ff" opacity="0.5" />
             </svg>
-          </div>
-          <div className="mt-2 text-cyan-300/80 text-xs">玩家二</div>
-          <div className="text-xl font-bold text-white">5 分</div>
-        </div>
-      </div>
 
-      {/* Question area */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-4/5 max-w-md">
-        <div className="bg-cyan-500/10 border border-cyan-400/30 rounded-xl p-4">
-          <div className="text-cyan-400/60 text-[10px] mb-2">第 12 题 · 文学</div>
-          <div className="text-white text-sm text-center">
-            「床前明月光，疑是地上霜」出自哪位诗人？
-          </div>
-          <div className="flex justify-center gap-4 mt-3">
-            <span className="px-3 py-1 rounded bg-cyan-500/20 text-cyan-300 text-xs">李白</span>
-            <span className="px-3 py-1 rounded bg-white/5 text-white/60 text-xs">杜甫</span>
-            <span className="px-3 py-1 rounded bg-white/5 text-white/60 text-xs">白居易</span>
+            {/* Animated rings */}
+            <div className="absolute inset-0 rounded-full border border-cyan-500/20 animate-ping" />
+            <div className="absolute inset-4 rounded-full border border-cyan-400/10 animate-ping" style={{ animationDelay: '0.5s' }} />
           </div>
         </div>
       </div>
 
-      {/* Timer */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-cyan-400/60">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12,6 12,12 16,14" />
-        </svg>
-        <span className="text-cyan-400/80 text-xs">08</span>
+      {/* Score display at top */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-6">
+        <div className="text-center">
+          <div className="text-cyan-400/60 text-[10px]">玩家一</div>
+          <div className="text-white text-xl font-bold">7</div>
+        </div>
+        <div className="px-4 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10">
+          <span className="text-cyan-300 text-xs font-medium">VS</span>
+        </div>
+        <div className="text-center">
+          <div className="text-cyan-400/60 text-[10px]">玩家二</div>
+          <div className="text-white text-xl font-bold">5</div>
+        </div>
       </div>
+
+      {/* Question card at bottom */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-4/5 max-w-sm">
+        <div className="relative">
+          {/* Card glow */}
+          <div className="absolute -inset-1 bg-cyan-500/20 rounded-xl blur-sm" />
+
+          <div className="relative bg-[#0a2535]/90 border border-cyan-500/30 rounded-xl p-4 backdrop-blur-sm">
+            {/* Question number */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px]">第 12 题</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">文学</span>
+              </div>
+              <div className="flex items-center gap-1 text-cyan-400/60">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12,6 12,12 16,14" />
+                </svg>
+                <span className="text-[10px]">08</span>
+              </div>
+            </div>
+
+            {/* Question text */}
+            <div className="text-white/90 text-sm text-center mb-3">
+              「床前明月光，疑是地上霜」出自哪位诗人？
+            </div>
+
+            {/* Answer options */}
+            <div className="flex justify-center gap-3">
+              <span className="px-3 py-1.5 rounded-lg bg-cyan-500/30 text-cyan-200 text-xs border border-cyan-400/30">李白</span>
+              <span className="px-3 py-1.5 rounded-lg bg-white/5 text-white/50 text-xs border border-white/10">杜甫</span>
+              <span className="px-3 py-1.5 rounded-lg bg-white/5 text-white/50 text-xs border border-white/10">白居易</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative corner elements */}
+      <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-cyan-500/30 rounded-tl" />
+      <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-cyan-500/30 rounded-tr" />
+      <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-cyan-500/30 rounded-bl" />
+      <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-cyan-500/30 rounded-br" />
     </div>
   )
 }

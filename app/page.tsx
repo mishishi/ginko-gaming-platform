@@ -1,220 +1,209 @@
 import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
+import ScrollReveal from '@/components/ScrollReveal'
+import StatsSection from '@/components/StatsSection'
+import DebugPanel from '@/components/DebugPanel'
+
+function LanternIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 40 60"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* 灯笼顶 */}
+      <rect x="15" y="2" width="10" height="3" rx="1" fill="currentColor" opacity="0.6" />
+      <rect x="17" y="0" width="6" height="2" rx="1" fill="currentColor" opacity="0.4" />
+
+      {/* 灯笼主体 */}
+      <path
+        d="M12 8 C8 8 6 14 6 20 L6 40 C6 46 10 50 14 50 L26 50 C30 50 34 46 34 40 L34 20 C34 14 32 8 28 8 L12 8Z"
+        fill="currentColor"
+        opacity="0.15"
+        stroke="currentColor"
+        strokeWidth="0.5"
+      />
+
+      {/* 灯笼纹路 */}
+      <line x1="12" y1="15" x2="28" y2="15" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+      <line x1="10" y1="25" x2="30" y2="25" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+      <line x1="9" y1="35" x2="31" y2="35" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+
+      {/* 灯笼底部 */}
+      <circle cx="20" cy="52" r="2" fill="currentColor" opacity="0.4" />
+      <line x1="20" y1="54" x2="20" y2="58" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+    </svg>
+  )
+}
+
+function ScrollIndicator() {
+  return (
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in stagger-6">
+      <span className="text-[var(--text-muted)] text-[10px] tracking-widest uppercase">向下</span>
+      <div className="w-px h-8 bg-gradient-to-b from-[var(--accent-copper)] to-transparent opacity-40" />
+    </div>
+  )
+}
 
 export default function HomePage() {
   return (
     <div className="min-h-screen pt-16">
-      {/* Hero Section */}
-      <section className="relative py-8 md:py-12 px-4 text-center overflow-hidden">
-        {/* Ambient glow */}
+      {/* Hero Section - 古典客栈意境 */}
+      <section className="relative py-24 md:py-40 px-4 text-center overflow-hidden">
+        {/* 宣纸纹理背景 */}
+        <div className="absolute inset-0 paper-texture opacity-20" aria-hidden="true" />
+
+        {/* 左侧大灯笼装饰 */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
+          className="absolute left-8 top-1/4 opacity-20 animate-lantern-glow"
+          aria-hidden="true"
+          style={{ animationDuration: '4s' }}
+        >
+          <LanternIcon className="w-12 h-20 text-[var(--accent-copper)]" />
+        </div>
+
+        {/* 右侧灯笼装饰 */}
+        <div
+          className="absolute right-12 top-1/3 opacity-15 animate-lantern-glow"
+          style={{ animationDuration: '5s', animationDelay: '2s' }}
+          aria-hidden="true"
+        >
+          <LanternIcon className="w-8 h-14 text-[var(--accent-silver)]" />
+        </div>
+
+        {/* 顶部灯笼光晕 */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 animate-lantern-glow"
+          style={{ animationDuration: '6s' }}
           aria-hidden="true"
         >
           <div
-            className="w-full h-full rounded-full"
+            className="w-full h-full"
             style={{
-              background: 'radial-gradient(circle, rgba(212,165,116,0.12) 0%, rgba(212,165,116,0.06) 30%, transparent 70%)',
-              animation: 'glow-breathe 4s ease-in-out infinite',
+              background: 'radial-gradient(ellipse at 50% 0%, rgba(184,149,110,0.12) 0%, transparent 70%)',
+              filter: 'blur(30px)',
             }}
           />
         </div>
 
-        {/* Floating lantern */}
-        <div
-          className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none opacity-60"
-          style={{ animation: 'float 6s ease-in-out infinite' }}
-          aria-hidden="true"
-        >
-          <svg
-            width="32"
-            height="42"
-            viewBox="0 0 48 64"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" opacity="0.9" />
-            <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
-            <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
-          </svg>
+        {/* 墨点装饰 */}
+        <div className="absolute top-32 left-1/4" aria-hidden="true">
+          <div className="ink-dot" style={{ width: 4, height: 4 }} />
+        </div>
+        <div className="absolute top-48 right-1/3" aria-hidden="true">
+          <div className="ink-dot opacity-50" style={{ width: 3, height: 3 }} />
+        </div>
+        <div className="absolute bottom-24 left-1/3" aria-hidden="true">
+          <div className="ink-dot opacity-30" style={{ width: 5, height: 5 }} />
         </div>
 
-        <div className="max-w-4xl mx-auto relative">
-          {/* Main title */}
+        <div className="max-w-3xl mx-auto relative">
+          {/* 主标题 */}
           <h1
-            className="font-serif text-4xl md:text-5xl lg:text-6xl leading-none text-[var(--accent-amber)] animate-fade-in-up"
+            className="font-serif text-6xl md:text-7xl lg:text-8xl text-[var(--accent-silver)] animate-fade-in-up"
             style={{
               fontFamily: 'var(--font-serif), Noto Serif SC, serif',
-              textShadow: `
-                0 0 40px rgba(212,165,116,0.5),
-                0 0 80px rgba(212,165,116,0.3)
-              `,
-              letterSpacing: '0.02em',
+              letterSpacing: '0.15em',
+              textShadow: '0 0 80px rgba(201,197,192,0.25), 0 2px 4px rgba(0,0,0,0.5)',
             }}
           >
             银古客栈
           </h1>
 
-          {/* Tagline */}
-          <p className="text-[var(--text-secondary)] text-base md:text-lg mt-4 animate-fade-in-up stagger-2 tracking-[0.15em]">
+          {/* 副标题 */}
+          <p
+            className="text-[var(--accent-copper)] text-xs md:text-sm mt-6 tracking-[0.5em] uppercase animate-fade-in-up stagger-2"
+          >
+            Silver Ancient Inn
+          </p>
+
+          {/* 墨线分隔 */}
+          <div className="mt-10 flex justify-center animate-fade-in stagger-3">
+            <div className="ink-divider w-40" />
+          </div>
+
+          {/* 标语 */}
+          <p
+            className="text-[var(--text-secondary)] text-lg md:text-xl mt-10 italic animate-fade-in-up stagger-4"
+            style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
+          >
             旅人的游戏驿站
           </p>
 
-          {/* Decorative separator */}
-          <div className="mt-6 flex justify-center animate-fade-in stagger-3">
-            <div className="w-16 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/40 to-transparent" />
-          </div>
-
-          {/* Poetic description */}
-          <p
-            className="text-[var(--text-muted)] text-xs mt-4 italic animate-fade-in-up stagger-4"
-            style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
-          >
+          {/* 装饰性小字 */}
+          <p className="text-[var(--text-muted)] text-xs mt-5 tracking-[0.4em] animate-fade-in stagger-5">
             穿越迷雾，遇见珍藏
           </p>
         </div>
+
+        <ScrollIndicator />
       </section>
 
       {/* Games Display Section */}
-      <section className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-center text-[var(--text-secondary)] text-sm uppercase tracking-widest mb-12 animate-fade-in stagger-5">
-          珍藏展品
-        </h2>
+      <section className="max-w-5xl mx-auto px-4 py-16">
+        {/* 区域标题 - 左侧对齐 */}
+        <div className="flex items-center gap-4 mb-12">
+          <div className="ink-dot" />
+          <h2 className="text-[var(--text-secondary)] text-xs uppercase tracking-[0.25em]">
+            珍藏展品
+          </h2>
+          <div className="flex-1 ink-divider ml-2" />
+        </div>
 
-        <GameGrid />
+        <ScrollReveal>
+          <GameGrid />
+        </ScrollReveal>
       </section>
 
-      {/* Footer */}
-      <footer className="py-16 mt-auto relative">
-        {/* Top decorative border with ambient glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-px">
-          <div
-            className="absolute inset-0 opacity-60"
-            style={{
-              background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
-              boxShadow: '0 0 20px var(--accent-amber)',
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-40 blur-sm"
-            style={{
-              background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
-            }}
-          />
-        </div>
+      {/* Stats & Achievements Section */}
+      <StatsSection />
 
-        {/* Small floating lantern decoration */}
-        <div
-          className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-20"
-          style={{ animation: 'float 8s ease-in-out infinite' }}
-          aria-hidden="true"
-        >
-          <svg width="24" height="32" viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" />
-            <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
-            <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
-          </svg>
-        </div>
+      {/* Debug Panel - TODO: remove after testing */}
+      <DebugPanel />
 
-        <div className="max-w-4xl mx-auto px-4">
-          {/* Main footer content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {/* Brand column */}
-            <div className="text-center md:text-left">
-              {/* Decorative element */}
-              <div className="flex items-center gap-2 mb-3">
-                <div
-                  className="w-8 h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, var(--accent-amber), transparent)',
-                  }}
-                />
-                <h3
-                  className="text-xl text-[var(--accent-amber)]"
-                  style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
-                >
-                  银古客栈
-                </h3>
-                <div
-                  className="w-8 h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, var(--accent-amber))',
-                  }}
-                />
-              </div>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                穿越迷雾，遇见珍藏<br />
-                每一个游戏，都是一段旅程
+      {/* Footer - 简约雅致 */}
+      <ScrollReveal>
+        <footer className="py-24 mt-16 relative">
+          {/* 顶部装饰 */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48">
+            <div className="ink-divider" />
+          </div>
+
+          {/* 底部灯笼 */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-15" aria-hidden="true">
+            <LanternIcon className="w-6 h-10 text-[var(--accent-copper)]" />
+          </div>
+
+          <div className="max-w-3xl mx-auto px-4">
+            {/* 页脚文字 */}
+            <div className="text-center space-y-3">
+              <p
+                className="text-[var(--accent-silver)] text-base tracking-[0.3em]"
+                style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
+              >
+                银古客栈
+              </p>
+
+              <p className="text-[var(--text-muted)] text-[11px] tracking-wider">
+                © {new Date().getFullYear()} · 保留所有权利
+              </p>
+
+              <p className="text-[var(--text-muted)] text-[11px] opacity-60">
+                openginko.tech
               </p>
             </div>
 
-            {/* Quick links with underline hover */}
-            <div className="text-center">
-              <h4 className="text-[var(--text-primary)] text-sm font-medium mb-4">快速导航</h4>
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="/games/idol"
-                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
-                >
-                  偶像收藏
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
-                </Link>
-                <Link
-                  href="/games/quiz"
-                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
-                >
-                  知识竞技
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
-                </Link>
-                <Link
-                  href="/games/fate"
-                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
-                >
-                  命运占卜
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Contact */}
-            <div className="text-center md:text-right">
-              <h4 className="text-[var(--text-primary)] text-sm font-medium mb-4">联系我们</h4>
-              <div className="flex flex-col gap-2 text-[var(--text-secondary)] text-sm">
-                <span>openginko.tech</span>
-                <span>银古客栈 · {new Date().getFullYear()}</span>
-              </div>
+            {/* 底部装饰 */}
+            <div className="flex justify-center items-center gap-3 mt-8">
+              <div className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--border-default)]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-copper)] opacity-40" />
+              <div className="w-12 h-px bg-gradient-to-l from-transparent to-[var(--border-default)]" />
             </div>
           </div>
-
-          {/* Decorative line with lantern ornaments */}
-          <div className="flex justify-center items-center gap-4 mb-6">
-            <div
-              className="w-16 h-px"
-              style={{
-                background: 'linear-gradient(90deg, transparent, var(--accent-amber)/30)',
-              }}
-            />
-            <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{
-                background: 'var(--accent-amber)',
-                boxShadow: '0 0 8px var(--accent-amber)',
-              }}
-            />
-            <div
-              className="w-16 h-px"
-              style={{
-                background: 'linear-gradient(90deg, var(--accent-amber)/30, transparent)',
-              }}
-            />
-          </div>
-
-          {/* Copyright - subtle and elegant */}
-          <p className="text-center text-[var(--text-muted)] text-[11px] tracking-wide">
-            © {new Date().getFullYear()} 银古客栈 · 保留所有权利
-          </p>
-        </div>
-      </footer>
+        </footer>
+      </ScrollReveal>
     </div>
   )
 }

@@ -58,7 +58,7 @@ export const games: Game[] = [
     theme: 'linear-gradient(135deg, #12100a 0%, #1a1610 40%, #241c14 70%, #12100a 100%)',
     difficulty: 1,
     playerCount: '1人',
-    playable: false,
+    playable: true,
   },
 ]
 
