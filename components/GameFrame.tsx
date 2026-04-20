@@ -73,7 +73,7 @@ export default function GameFrame({ game }: GameFrameProps) {
     >
       {/* Loading state with enhanced UX */}
       {isLoading && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0d0f] z-20">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-20">
           <div className="flex flex-col items-center gap-6">
             {/* Animated spinner with pulsing glow */}
             <div className="relative">
@@ -92,7 +92,7 @@ export default function GameFrame({ game }: GameFrameProps) {
                 }}
               />
             </div>
-            <span className="text-[#8a8680] text-base font-medium tracking-wide">
+            <span className="text-[var(--text-secondary)] text-base font-medium tracking-wide">
               正在召唤游戏...
             </span>
           </div>
@@ -101,8 +101,8 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* Error state */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0d0f] z-20">
-          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-[#1a1d1f] border border-[#2a2d2f]">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-20">
+          <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
             <div className="text-4xl">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
@@ -111,10 +111,10 @@ export default function GameFrame({ game }: GameFrameProps) {
               </svg>
             </div>
             <div className="flex flex-col items-center gap-2">
-              <span className="text-[#e5e5e5] text-lg font-medium">
+              <span className="text-[var(--text-primary)] text-lg font-medium">
                 游戏加载失败
               </span>
-              <span className="text-[#8a8680] text-sm">
+              <span className="text-[var(--text-secondary)] text-sm">
                 请检查网络连接后重试
               </span>
             </div>
@@ -146,24 +146,24 @@ export default function GameFrame({ game }: GameFrameProps) {
       {/* Fullscreen toggle button */}
       <button
         onClick={toggleFullscreen}
-        className="absolute top-4 right-4 z-30 p-2.5 rounded-lg bg-[#0a0d0f]/80 backdrop-blur-sm border border-[#2a2d2f] transition-all duration-200 group"
+        className="absolute top-4 right-4 z-30 p-2.5 rounded-lg bg-[var(--bg-primary)]/80 backdrop-blur-sm border border-[var(--border-subtle)] transition-all duration-200 group"
         aria-label={isFullscreen ? '退出全屏' : '进入全屏'}
       >
         {isFullscreen ? (
           <>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
             </svg>
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0a0d0f]/90 border border-[#2a2d2f] rounded text-[10px] text-[#8a8680] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[var(--bg-primary)]/90 border border-[var(--border-subtle)] rounded text-[10px] text-[var(--text-secondary)] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
               ESC 退出
             </span>
           </>
         ) : (
           <>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
             </svg>
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0a0d0f]/90 border border-[#2a2d2f] rounded text-[10px] text-[#8a8680] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[var(--bg-primary)]/90 border border-[var(--border-subtle)] rounded text-[10px] text-[var(--text-secondary)] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
               全屏
             </span>
           </>
@@ -174,7 +174,7 @@ export default function GameFrame({ game }: GameFrameProps) {
       <div className="absolute bottom-4 left-4 z-30">
         <button
           onClick={handleExitGame}
-          className="relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-[#0a0d0f]/80 backdrop-blur-sm border border-[#2a2d2f] text-[#8a8680] hover:text-[#e5e5e5] hover:border-[#3a3d3f] active:scale-95"
+          className="relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-[var(--bg-primary)]/80 backdrop-blur-sm border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] active:scale-95"
           style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
         >
           <span className="flex items-center gap-2">

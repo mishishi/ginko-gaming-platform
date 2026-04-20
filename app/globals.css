@@ -8,10 +8,15 @@
   --bg-primary: #0a0d0f;
   --bg-secondary: #12161a;
   --bg-card: #1a1f24;
+  --bg-elevated: #1a1d1f;
+  --border-subtle: #2a2d2f;
+  --border-hover: #3a3d3f;
   --accent-amber: #d4a574;
   --accent-green: #4a5c4f;
   --text-primary: #e8e4df;
   --text-secondary: #8a8680;
+  --text-muted: #6b6560;
+  --text-tertiary: #a8a4a0;
   --glow-idol: #ff9ecf;
   --glow-quiz: #00f5ff;
   --glow-fate: #b8945f;

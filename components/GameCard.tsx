@@ -10,7 +10,7 @@ interface GameCardProps {
 
 function DifficultyStars({ level }: { level: number }) {
   return (
-    <span className="text-xs tracking-wide" style={{ color: '#a8a4a0' }}>
+    <span className="text-xs tracking-wide" style={{ color: 'var(--text-tertiary)' }}>
       {'★'.repeat(level)}{'☆'.repeat(5 - level)}
     </span>
   )
@@ -36,7 +36,7 @@ export default function GameCard({ game, index }: GameCardProps) {
       <div className="group relative">
         {/* Card container */}
         <div
-          className="relative bg-[#1a1f24] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:-translate-y-2"
+          className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:-translate-y-2"
           style={{
             boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03)`,
           }}
@@ -62,7 +62,7 @@ export default function GameCard({ game, index }: GameCardProps) {
               }}
             />
             {/* Bottom fade */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f24] via-transparent to-transparent opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent opacity-70" />
           </div>
 
           {/* Top color glow bar */}
@@ -78,9 +78,9 @@ export default function GameCard({ game, index }: GameCardProps) {
             {/* Metadata row */}
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <DifficultyStars level={game.difficulty} />
-              <span className="text-[10px] text-[#8a8680] opacity-60">|</span>
-              <span className="text-[10px] text-[#8a8680]">{game.playerCount}</span>
-              <span className="text-[10px] text-[#8a8680] opacity-60">|</span>
+              <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
+              <span className="text-[10px] text-[var(--text-secondary)]">{game.playerCount}</span>
+              <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
               <StatusBadge playable={game.playable} />
             </div>
 
@@ -96,12 +96,12 @@ export default function GameCard({ game, index }: GameCardProps) {
             </h3>
 
             {/* Subtitle */}
-            <p className="text-[#e8e4df] text-sm mb-4">
+            <p className="text-[var(--text-primary)] text-sm mb-4">
               {game.subtitle}
             </p>
 
             {/* Description */}
-            <p className="text-[#8a8680] text-xs mb-6">
+            <p className="text-[var(--text-secondary)] text-xs mb-6">
               {game.description}
             </p>
 

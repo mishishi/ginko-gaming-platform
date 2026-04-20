@@ -136,7 +136,7 @@ export default function NavBar() {
       </a>
 
       <nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0a0d0f]/85 border-b border-[#1a1f24]"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[var(--bg-primary)]/85 border-b border-[var(--bg-card)]"
         role="navigation"
         aria-label="主导航"
       >
@@ -144,7 +144,7 @@ export default function NavBar() {
           {/* Logo */}
           <Link
             href="/"
-            className="font-serif text-xl text-[#d4a574] hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+            className="font-serif text-xl text-[var(--accent-amber)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
           >
             银古客栈
           </Link>
@@ -157,8 +157,8 @@ export default function NavBar() {
                 <Link
                   key={game.slug}
                   href={`/games/${game.slug}`}
-                  className={`relative group focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 py-1 ${
-                    isActive ? 'text-white' : 'text-[#8a8680] hover:text-[#e8e4df]'
+                  className={`relative group focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 py-1 ${
+                    isActive ? 'text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <span className="text-sm transition-all duration-300">
@@ -180,7 +180,7 @@ export default function NavBar() {
           <button
             type="button"
             onClick={openMobileMenu}
-            className="md:hidden p-2 text-[#8a8680] hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+            className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
             aria-label="打开导航菜单"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-menu"
@@ -191,19 +191,19 @@ export default function NavBar() {
 
         {/* Desktop Breadcrumbs */}
         {isGamePage && currentGameName && isMd && (
-          <div className="hidden md:block border-t border-[#1a1f24] px-4 py-2">
-            <ol className="flex items-center gap-2 text-sm text-[#8a8680]" aria-label="面包屑导航">
+          <div className="hidden md:block border-t border-[var(--bg-card)] px-4 py-2">
+            <ol className="flex items-center gap-2 text-sm text-[var(--text-secondary)]" aria-label="面包屑导航">
               <li>
                 <Link
                   href="/"
-                  className="hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1"
+                  className="hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1"
                 >
                   银古客栈
                 </Link>
               </li>
               <li className="flex items-center gap-2" aria-hidden="true">
                 <ChevronRightIcon />
-                <span className="text-[#e8e4df]" aria-current="page">
+                <span className="text-[var(--text-primary)]" aria-current="page">
                   {currentGameName}
                 </span>
               </li>
@@ -221,7 +221,7 @@ export default function NavBar() {
       >
         {/* Backdrop with blur */}
         <div
-          className="absolute inset-0 bg-[#0a0d0f]/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-[var(--bg-primary)]/60 backdrop-blur-sm"
           onClick={closeMobileMenu}
         />
       </div>
@@ -232,16 +232,16 @@ export default function NavBar() {
         role="dialog"
         aria-modal="true"
         aria-label="移动端导航菜单"
-        className={`fixed top-0 right-0 bottom-0 z-[70] w-72 max-w-[80vw] bg-[#0a0d0f]/95 backdrop-blur-md border-l border-[#1a1f24] transform transition-transform duration-300 ease-out md:hidden ${
+        className={`fixed top-0 right-0 bottom-0 z-[70] w-72 max-w-[80vw] bg-[var(--bg-primary)]/95 backdrop-blur-md border-l border-[var(--bg-card)] transform transition-transform duration-300 ease-out md:hidden ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Drawer Header */}
-          <div className="flex items-center justify-between px-4 h-16 border-b border-[#1a1f24]">
+          <div className="flex items-center justify-between px-4 h-16 border-b border-[var(--bg-card)]">
             <Link
               href="/"
-              className="font-serif text-xl text-[#d4a574] hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+              className="font-serif text-xl text-[var(--accent-amber)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
               onClick={closeMobileMenu}
             >
               银古客栈
@@ -249,7 +249,7 @@ export default function NavBar() {
             <button
               type="button"
               onClick={closeMobileMenu}
-              className="p-2 text-[#8a8680] hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+              className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
               aria-label="关闭导航菜单"
             >
               <CloseIcon ariaLabel="关闭图标" />
@@ -258,12 +258,12 @@ export default function NavBar() {
 
           {/* Mobile Breadcrumbs */}
           {isGamePage && currentGameName && (
-            <div className="px-4 py-3 border-b border-[#1a1f24]">
-              <ol className="flex items-center gap-2 text-sm text-[#8a8680]" aria-label="面包屑导航">
+            <div className="px-4 py-3 border-b border-[var(--bg-card)]">
+              <ol className="flex items-center gap-2 text-sm text-[var(--text-secondary)]" aria-label="面包屑导航">
                 <li>
                   <Link
                     href="/"
-                    className="hover:text-[#e8e4df] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1"
+                    className="hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1"
                     onClick={closeMobileMenu}
                   >
                     银古客栈
@@ -271,7 +271,7 @@ export default function NavBar() {
                 </li>
                 <li className="flex items-center gap-2" aria-hidden="true">
                   <ChevronRightIcon />
-                  <span className="text-[#e8e4df]" aria-current="page">
+                  <span className="text-[var(--text-primary)]" aria-current="page">
                     {currentGameName}
                   </span>
                 </li>
@@ -287,10 +287,10 @@ export default function NavBar() {
                 <Link
                   key={game.slug}
                   href={`/games/${game.slug}`}
-                  className={`relative group px-3 py-3 rounded transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#d4a574] focus:ring-offset-2 focus:ring-offset-bg-primary ${
+                  className={`relative group px-3 py-3 rounded transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)] focus:ring-offset-2 focus:ring-offset-bg-primary ${
                     isActive
-                      ? 'bg-[#1a1f24] text-white'
-                      : 'text-[#8a8680] hover:text-[#e8e4df] hover:bg-[#12161a]'
+                      ? 'bg-[var(--bg-card)] text-white'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'
                   }`}
                   onClick={closeMobileMenu}
                 >
