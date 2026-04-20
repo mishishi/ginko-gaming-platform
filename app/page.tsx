@@ -6,10 +6,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 px-4 text-center overflow-hidden">
-        {/* Large ambient lantern glow */}
+      <section className="relative py-8 md:py-12 px-4 text-center overflow-hidden">
+        {/* Ambient glow */}
         <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
           aria-hidden="true"
         >
           <div
@@ -21,50 +21,34 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Floating lantern - larger and more prominent */}
+        {/* Floating lantern */}
         <div
-          className="absolute top-8 md:top-16 left-1/2 -translate-x-1/2 pointer-events-none"
+          className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none opacity-60"
           style={{ animation: 'float 6s ease-in-out infinite' }}
           aria-hidden="true"
         >
-          {/* Lantern glow */}
-          <div
-            className="absolute inset-0 w-20 h-20 -translate-x-1/2 left-1/2 -translate-y-1/2 top-1/2 rounded-full"
-            style={{
-              background: 'radial-gradient(circle, rgba(212,165,116,0.4) 0%, transparent 70%)',
-              filter: 'blur(8px)',
-            }}
-          />
           <svg
-            width="48"
-            height="64"
+            width="32"
+            height="42"
             viewBox="0 0 48 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Lantern body */}
-            <ellipse cx="24" cy="36" rx="12" ry="16" fill="var(--accent-amber)" opacity="0.9" />
-            {/* Lantern cap */}
-            <rect x="18" y="16" width="12" height="8" rx="2" fill="var(--accent-amber)" opacity="0.7" />
-            {/* Lantern top */}
-            <rect x="22" y="10" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
-            {/* String */}
-            <line x1="24" y1="4" x2="24" y2="10" stroke="var(--accent-amber)" strokeWidth="1.5" opacity="0.5" />
-            {/* Inner glow */}
-            <ellipse cx="24" cy="36" rx="6" ry="8" fill="white" opacity="0.2" />
+            <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" opacity="0.9" />
+            <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
+            <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
           </svg>
         </div>
 
         <div className="max-w-4xl mx-auto relative">
-          {/* Main title - dramatic and bold */}
+          {/* Main title */}
           <h1
-            className="font-serif text-7xl md:text-[8rem] leading-none text-[var(--accent-amber)] animate-fade-in-up"
+            className="font-serif text-4xl md:text-5xl lg:text-6xl leading-none text-[var(--accent-amber)] animate-fade-in-up"
             style={{
               fontFamily: 'var(--font-serif), Noto Serif SC, serif',
               textShadow: `
-                0 0 80px rgba(212,165,116,0.6),
-                0 0 160px rgba(212,165,116,0.4),
-                0 0 240px rgba(212,165,116,0.2)
+                0 0 40px rgba(212,165,116,0.5),
+                0 0 80px rgba(212,165,116,0.3)
               `,
               letterSpacing: '0.02em',
             }}
@@ -72,19 +56,19 @@ export default function HomePage() {
             银古客栈
           </h1>
 
-          {/* Tagline - clearly secondary */}
-          <p className="text-[var(--text-secondary)] text-lg md:text-xl mt-6 animate-fade-in-up stagger-2 tracking-[0.2em]">
+          {/* Tagline */}
+          <p className="text-[var(--text-secondary)] text-base md:text-lg mt-4 animate-fade-in-up stagger-2 tracking-[0.15em]">
             旅人的游戏驿站
           </p>
 
           {/* Decorative separator */}
-          <div className="mt-8 flex justify-center animate-fade-in stagger-3">
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/40 to-transparent" />
+          <div className="mt-6 flex justify-center animate-fade-in stagger-3">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/40 to-transparent" />
           </div>
 
-          {/* Poetic description - tertiary */}
+          {/* Poetic description */}
           <p
-            className="text-[var(--text-muted)] text-sm mt-6 italic animate-fade-in-up stagger-4"
+            className="text-[var(--text-muted)] text-xs mt-4 italic animate-fade-in-up stagger-4"
             style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
           >
             穿越迷雾，遇见珍藏
