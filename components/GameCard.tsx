@@ -42,10 +42,13 @@ export default function GameCard({ game, index }: GameCardProps) {
           }}
         >
           {/* Screenshot placeholder */}
-          <div
-            className="h-36 w-full relative overflow-hidden"
-            style={{ background: game.screenshot }}
-          >
+          <div className="h-36 w-full relative overflow-hidden bg-[#12161a]">
+            <img
+              src={game.screenshot}
+              alt={`${game.title} 截图`}
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+              loading="lazy"
+            />
             {/* Overlay gradient for text legibility */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f24] via-transparent to-transparent opacity-70" />
           </div>
