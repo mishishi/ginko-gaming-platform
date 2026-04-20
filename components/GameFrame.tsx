@@ -5,6 +5,7 @@ import { Game } from '@/lib/games'
 import { useRouter } from 'next/navigation'
 import Skeleton from './Skeleton'
 import ErrorBoundary from './ErrorBoundary'
+import { useRecentlyPlayed } from '@/hooks/useRecentlyPlayed'
 
 interface GameFrameProps {
   game: Game
@@ -19,11 +20,13 @@ export default function GameFrame({ game }: GameFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const { markPlayed } = useRecentlyPlayed()
 
   const handleLoad = useCallback(() => {
     setIsLoading(false)
     setHasError(false)
-  }, [])
+    markPlayed(game.slug)
+  }, [markPlayed, game.slug])
 
   const handleError = useCallback(() => {
     setIsLoading(false)
