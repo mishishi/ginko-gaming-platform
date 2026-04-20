@@ -93,17 +93,15 @@ export default function GameCard({ game, index }: GameCardProps) {
               {game.description}
             </p>
 
-            {/* Bottom accent line */}
-            <div className="flex items-center gap-3">
-              <div
-                className="h-px flex-1"
-                style={{
-                  background: `linear-gradient(90deg, ${game.color}60, transparent)`,
-                }}
-              />
+            {/* Bottom CTA */}
+            <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <span
-                className="text-xs opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ color: game.color }}
+                className="px-4 py-1.5 rounded text-xs font-medium border"
+                style={{
+                  color: game.color,
+                  borderColor: `${game.color}40`,
+                  backgroundColor: `${game.color}10`,
+                }}
               >
                 进入游戏
               </span>

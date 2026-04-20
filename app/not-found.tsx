@@ -13,7 +13,7 @@ export default function NotFound() {
             {/* Stylized 404 */}
             <div className="mb-8 animate-fade-in-up">
               <span
-                className="text-[12rem] md:text-[16rem] leading-none font-serif font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#d4a574] to-[#8a6d4f] opacity-30 select-none"
+                className="text-[6rem] sm:text-[10rem] md:text-[14rem] leading-none font-serif font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#d4a574] to-[#8a6d4f] opacity-30 select-none"
                 style={{ fontFamily: "'Noto Serif SC', serif" }}
               >
                 404
