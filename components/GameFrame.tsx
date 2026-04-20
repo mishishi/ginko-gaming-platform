@@ -14,6 +14,7 @@ export default function GameFrame({ game }: GameFrameProps) {
   const [hasError, setHasError] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showExitHint, setShowExitHint] = useState(false)
+  const [showKeyboardHints, setShowKeyboardHints] = useState(true)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -55,6 +56,33 @@ export default function GameFrame({ game }: GameFrameProps) {
   const handleExitGame = useCallback(() => {
     router.push('/')
   }, [router])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // ESC - exit game
+      if (e.key === 'Escape' && !isFullscreen) {
+        handleExitGame()
+      }
+      // F - toggle fullscreen
+      if (e.key === 'f' || e.key === 'F') {
+        if (document.activeElement?.tagName !== 'INPUT' &&
+            document.activeElement?.tagName !== 'TEXTAREA') {
+          e.preventDefault()
+          toggleFullscreen()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isFullscreen, handleExitGame, toggleFullscreen])
+
+  // Hide keyboard hints after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowKeyboardHints(false), 5000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Listen for fullscreen changes
   useEffect(() => {
@@ -165,6 +193,22 @@ export default function GameFrame({ game }: GameFrameProps) {
           </span>
         </button>
       </div>
+
+      {/* Keyboard hints */}
+      {showKeyboardHints && !isLoading && !hasError && (
+        <div className="absolute bottom-4 right-4 z-30 flex items-center gap-3 px-4 py-2 rounded-lg bg-[var(--bg-primary)]/80 backdrop-blur-sm border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] transition-opacity duration-500"
+             style={{ opacity: showKeyboardHints ? 1 : 0 }}>
+          <span className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] font-mono text-[10px]">ESC</kbd>
+            退出
+          </span>
+          <span className="w-px h-3 bg-[var(--border-subtle)]" />
+          <span className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] font-mono text-[10px]">F</kbd>
+            全屏
+          </span>
+        </div>
+      )}
 
       {/* Reserved: postMessage communication */}
       {/* Games can send messages via window.parent.postMessage() */}
