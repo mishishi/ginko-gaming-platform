@@ -32,7 +32,7 @@ export default function GameGrid() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
   const [focusedIndex, setFocusedIndex] = useState(-1)
-  const cardRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
 
   // Get recently played games in order
   const recentGames = useMemo(() => {
@@ -42,6 +42,23 @@ export default function GameGrid() {
   }, [recentlyPlayed])
 
   const columnsCount = 3 // md:grid-cols-3
+
+  const filteredGames = useMemo(() => {
+    return games.filter((game: Game) => {
+      // Search filter
+      const matchesSearch = searchQuery === '' ||
+        game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+      // Status filter
+      const matchesFilter = filter === 'all' ||
+        (filter === 'playable' && game.playable) ||
+        (filter === 'coming-soon' && !game.playable)
+
+      return matchesSearch && matchesFilter
+    })
+  }, [searchQuery, filter])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number) => {
     const totalCards = filteredGames.length
@@ -102,23 +119,6 @@ export default function GameGrid() {
   // Reset focused index when filtered games change
   useEffect(() => {
     setFocusedIndex(-1)
-  }, [searchQuery, filter])
-
-  const filteredGames = useMemo(() => {
-    return games.filter((game: Game) => {
-      // Search filter
-      const matchesSearch = searchQuery === '' ||
-        game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        game.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        game.description.toLowerCase().includes(searchQuery.toLowerCase())
-
-      // Status filter
-      const matchesFilter = filter === 'all' ||
-        (filter === 'playable' && game.playable) ||
-        (filter === 'coming-soon' && !game.playable)
-
-      return matchesSearch && matchesFilter
-    })
   }, [searchQuery, filter])
 
   return (
