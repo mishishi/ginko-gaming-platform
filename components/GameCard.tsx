@@ -181,10 +181,11 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
                 </span>
               ) : game.playable && isReachable ? (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  className="text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1"
                   style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--accent-green)' }}
                 >
-                  可玩
+                  <span className="w-1 h-1 rounded-full bg-current opacity-60" />
+                  可玩{gameStatus?.latency != null && <span className="opacity-50">{gameStatus.latency}ms</span>}
                 </span>
               ) : game.playable ? (
                 <span
