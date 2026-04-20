@@ -3,6 +3,7 @@
 interface LanternProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
+  style?: React.CSSProperties
 }
 
 const sizes = {
@@ -11,7 +12,7 @@ const sizes = {
   lg: { width: 64, height: 96 },
 }
 
-export default function LanternDecoration({ size = 'md', className = '' }: LanternProps) {
+export default function LanternDecoration({ size = 'md', className = '', style }: LanternProps) {
   const { width, height } = sizes[size]
 
   return (
@@ -22,6 +23,7 @@ export default function LanternDecoration({ size = 'md', className = '' }: Lante
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
       className={className}
+      style={style}
       aria-hidden='true'
     >
       <defs>
