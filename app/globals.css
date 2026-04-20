@@ -77,22 +77,9 @@ body {
   z-index: 1;
 }
 
-/* Spring animation for card interactions */
-@keyframes spring-scale {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
-}
-
 @keyframes glow-breathe {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
-}
-
-/* Scroll indicator animation */
-@keyframes scroll-hint {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(6px); opacity: 1; }
 }
 
 /* Custom scrollbar */
@@ -144,10 +131,6 @@ body {
   }
 }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
 }
@@ -162,7 +145,6 @@ body {
 .stagger-4 { animation-delay: 300ms; }
 .stagger-5 { animation-delay: 400ms; }
 .stagger-6 { animation-delay: 500ms; }
-.stagger-7 { animation-delay: 600ms; }
 
 /* ============================================
    FLOATING PARTICLES BACKGROUND
