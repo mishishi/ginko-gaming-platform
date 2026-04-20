@@ -1,11 +1,59 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 
 interface GameCardProps {
   game: Game
   index: number
+}
+
+interface TiltCardProps {
+  game: Game
+  index: number
+  children: React.ReactNode
+}
+
+function TiltCard({ game, index, children }: TiltCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const rotateX = ((y - centerY) / centerY) * -6
+    const rotateY = ((x - centerX) / centerX) * 6
+    setTilt({ rotateX, rotateY })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 })
+  }
+
+  return (
+    <div
+      ref={cardRef}
+      className="relative"
+      style={{ perspective: '1000px' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className="transition-transform duration-200 ease-out"
+        style={{
+          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
 }
 
 function DifficultyStars({ level }: { level: number }) {
@@ -35,7 +83,8 @@ export default function GameCard({ game, index }: GameCardProps) {
 
   return (
     <Link href={`/games/${game.slug}`} className={`block animate-fade-in-up ${staggerClass}`}>
-      <div className="group relative">
+      <TiltCard game={game} index={index}>
+        <div className="group relative">
         {/* Card container */}
         <div
           className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1"
@@ -151,6 +200,7 @@ export default function GameCard({ game, index }: GameCardProps) {
           }}
         />
       </div>
+      </TiltCard>
     </Link>
   )
 }
