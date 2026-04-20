@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
+import SoundToggle from '@/components/SoundToggle'
 
 const games = [
   { slug: 'idol', name: '偶像' },
@@ -157,6 +158,9 @@ export default function NavBar() {
               </svg>
             )}
           </button>
+
+          {/* Sound Toggle */}
+          <SoundToggle />
 
           {/* Mobile Menu Button */}
           <button
