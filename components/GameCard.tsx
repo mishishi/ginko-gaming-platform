@@ -4,11 +4,33 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
+import { useFavorites } from '@/hooks/useFavorites'
 import GameScreenshot from './GameScreenshots'
+
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  )
+}
 
 interface GameCardProps {
   game: Game
   index: number
+  onKeyDown?: (e: React.KeyboardEvent<HTMLAnchorElement>) => void
+  tabIndex?: number
 }
 
 interface TiltCardProps {
@@ -125,14 +147,27 @@ function StatusBadge({ game, isReachable, isLoading }: { game: Game; isReachable
   )
 }
 
-export default function GameCard({ game, index }: GameCardProps) {
+export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameCardProps) {
   const staggerClass = `stagger-${index + 1}`
   const { status, isLoading } = useGameStatus()
+  const { favorites, toggleFavorite } = useFavorites()
   const gameStatus = status[game.slug]
   const isReachable = gameStatus?.reachable ?? false
+  const isFavorited = favorites.includes(game.slug)
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleFavorite(game.slug)
+  }
 
   return (
-    <Link href={`/games/${game.slug}`} className={`game-card-link block animate-fade-in-up ${staggerClass}`}>
+    <Link
+      href={`/games/${game.slug}`}
+      className={`game-card-link block animate-fade-in-up ${staggerClass}`}
+      onKeyDown={onKeyDown}
+      tabIndex={tabIndex}
+    >
       <TiltCard game={game} index={index}>
         <div className="game-card-inner group relative">
         {/* Card container */}
@@ -149,6 +184,18 @@ export default function GameCard({ game, index }: GameCardProps) {
             <GameScreenshot game={game} />
             {/* Bottom fade */}
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent opacity-70" />
+            {/* Favorite button */}
+            <button
+              onClick={handleFavoriteClick}
+              className="absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+              style={{
+                backgroundColor: isFavorited ? 'rgba(220, 50, 50, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                color: isFavorited ? '#ff6b6b' : 'rgba(255, 255, 255, 0.7)',
+              }}
+              aria-label={isFavorited ? '取消收藏' : '添加收藏'}
+            >
+              <HeartIcon filled={isFavorited} />
+            </button>
           </div>
 
           {/* Top color glow bar */}
