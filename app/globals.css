@@ -114,3 +114,112 @@ body {
 .stagger-2 { animation-delay: 100ms; }
 .stagger-3 { animation-delay: 200ms; }
 .stagger-4 { animation-delay: 300ms; }
+
+/* ============================================
+   FLOATING PARTICLES BACKGROUND
+   ============================================ */
+.particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float-particle 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.particle--amber {
+  background: radial-gradient(circle, rgba(212, 165, 116, 0.8) 0%, transparent 70%);
+  box-shadow: 0 0 6px rgba(212, 165, 116, 0.4);
+}
+
+.particle--green {
+  background: radial-gradient(circle, rgba(74, 92, 79, 0.8) 0%, transparent 70%);
+  box-shadow: 0 0 6px rgba(74, 92, 79, 0.4);
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.1;
+  }
+  25% {
+    transform: translate(15px, -25px) scale(1.1);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate(-10px, -50px) scale(0.95);
+    opacity: 0.15;
+  }
+  75% {
+    transform: translate(20px, -30px) scale(1.05);
+    opacity: 0.2;
+  }
+}
+
+/* ============================================
+   PAGE TRANSITION ANIMATIONS
+   ============================================ */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Page transition wrapper */
+.page-transition {
+  animation: page-fade-in 300ms ease-out forwards;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   CUSTOM CURSOR STYLES
+   ============================================ */
+a {
+  cursor: pointer;
+}
+
+a:hover {
+  filter: drop-shadow(0 0 3px rgba(212, 165, 116, 0.5));
+}
+
+/* Selection color */
+::selection {
+  background: rgba(212, 165, 116, 0.3);
+  color: var(--text-primary);
+}

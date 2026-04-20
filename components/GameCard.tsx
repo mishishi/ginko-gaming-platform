@@ -8,6 +8,26 @@ interface GameCardProps {
   index: number
 }
 
+function DifficultyStars({ level }: { level: number }) {
+  return (
+    <span className="text-[10px] tracking-wide" style={{ color: '#8a8680' }}>
+      {'★'.repeat(level)}{'☆'.repeat(5 - level)}
+    </span>
+  )
+}
+
+function StatusBadge({ playable }: { playable: boolean }) {
+  return (
+    <span
+      className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${
+        playable ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'
+      }`}
+    >
+      {playable ? '可玩' : '维护中'}
+    </span>
+  )
+}
+
 export default function GameCard({ game, index }: GameCardProps) {
   const staggerClass = `stagger-${index + 1}`
 
@@ -15,11 +35,21 @@ export default function GameCard({ game, index }: GameCardProps) {
     <Link href={`/games/${game.slug}`} className={`block animate-fade-in-up ${staggerClass}`}>
       <div className="group relative">
         {/* Card container */}
-        <div className="relative bg-[#1a1f24] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:-translate-y-2"
+        <div
+          className="relative bg-[#1a1f24] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:-translate-y-2"
           style={{
             boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03)`,
           }}
         >
+          {/* Screenshot placeholder */}
+          <div
+            className="h-36 w-full relative overflow-hidden"
+            style={{ background: game.screenshot }}
+          >
+            {/* Overlay gradient for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f24] via-transparent to-transparent opacity-70" />
+          </div>
+
           {/* Top color glow bar */}
           <div
             className="h-1 w-full"
@@ -30,6 +60,15 @@ export default function GameCard({ game, index }: GameCardProps) {
 
           {/* Card content */}
           <div className="p-6">
+            {/* Metadata row */}
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <DifficultyStars level={game.difficulty} />
+              <span className="text-[10px] text-[#8a8680] opacity-60">|</span>
+              <span className="text-[10px] text-[#8a8680]">{game.playerCount}</span>
+              <span className="text-[10px] text-[#8a8680] opacity-60">|</span>
+              <StatusBadge playable={game.playable} />
+            </div>
+
             {/* Game title */}
             <h3
               className="text-2xl mb-2 transition-colors duration-300 group-hover:brightness-110"
@@ -75,6 +114,14 @@ export default function GameCard({ game, index }: GameCardProps) {
               boxShadow: `inset 0 0 60px ${game.glowColor}`,
             }}
           />
+
+          {/* Collection number */}
+          <div
+            className="absolute bottom-4 right-5 text-xs font-mono tabular-nums opacity-20 group-hover:opacity-40 transition-opacity duration-300"
+            style={{ color: game.color }}
+          >
+            {String(index + 1).padStart(2, '0')}
+          </div>
         </div>
 
         {/* Glow shadow on hover */}

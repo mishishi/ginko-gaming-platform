@@ -7,6 +7,14 @@ export interface Game {
   glowColor: string
   devUrl: string
   prodUrl: string
+  /** Gradient placeholder for game screenshot (inline style string) */
+  screenshot: string
+  /** Difficulty: 1–5 stars */
+  difficulty: number
+  /** Player count range label */
+  playerCount: string
+  /** Whether the game is currently playable */
+  playable: boolean
 }
 
 export const games: Game[] = [
@@ -19,6 +27,10 @@ export const games: Game[] = [
     glowColor: 'rgba(255,158,207,0.4)',
     devUrl: 'http://localhost:3002',
     prodUrl: 'https://idol.yourdomain.com',
+    screenshot: 'linear-gradient(135deg, #ff9ecf 0%, #ffb3d9 50%, #ffd6e8 100%)',
+    difficulty: 2,
+    playerCount: '1-2人',
+    playable: true,
   },
   {
     slug: 'quiz',
@@ -29,6 +41,10 @@ export const games: Game[] = [
     glowColor: 'rgba(0,245,255,0.4)',
     devUrl: 'http://localhost:3003',
     prodUrl: 'https://quiz.yourdomain.com',
+    screenshot: 'linear-gradient(135deg, #00f5ff 0%, #33f9ff 50%, #80fdff 100%)',
+    difficulty: 3,
+    playerCount: '2人',
+    playable: true,
   },
   {
     slug: 'fate',
@@ -39,6 +55,10 @@ export const games: Game[] = [
     glowColor: 'rgba(184,148,95,0.4)',
     devUrl: 'http://localhost:3004',
     prodUrl: 'https://fate.yourdomain.com',
+    screenshot: 'linear-gradient(135deg, #b8945f 0%, #d4b896 50%, #e8d5b0 100%)',
+    difficulty: 1,
+    playerCount: '1人',
+    playable: false,
   },
 ]
 
