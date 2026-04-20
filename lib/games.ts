@@ -7,8 +7,8 @@ export interface Game {
   glowColor: string
   devUrl: string
   prodUrl: string
-  /** Screenshot image URL */
-  screenshot: string
+  /** Theme gradient for game card background */
+  theme: string
   /** Difficulty: 1–5 stars */
   difficulty: number
   /** Player count range label */
@@ -27,7 +27,7 @@ export const games: Game[] = [
     glowColor: 'rgba(255,158,207,0.4)',
     devUrl: 'http://localhost:3002',
     prodUrl: 'https://idol.yourdomain.com',
-    screenshot: 'https://picsum.photos/seed/idol-game/600/400',
+    theme: 'linear-gradient(135deg, #1a0a14 0%, #2d1024 40%, #3d1a2e 70%, #1a0a14 100%)',
     difficulty: 2,
     playerCount: '1-2人',
     playable: true,
@@ -41,7 +41,7 @@ export const games: Game[] = [
     glowColor: 'rgba(0,245,255,0.4)',
     devUrl: 'http://localhost:3003',
     prodUrl: 'https://quiz.yourdomain.com',
-    screenshot: 'https://picsum.photos/seed/quiz-game/600/400',
+    theme: 'linear-gradient(135deg, #0a1a1a 0%, #0d2424 40%, #0a2020 70%, #0a1a1a 100%)',
     difficulty: 3,
     playerCount: '2人',
     playable: true,
@@ -55,7 +55,7 @@ export const games: Game[] = [
     glowColor: 'rgba(184,148,95,0.4)',
     devUrl: 'http://localhost:3004',
     prodUrl: 'https://fate.yourdomain.com',
-    screenshot: 'https://picsum.photos/seed/fate-game/600/400',
+    theme: 'linear-gradient(135deg, #12100a 0%, #1a1610 40%, #241c14 70%, #12100a 100%)',
     difficulty: 1,
     playerCount: '1人',
     playable: false,

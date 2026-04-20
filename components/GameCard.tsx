@@ -10,7 +10,7 @@ interface GameCardProps {
 
 function DifficultyStars({ level }: { level: number }) {
   return (
-    <span className="text-[10px] tracking-wide" style={{ color: '#8a8680' }}>
+    <span className="text-xs tracking-wide" style={{ color: '#a8a4a0' }}>
       {'★'.repeat(level)}{'☆'.repeat(5 - level)}
     </span>
   )
@@ -41,15 +41,27 @@ export default function GameCard({ game, index }: GameCardProps) {
             boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03)`,
           }}
         >
-          {/* Screenshot placeholder */}
-          <div className="h-36 w-full relative overflow-hidden bg-[#12161a]">
-            <img
-              src={game.screenshot}
-              alt={`${game.title} 截图`}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
-              loading="lazy"
+          {/* Theme gradient placeholder */}
+          <div
+            className="h-36 w-full relative overflow-hidden"
+            style={{ background: game.theme }}
+          >
+            {/* Decorative pattern overlay */}
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, ${game.color}40 0%, transparent 50%),
+                                  radial-gradient(circle at 75% 75%, ${game.color}30 0%, transparent 50%)`,
+              }}
             />
-            {/* Overlay gradient for text legibility */}
+            {/* Top decorative line */}
+            <div
+              className="absolute top-0 left-0 right-0 h-1"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${game.color}60, transparent)`,
+              }}
+            />
+            {/* Bottom fade */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#1a1f24] via-transparent to-transparent opacity-70" />
           </div>
 
