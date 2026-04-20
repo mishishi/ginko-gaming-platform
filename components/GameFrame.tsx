@@ -17,6 +17,7 @@ export default function GameFrame({ game }: GameFrameProps) {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showExitHint, setShowExitHint] = useState(false)
   const [showKeyboardHints, setShowKeyboardHints] = useState(true)
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -100,6 +101,22 @@ export default function GameFrame({ game }: GameFrameProps) {
     return () => clearTimeout(timer)
   }, [])
 
+  // Simulate loading progress bar
+  useEffect(() => {
+    if (!isLoading || hasError) {
+      setLoadingProgress(100)
+      return
+    }
+    setLoadingProgress(0)
+    const interval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= 90) return prev
+        return prev + Math.random() * 15
+      })
+    }, 300)
+    return () => clearInterval(interval)
+  }, [isLoading, hasError])
+
   // Listen for fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -116,6 +133,20 @@ export default function GameFrame({ game }: GameFrameProps) {
       onMouseEnter={() => setShowExitHint(true)}
       onMouseLeave={() => setShowExitHint(false)}
     >
+      {/* Loading progress bar */}
+      {isLoading && !hasError && (
+        <div className="absolute top-0 left-0 right-0 z-40 h-0.5 bg-[var(--bg-elevated)]">
+          <div
+            className="h-full transition-all duration-300 ease-out"
+            style={{
+              width: `${Math.min(loadingProgress, 100)}%`,
+              background: `linear-gradient(90deg, ${game.color}80, ${game.color})`,
+              boxShadow: `0 0 8px ${game.glowColor}`,
+            }}
+          />
+        </div>
+      )}
+
       {/* Loading skeleton */}
       {isLoading && !hasError && (
         <Skeleton color={game.color} glowColor={game.glowColor} />
