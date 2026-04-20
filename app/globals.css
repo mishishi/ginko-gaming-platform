@@ -244,6 +244,44 @@ a:not(.no-underline):hover {
   }
 }
 
+/* 主题感知的灯笼效果 */
+[data-theme="light"] .lantern-glow {
+  --lantern-glow-opacity: 0.3;
+  --lantern-glow-scale: 1.02;
+}
+
+[data-theme="dark"] .lantern-glow {
+  --lantern-glow-opacity: 0.6;
+  --lantern-glow-scale: 1.08;
+}
+
+/* 灯笼呼吸动画 - 主题感知版本 */
+@keyframes lantern-glow-themed {
+  0%, 100% {
+    opacity: calc(var(--lantern-glow-opacity, 0.4) * 0.7);
+    transform: scale(calc(1 - (1 - var(--lantern-glow-scale, 1)) * 0.3));
+  }
+  50% {
+    opacity: var(--lantern-glow-opacity, 0.6);
+    transform: scale(var(--lantern-glow-scale, 1));
+  }
+}
+
+.lantern-glow-themed {
+  animation: lantern-glow-themed 4s ease-in-out infinite;
+}
+
+/* 主题感知的装饰光晕 */
+[data-theme="light"] .ambient-glow {
+  opacity: 0.5;
+  filter: saturate(0.8);
+}
+
+[data-theme="dark"] .ambient-glow {
+  opacity: 1;
+  filter: saturate(1.2);
+}
+
 /* 墨迹扩散 - 用于装饰 */
 @keyframes ink-spread {
   from {
