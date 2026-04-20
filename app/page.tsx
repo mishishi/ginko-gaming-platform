@@ -6,84 +6,89 @@ export default function HomePage() {
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 text-center overflow-hidden">
-        {/* Floating lantern */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 animate-float opacity-20 pointer-events-none" aria-hidden="true">
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <ellipse cx="12" cy="14" rx="5" ry="7" fill="var(--accent-amber)" opacity="0.6" />
-            <rect x="10" y="5" width="4" height="3" rx="1" fill="var(--accent-amber)" />
-            <line x1="12" y1="3" x2="12" y2="5" stroke="var(--accent-amber)" strokeWidth="1" />
-          </svg>
-        </div>
-
-        {/* Lantern glow pulse */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+      <section className="relative py-16 md:py-24 px-4 text-center overflow-hidden">
+        {/* Large ambient lantern glow */}
+        <div
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
+          aria-hidden="true"
+        >
           <div
-            className="w-48 h-48 rounded-full animate-lantern-pulse"
+            className="w-full h-full rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(212,165,116,0.15) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(212,165,116,0.12) 0%, rgba(212,165,116,0.06) 30%, transparent 70%)',
+              animation: 'glow-breathe 4s ease-in-out infinite',
             }}
           />
         </div>
 
+        {/* Floating lantern - larger and more prominent */}
+        <div
+          className="absolute top-8 md:top-16 left-1/2 -translate-x-1/2 pointer-events-none"
+          style={{ animation: 'float 6s ease-in-out infinite' }}
+          aria-hidden="true"
+        >
+          {/* Lantern glow */}
+          <div
+            className="absolute inset-0 w-20 h-20 -translate-x-1/2 left-1/2 -translate-y-1/2 top-1/2 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(212,165,116,0.4) 0%, transparent 70%)',
+              filter: 'blur(8px)',
+            }}
+          />
+          <svg
+            width="48"
+            height="64"
+            viewBox="0 0 48 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Lantern body */}
+            <ellipse cx="24" cy="36" rx="12" ry="16" fill="var(--accent-amber)" opacity="0.9" />
+            {/* Lantern cap */}
+            <rect x="18" y="16" width="12" height="8" rx="2" fill="var(--accent-amber)" opacity="0.7" />
+            {/* Lantern top */}
+            <rect x="22" y="10" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
+            {/* String */}
+            <line x1="24" y1="4" x2="24" y2="10" stroke="var(--accent-amber)" strokeWidth="1.5" opacity="0.5" />
+            {/* Inner glow */}
+            <ellipse cx="24" cy="36" rx="6" ry="8" fill="white" opacity="0.2" />
+          </svg>
+        </div>
+
         <div className="max-w-4xl mx-auto relative">
-          {/* Main title with enhanced glow */}
-          <div className="relative inline-block">
-            <h1
-              className="font-serif text-6xl md:text-7xl text-[var(--accent-amber)] mb-2 animate-fade-in-up"
-              style={{
-                fontFamily: "'Noto Serif SC', serif",
-                textShadow: '0 0 60px rgba(212,165,116,0.5), 0 0 120px rgba(212,165,116,0.3)',
-              }}
-            >
-              银古客栈
-            </h1>
-            {/* Subtle glow underline */}
-            <div
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 w-32 rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
-                boxShadow: '0 0 20px var(--accent-amber)',
-              }}
-            />
-          </div>
+          {/* Main title - dramatic and bold */}
+          <h1
+            className="font-serif text-7xl md:text-[8rem] leading-none text-[var(--accent-amber)] animate-fade-in-up"
+            style={{
+              fontFamily: "'Noto Serif SC', serif",
+              textShadow: `
+                0 0 80px rgba(212,165,116,0.6),
+                0 0 160px rgba(212,165,116,0.4),
+                0 0 240px rgba(212,165,116,0.2)
+              `,
+              letterSpacing: '0.02em',
+            }}
+          >
+            银古客栈
+          </h1>
 
           {/* Tagline - clearly secondary */}
-          <p className="text-[var(--text-secondary)] text-base md:text-lg animate-fade-in-up stagger-2 tracking-wide">
+          <p className="text-[var(--text-secondary)] text-lg md:text-xl mt-6 animate-fade-in-up stagger-2 tracking-[0.2em]">
             旅人的游戏驿站
           </p>
 
-          {/* Poetic description - tertiary, subtle */}
+          {/* Decorative separator */}
+          <div className="mt-8 flex justify-center animate-fade-in stagger-3">
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/40 to-transparent" />
+          </div>
+
+          {/* Poetic description - tertiary */}
           <p
-            className="text-[var(--text-muted)] text-xs mt-2 italic animate-fade-in-up stagger-3"
+            className="text-[var(--text-muted)] text-sm mt-6 italic animate-fade-in-up stagger-4"
             style={{ fontFamily: "'Noto Serif SC', serif" }}
           >
             穿越迷雾，遇见珍藏
           </p>
-
-          {/* Scroll indicator CTA */}
-          <div className="mt-12 animate-fade-in stagger-4">
-            <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
-              <span className="text-[10px] uppercase tracking-widest">探索</span>
-              <div
-                className="w-5 h-8 rounded-full border border-[var(--text-muted)]/30 flex items-start justify-center p-1"
-                style={{ animation: 'scroll-hint 2s ease-in-out infinite' }}
-              >
-                <div className="w-1 h-2 rounded-full bg-[var(--accent-amber)]/60" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative line - subtle separator */}
-        <div className="mt-6 flex justify-center animate-fade-in stagger-4">
-          <div className="w-16 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/20 to-transparent" />
         </div>
       </section>
 
