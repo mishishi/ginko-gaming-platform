@@ -110,9 +110,38 @@ export default function GamePage({ params }: GamePageProps) {
 
       {/* Game iframe or maintenance state */}
       {!game.playable ? (
-        <div className="w-full h-[calc(100vh-7rem)] flex flex-col items-center justify-center gap-6">
-          <div className="w-16 h-16 rounded-full bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b8945f" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-full h-[calc(100vh-7rem)] flex flex-col items-center justify-center gap-6 relative">
+          {/* Ambient glow */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none opacity-30"
+            style={{
+              background: `radial-gradient(circle, ${game.glowColor}30 0%, transparent 70%)`,
+              animation: 'glow-breathe 4s ease-in-out infinite',
+            }}
+          />
+
+          {/* Floating lantern */}
+          <div
+            className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none opacity-30"
+            style={{ animation: 'float 6s ease-in-out infinite' }}
+            aria-hidden="true"
+          >
+            <svg width="32" height="42" viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" />
+              <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
+              <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
+            </svg>
+          </div>
+
+          {/* Warning icon with breathing glow */}
+          <div
+            className="w-16 h-16 rounded-full bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center relative"
+            style={{
+              animation: 'glow-breathe 3s ease-in-out infinite',
+              boxShadow: `0 0 30px ${game.glowColor}20`,
+            }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={game.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
