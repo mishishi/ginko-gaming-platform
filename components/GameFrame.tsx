@@ -138,7 +138,7 @@ export default function GameFrame({ game }: GameFrameProps) {
           onLoad={handleLoad}
           onError={handleError}
           title={game.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="fullscreen"
           allowFullScreen
         />
       )}
@@ -174,16 +174,8 @@ export default function GameFrame({ game }: GameFrameProps) {
       <div className="absolute bottom-4 left-4 z-30">
         <button
           onClick={handleExitGame}
-          className={`
-            relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-            ${showExitHint
-              ? 'bg-[#0a0d0f]/90 backdrop-blur-sm border border-[#2a2d2f] text-[#e5e5e5] hover:bg-[#1a1d1f]'
-              : 'bg-transparent text-transparent'
-            }
-          `}
-          style={{
-            boxShadow: showExitHint ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
-          }}
+          className="relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-[#0a0d0f]/80 backdrop-blur-sm border border-[#2a2d2f] text-[#8a8680] hover:text-[#e5e5e5] hover:border-[#3a3d3f] active:scale-95"
+          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
         >
           <span className="flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
