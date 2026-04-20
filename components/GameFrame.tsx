@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Game } from '@/lib/games'
 import { useRouter } from 'next/navigation'
 import Skeleton from './Skeleton'
+import ErrorBoundary from './ErrorBoundary'
 
 interface GameFrameProps {
   game: Game
@@ -137,16 +138,18 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* iframe */}
       {!hasError && (
-        <iframe
-          ref={iframeRef}
-          src={game.devUrl}
-          className="w-full h-full border-0"
-          onLoad={handleLoad}
-          onError={handleError}
-          title={game.title}
-          allow="fullscreen"
-          allowFullScreen
-        />
+        <ErrorBoundary>
+          <iframe
+            ref={iframeRef}
+            src={game.devUrl}
+            className="w-full h-full border-0"
+            onLoad={handleLoad}
+            onError={handleError}
+            title={game.title}
+            allow="fullscreen"
+            allowFullScreen
+          />
+        </ErrorBoundary>
       )}
 
       {/* Fullscreen toggle button */}
