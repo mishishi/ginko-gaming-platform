@@ -1,28 +1,27 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const [displayChildren, setDisplayChildren] = useState(children)
 
   useEffect(() => {
-    // Trigger animation on route change
-    document.body.classList.add('page-transitioning')
-
-    const timeout = setTimeout(() => {
-      document.body.classList.remove('page-transitioning')
-    }, 300)
-
-    return () => {
-      clearTimeout(timeout)
-      document.body.classList.remove('page-transitioning')
+    // Use native View Transition API if available
+    if ('startViewTransition' in document) {
+      (document as any).startViewTransition(() => {
+        setDisplayChildren(children)
+      })
+    } else {
+      // Fallback for browsers without View Transition API
+      setDisplayChildren(children)
     }
-  }, [pathname])
+  }, [pathname, children])
 
   return (
     <div className="page-transition" key={pathname}>
-      {children}
+      {displayChildren}
     </div>
   )
 }
