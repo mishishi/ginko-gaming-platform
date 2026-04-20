@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
+import { useGameStatus } from './GameStatusProvider'
 
 interface GameCardProps {
   game: Game
@@ -83,22 +84,37 @@ function DifficultyStars({ level }: { level: number }) {
   )
 }
 
-function StatusBadge({ playable }: { playable: boolean }) {
+function StatusBadge({ game, isReachable }: { game: Game; isReachable: boolean }) {
+  const status = game.playable && isReachable ? 'online' : game.playable ? 'reachable' : 'maintenance'
+
   return (
     <span
       className="text-[9px] px-1.5 py-0.5 rounded font-medium"
       style={{
-        backgroundColor: playable ? 'rgba(74, 92, 79, 0.6)' : 'rgba(184, 148, 95, 0.6)',
-        color: playable ? 'var(--accent-green)' : 'var(--accent-amber)',
+        backgroundColor:
+          status === 'online'
+            ? 'rgba(74, 92, 79, 0.6)'
+            : status === 'reachable'
+              ? 'rgba(74, 92, 79, 0.3)'
+              : 'rgba(184, 148, 95, 0.6)',
+        color:
+          status === 'online'
+            ? 'var(--accent-green)'
+            : status === 'reachable'
+              ? 'var(--accent-green)'
+              : 'var(--accent-amber)',
       }}
     >
-      {playable ? '可玩' : '维护中'}
+      {status === 'online' ? '可玩' : status === 'reachable' ? '离线' : '维护中'}
     </span>
   )
 }
 
 export default function GameCard({ game, index }: GameCardProps) {
   const staggerClass = `stagger-${index + 1}`
+  const { status } = useGameStatus()
+  const gameStatus = status[game.slug]
+  const isReachable = gameStatus?.reachable ?? false
 
   return (
     <Link href={`/games/${game.slug}`} className={`block animate-fade-in-up ${staggerClass}`}>
@@ -153,7 +169,7 @@ export default function GameCard({ game, index }: GameCardProps) {
               <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
               <span className="text-[10px] text-[var(--text-secondary)]">{game.playerCount}</span>
               <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
-              <StatusBadge playable={game.playable} />
+              <StatusBadge game={game} isReachable={isReachable} />
             </div>
 
             {/* Game title */}
@@ -161,7 +177,7 @@ export default function GameCard({ game, index }: GameCardProps) {
               className="text-2xl mb-2 transition-colors duration-300 group-hover:brightness-110"
               style={{
                 color: game.color,
-                fontFamily: "'Noto Serif SC', serif",
+                fontFamily: 'var(--font-serif), Noto Serif SC, serif',
               }}
             >
               {game.title}

@@ -60,7 +60,7 @@ export default function HomePage() {
           <h1
             className="font-serif text-7xl md:text-[8rem] leading-none text-[var(--accent-amber)] animate-fade-in-up"
             style={{
-              fontFamily: "'Noto Serif SC', serif",
+              fontFamily: 'var(--font-serif), Noto Serif SC, serif',
               textShadow: `
                 0 0 80px rgba(212,165,116,0.6),
                 0 0 160px rgba(212,165,116,0.4),
@@ -85,7 +85,7 @@ export default function HomePage() {
           {/* Poetic description - tertiary */}
           <p
             className="text-[var(--text-muted)] text-sm mt-6 italic animate-fade-in-up stagger-4"
-            style={{ fontFamily: "'Noto Serif SC', serif" }}
+            style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
           >
             穿越迷雾，遇见珍藏
           </p>
@@ -152,7 +152,7 @@ export default function HomePage() {
                 />
                 <h3
                   className="text-xl text-[var(--accent-amber)]"
-                  style={{ fontFamily: "'Noto Serif SC', serif" }}
+                  style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
                 >
                   银古客栈
                 </h3>

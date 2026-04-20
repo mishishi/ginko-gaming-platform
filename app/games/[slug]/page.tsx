@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { games, getGameBySlug } from '@/lib/games'
 import GameFrame from '@/components/GameFrame'
+import GameStatusBanner from '@/components/GameStatusBanner'
 
 interface GamePageProps {
   params: {
@@ -59,7 +60,7 @@ export default function GamePage({ params }: GamePageProps) {
                 <span
                   style={{
                     color: game.color,
-                    fontFamily: "'Noto Serif SC', serif",
+                    fontFamily: 'var(--font-serif), Noto Serif SC, serif',
                   }}
                 >
                   {game.title}
@@ -97,15 +98,7 @@ export default function GamePage({ params }: GamePageProps) {
         <span className="w-px h-3 bg-[var(--border-subtle)]" />
 
         {/* Status badge */}
-        <span
-          className="text-xs px-2 py-0.5 rounded"
-          style={{
-            backgroundColor: game.playable ? 'rgba(74, 92, 79, 0.4)' : 'rgba(184, 148, 95, 0.4)',
-            color: game.playable ? 'var(--accent-green)' : 'var(--accent-amber)',
-          }}
-        >
-          {game.playable ? '可玩' : '维护中'}
-        </span>
+        <GameStatusBanner game={game} />
       </div>
 
       {/* Game iframe or maintenance state */}
@@ -148,7 +141,7 @@ export default function GamePage({ params }: GamePageProps) {
             </svg>
           </div>
           <div className="text-center">
-            <h2 className="text-xl text-[var(--text-primary)] mb-2" style={{ fontFamily: "'Noto Serif SC', serif" }}>
+            <h2 className="text-xl text-[var(--text-primary)] mb-2" style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}>
               游戏维护中
             </h2>
             <p className="text-[var(--text-secondary)] text-sm">
