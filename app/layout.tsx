@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import ResourceHints from '@/components/ResourceHints'
 import { notoSansSC, notoSerifSC } from '@/lib/fonts'
 import TourGuide from '@/components/TourGuide'
+import InstallPrompt from '@/components/InstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({
         <GameStatusProvider>
           <ThemeProvider>
             <TourGuide />
+            <InstallPrompt />
             {/* Skip to main content link for accessibility */}
             <a
               href="#main-content"
