@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Script from 'next/script'
 import { games, getGameBySlug } from '@/lib/games'
 import GameFrame from '@/components/GameFrame'
 import GameStatusBanner from '@/components/GameStatusBanner'
@@ -56,7 +57,79 @@ export default function GamePage({ params }: GamePageProps) {
     notFound()
   }
 
+  const baseUrl = 'https://ginko.example.com'
+  const gameUrl = `${baseUrl}/games/${game.slug}`
+  const imageUrl = `${baseUrl}/api/og?title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.color)}`
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Game',
+        '@id': `${gameUrl}#game`,
+        name: game.title,
+        description: game.description,
+        image: imageUrl,
+        url: gameUrl,
+        genre: game.theme,
+        gamePlatform: 'Web Browser',
+        numberOfPlayer: game.playerCount,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'CNY',
+          availability: game.playable
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+        },
+      },
+      {
+        '@type': 'CreativeWork',
+        '@id': `${gameUrl}#creativework`,
+        name: game.title,
+        description: game.description,
+        author: {
+          '@type': 'Organization',
+          name: '银古客栈',
+        },
+      },
+      {
+        '@type': 'CreativeWork',
+        '@id': `${gameUrl}#about`,
+        name: `关于 ${game.title}`,
+        description: game.description,
+        about: {
+          '@type': 'Game',
+          '@id': `${gameUrl}#game`,
+        },
+      },
+      {
+        '@type': 'potentialAction',
+        '@id': `${gameUrl}#play`,
+        name: `玩 ${game.title}`,
+        target: {
+          '@type': 'EntryPoint',
+          url: game.playable ? game.prodUrl : gameUrl,
+          actionPlatform: [
+            'https://schema.org/WebApplication',
+          ],
+        },
+        object: {
+          '@type': 'Game',
+          '@id': `${gameUrl}#game`,
+        },
+      },
+    ],
+  }
+
   return (
+    <>
+      <Script
+        id="structured-data"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Mini nav bar */}
       <div className="h-12 flex items-center px-4 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/90 backdrop-blur-sm">
@@ -193,5 +266,6 @@ export default function GamePage({ params }: GamePageProps) {
         </div>
       )}
     </div>
+    </>
   )
 }
