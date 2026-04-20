@@ -32,9 +32,9 @@ export default function NotFound() {
             aria-hidden="true"
           >
             <svg width="32" height="42" viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" />
-              <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
-              <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
+              <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-copper)" />
+              <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-copper)" opacity="0.7" />
+              <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-copper)" opacity="0.5" />
             </svg>
           </div>
 
@@ -47,11 +47,11 @@ export default function NotFound() {
                 <div
                   className="absolute inset-0 blur-3xl opacity-30"
                   style={{
-                    background: 'radial-gradient(circle, var(--accent-amber) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, var(--accent-copper) 0%, transparent 70%)',
                   }}
                 />
                 <span
-                  className="text-[6rem] sm:text-[10rem] md:text-[14rem] leading-none font-serif font-bold text-transparent bg-clip-text bg-gradient-to-b from-[var(--accent-amber)] to-[var(--accent-amber)] opacity-20 select-none"
+                  className="text-[6rem] sm:text-[10rem] md:text-[14rem] leading-none font-serif font-bold text-transparent bg-clip-text bg-gradient-to-b from-[var(--accent-copper)] to-[var(--accent-copper)] opacity-20 select-none"
                   style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
                 >
                   404
@@ -64,7 +64,7 @@ export default function NotFound() {
               className="text-2xl md:text-3xl mb-4 animate-fade-in-up stagger-1"
               style={{
                 fontFamily: 'var(--font-serif), Noto Serif SC, serif',
-                color: 'var(--accent-amber)',
+                color: 'var(--accent-copper)',
               }}
             >
               这个页面不存在
@@ -83,20 +83,20 @@ export default function NotFound() {
               <div
                 className="w-16 h-px"
                 style={{
-                  background: 'linear-gradient(90deg, transparent, var(--accent-amber))',
+                  background: 'linear-gradient(90deg, transparent, var(--accent-copper))',
                 }}
               />
               <div
                 className="w-1.5 h-1.5 rounded-full"
                 style={{
-                  background: 'var(--accent-amber)',
-                  boxShadow: '0 0 8px var(--accent-amber)',
+                  background: 'var(--accent-copper)',
+                  boxShadow: '0 0 8px var(--accent-copper)',
                 }}
               />
               <div
                 className="w-16 h-px"
                 style={{
-                  background: 'linear-gradient(90deg, var(--accent-amber), transparent)',
+                  background: 'linear-gradient(90deg, var(--accent-copper), transparent)',
                 }}
               />
             </div>
@@ -106,8 +106,8 @@ export default function NotFound() {
               href="/"
               className="not-found-back-link inline-flex items-center gap-2 px-6 py-3 border rounded-lg transition-all duration-300 animate-fade-in-up stagger-4 hover:scale-105 active:scale-95"
               style={{
-                color: 'var(--accent-amber)',
-                borderColor: 'var(--accent-amber)',
+                color: 'var(--accent-copper)',
+                borderColor: 'var(--accent-copper)',
                 backgroundColor: 'transparent',
               }}
             >
@@ -129,7 +129,7 @@ export default function NotFound() {
           </div>
 
           {/* Additional ambient particles */}
-          <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full opacity-20" style={{ background: 'var(--accent-amber)', animation: 'float-particle 15s ease-in-out infinite' }} />
+          <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full opacity-20" style={{ background: 'var(--accent-copper)', animation: 'float-particle 15s ease-in-out infinite' }} />
           <div className="absolute top-1/3 left-1/3 w-1.5 h-1.5 rounded-full opacity-15" style={{ background: 'var(--accent-green)', animation: 'float-particle 20s ease-in-out infinite', animationDelay: '5s' }} />
         </div>
       </body>
