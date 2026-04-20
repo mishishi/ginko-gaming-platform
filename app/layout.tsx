@@ -43,13 +43,11 @@ export default function RootLayout({
             {/* Skip to main content link for accessibility */}
             <a
               href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[var(--accent-amber)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
-              style={{ '--tw-ring-color': 'var(--accent-amber)' } as React.CSSProperties}
+              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[var(--accent-copper)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none"
             >
               跳转到主要内容
             </a>
 
-            <div className="fog-bg" />
             <NavBar />
             <KeyboardShortcutsProvider />
             <main id="main-content" className="relative z-10">

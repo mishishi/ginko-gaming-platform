@@ -2,39 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
-[data-theme="dark"] {
-  --bg-primary: #0a0d0f;
-  --bg-secondary: #12161a;
-  --bg-card: #1a1f24;
-  --bg-elevated: #1a1d1f;
-  --border-subtle: #2a2d2f;
-  --border-hover: #3a3d3f;
-  --accent-amber: #d4a574;
-  --accent-green: #4a5c4f;
+/* ============================================
+   银古客栈 - 古典客栈美学
+   Silver Ancient Inn - Classical Chinese Aesthetic
+   ============================================ */
+
+:root {
+  /* 核心配色 - 墨韵基调 */
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1918;
+  --bg-card: #1e1d1c;
+  --bg-elevated: #252422;
+
+  /* 边框 - 淡墨色 */
+  --border-subtle: #2d2b2a;
+  --border-default: #3a3836;
+  --border-hover: #4a4845;
+
+  /* 文字 - 宣纸系 */
   --text-primary: #e8e4df;
-  --text-secondary: #8a8680;
+  --text-secondary: #9a958e;
   --text-muted: #6d6862;
-  --text-tertiary: #a8a4a0;
-  --glow-idol: #ff9ecf;
-  --glow-quiz: #00f5ff;
-  --glow-fate: #b8945f;
+
+  /* 点睛色 - 银 & 铜 */
+  --accent-silver: #c9c5c0;
+  --accent-copper: #b8956e;
+  --accent-glow: #d4a574;
+
+  /* 游戏高亮 - 柔和不刺眼 */
+  --glow-idol: #e8b4c8;
+  --glow-quiz: #a8d8d8;
+  --glow-fate: #d4c4a8;
+
+  /* 背景层次 */
+  --bg-vignette: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
 }
 
 [data-theme="light"] {
-  --bg-primary: #f5f0eb;
-  --bg-secondary: #ebe5de;
-  --bg-card: #ddd6cc;
-  --bg-elevated: #e8e2d9;
-  --border-subtle: #c8c0b5;
-  --border-hover: #b0a89c;
-  --accent-amber: #a67c4a;
-  --accent-green: #3d4a3c;
-  --text-primary: #1a1612;
+  --bg-primary: #f7f4f0;
+  --bg-secondary: #efe9e1;
+  --bg-card: #e8e2d8;
+  --bg-elevated: #f0ebe4;
+
+  --border-subtle: #d8d2c8;
+  --border-default: #c8c0b4;
+  --border-hover: #b0a898;
+
+  --text-primary: #2a2624;
   --text-secondary: #5a534b;
-  --text-muted: #8a8279;
-  --text-tertiary: #6d6560;
+  --text-muted: #8a827a;
+
+  --accent-silver: #7a7670;
+  --accent-copper: #8b6914;
+  --accent-glow: #b8956e;
+
+  --glow-idol: #d4a0b8;
+  --glow-quiz: #88b8b8;
+  --glow-fate: #c4b498;
 }
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 
 * {
   margin: 0;
@@ -47,261 +76,354 @@ html {
 }
 
 body {
-  font-family: var(--font-sans), 'Noto Sans SC', sans-serif;
+  font-family: var(--font-sans), 'Noto Sans SC', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fog background effect */
-.fog-bg {
+/* 背景层次 - 柔和的暗角效果 */
+body::before {
+  content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(74, 92, 79, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(26, 31, 36, 0.5) 0%, transparent 70%);
-  animation: fog-drift 20s ease-in-out infinite alternate;
-}
-
-@keyframes fog-drift {
-  0% {
-    opacity: 0.6;
-    transform: scale(1) translate(0, 0);
-  }
-  100% {
-    opacity: 0.8;
-    transform: scale(1.1) translate(-2%, 2%);
-  }
-}
-
-/* Noise texture for premium feel */
-.noise-overlay {
-  position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  z-index: 1;
-}
-
-@keyframes glow-breathe {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--accent-green);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-amber);
-}
-
-/* Page load animations */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-6px);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-}
-
-.stagger-1 { animation-delay: 0ms; }
-.stagger-2 { animation-delay: 100ms; }
-.stagger-3 { animation-delay: 200ms; }
-.stagger-4 { animation-delay: 300ms; }
-.stagger-5 { animation-delay: 400ms; }
-.stagger-6 { animation-delay: 500ms; }
-
-/* ============================================
-   FLOATING PARTICLES BACKGROUND
-   ============================================ */
-.particles-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
   z-index: 0;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.15;
-  animation: float-particle 20s ease-in-out infinite;
-  will-change: transform;
-}
-
-.particle--amber {
-  background: radial-gradient(circle, rgba(212, 165, 116, 0.8) 0%, transparent 70%);
-  box-shadow: 0 0 6px rgba(212, 165, 116, 0.4);
-}
-
-.particle--green {
-  background: radial-gradient(circle, rgba(74, 92, 79, 0.8) 0%, transparent 70%);
-  box-shadow: 0 0 6px rgba(74, 92, 79, 0.4);
-}
-
-@keyframes float-particle {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.1;
-  }
-  25% {
-    transform: translate(15px, -25px) scale(1.1);
-    opacity: 0.25;
-  }
-  50% {
-    transform: translate(-10px, -50px) scale(0.95);
-    opacity: 0.15;
-  }
-  75% {
-    transform: translate(20px, -30px) scale(1.05);
-    opacity: 0.2;
-  }
+  background: var(--bg-vignette);
+  opacity: 0.4;
 }
 
 /* ============================================
-   PAGE TRANSITION ANIMATIONS
+   TYPOGRAPHY
    ============================================ */
-.page-enter {
-  opacity: 0;
-  transform: translateY(10px);
+
+/* 标题 - 衬线体 */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif), 'Noto Serif SC', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
-}
-
-.page-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.page-exit-active {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
-}
-
-/* Page transition wrapper */
-.page-transition {
-  animation: page-fade-in 300ms ease-out forwards;
-}
-
-@keyframes page-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 英文标题用 Cormorant */
+.font-display {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
 }
 
 /* ============================================
-   CUSTOM CURSOR STYLES
+   SELECTION
    ============================================ */
-a {
-  cursor: pointer;
-}
 
-a:hover {
-  filter: drop-shadow(0 0 3px rgba(212, 165, 116, 0.5));
-}
-
-/* Keyboard focus indicator */
-a:focus-visible {
-  outline: 2px solid var(--accent-amber);
-  outline-offset: 2px;
-  border-radius: 0.5rem;
-}
-
-/* GameCard keyboard focus glow */
-.game-card-link:focus-visible {
-  outline: none;
-}
-
-.game-card-link:focus-visible .game-card-inner {
-  box-shadow: 0 0 0 2px var(--accent-amber), 0 8px 32px rgba(0,0,0,0.4);
-}
-
-/* Selection color */
 ::selection {
-  background: rgba(212, 165, 116, 0.3);
+  background: rgba(184, 149, 110, 0.3);
   color: var(--text-primary);
 }
 
 /* ============================================
-   NOT FOUND PAGE STYLES
+   SCROLLBAR - 简约风格
    ============================================ */
-.not-found-back-link:hover {
-  background-color: rgba(212, 165, 116, 0.1);
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-copper);
 }
 
 /* ============================================
-   SCROLL REVEAL ANIMATIONS
+   LINKS - 优雅的下划线动画
    ============================================ */
+
+a {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+a:not(.no-underline):hover {
+  color: var(--accent-copper);
+}
+
+/* 文字链接 - 下划线从左向右展开 */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent-copper);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+   FOCUS STATES - 柔和的焦点框
+   ============================================ */
+
+:focus-visible {
+  outline: 1px solid var(--accent-copper);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   ANIMATIONS - 克制优雅
+   ============================================ */
+
+/* 淡入上浮 */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* 呼吸光晕 - 缓慢柔和 */
+@keyframes lantern-glow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: blur(1px);
+  }
+  50% {
+    opacity: 0.9;
+    filter: blur(0.5px);
+  }
+}
+
+/* 悬浮灯笼 - 轻微摇曳 */
+@keyframes lantern-sway {
+  0%, 100% {
+    transform: translateX(-50%) rotate(-1deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(1deg);
+  }
+}
+
+/* 墨迹扩散 - 用于装饰 */
+@keyframes ink-spread {
+  from {
+    transform: scale(0);
+    opacity: 0.1;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0.03;
+  }
+}
+
+/* 渐入 */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+/* 交错延迟 */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 160ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 320ms; }
+.stagger-6 { animation-delay: 400ms; }
+
+/* ============================================
+   DECORATIVE ELEMENTS
+   ============================================ */
+
+/* 墨点装饰 */
+.ink-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-copper);
+  opacity: 0.6;
+}
+
+/* 墨线分隔 */
+.ink-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--border-default) 20%,
+    var(--accent-copper) 50%,
+    var(--border-default) 80%,
+    transparent 100%
+  );
+  opacity: 0.5;
+}
+
+/* 纸张纹理叠加 */
+.paper-texture {
+  position: relative;
+}
+
+.paper-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   CARDS - 简约卡片
+   ============================================ */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   BUTTONS - 简洁按钮
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--accent-copper);
+  color: var(--bg-primary);
+  border-color: var(--accent-copper);
+}
+
+.btn-primary:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent-glow);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-copper);
+  color: var(--accent-copper);
+}
+
+/* ============================================
+   PAGE TRANSITION
+   ============================================ */
+
+.page-transition {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+/* ============================================
+   SCROLL REVEAL
+   ============================================ */
+
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .scroll-reveal.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ============================================
+   SKELETON LOADING - 简约骨架屏
+   ============================================ */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 25%,
+    var(--bg-elevated) 50%,
+    var(--bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* 文字溢出省略 */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
