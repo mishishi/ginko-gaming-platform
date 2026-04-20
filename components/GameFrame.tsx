@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Game } from '@/lib/games'
 import { useRouter } from 'next/navigation'
+import Skeleton from './Skeleton'
 
 interface GameFrameProps {
   game: Game
@@ -71,32 +72,9 @@ export default function GameFrame({ game }: GameFrameProps) {
       onMouseEnter={() => setShowExitHint(true)}
       onMouseLeave={() => setShowExitHint(false)}
     >
-      {/* Loading state with enhanced UX */}
+      {/* Loading skeleton */}
       {isLoading && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-20">
-          <div className="flex flex-col items-center gap-6">
-            {/* Animated spinner with pulsing glow */}
-            <div className="relative">
-              <div
-                className="w-12 h-12 rounded-full border-3 border-t-transparent animate-spin"
-                style={{
-                  borderColor: game.color,
-                  borderTopColor: 'transparent',
-                  boxShadow: `0 0 20px ${game.color}40, 0 0 40px ${game.color}20`,
-                }}
-              />
-              <div
-                className="absolute inset-0 rounded-full animate-ping opacity-20"
-                style={{
-                  backgroundColor: game.color,
-                }}
-              />
-            </div>
-            <span className="text-[var(--text-secondary)] text-base font-medium tracking-wide">
-              正在召唤游戏...
-            </span>
-          </div>
-        </div>
+        <Skeleton color={game.color} glowColor={game.glowColor} />
       )}
 
       {/* Error state */}
