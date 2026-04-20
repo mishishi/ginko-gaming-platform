@@ -28,6 +28,9 @@
   --accent-silver: #c9c5c0;
   --accent-copper: #b8956e;
   --accent-glow: #d4a574;
+  --accent-green: #6b9b7a;
+  --accent-orange: #d4845a;
+  --accent-purple: #8b7a9b;
 
   /* 游戏高亮 - 柔和不刺眼 */
   --glow-idol: #e8b4c8;
@@ -55,6 +58,9 @@
   --accent-silver: #7a7670;
   --accent-copper: #8b6914;
   --accent-glow: #b8956e;
+  --accent-green: #4a7a5a;
+  --accent-orange: #b86c3a;
+  --accent-purple: #6a5a7b;
 
   --glow-idol: #d4a0b8;
   --glow-quiz: #88b8b8;

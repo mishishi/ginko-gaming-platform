@@ -179,15 +179,26 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
                 <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                   检测中
                 </span>
+              ) : game.playable && isReachable ? (
+                <span
+                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--accent-green)' }}
+                >
+                  可玩
+                </span>
+              ) : game.playable ? (
+                <span
+                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: 'rgba(212, 132, 90, 0.2)', color: 'var(--accent-orange)' }}
+                >
+                  离线
+                </span>
               ) : (
                 <span
                   className="text-[9px] px-1.5 py-0.5 rounded"
-                  style={{
-                    backgroundColor: game.playable && isReachable ? 'rgba(74, 92, 79, 0.3)' : 'rgba(184, 149, 110, 0.2)',
-                    color: game.playable && isReachable ? 'var(--accent-green)' : 'var(--accent-copper)',
-                  }}
+                  style={{ backgroundColor: 'rgba(139, 122, 155, 0.2)', color: 'var(--accent-purple)' }}
                 >
-                  {game.playable && isReachable ? '可玩' : game.playable ? '离线' : '维护中'}
+                  维护中
                 </span>
               )}
             </div>
