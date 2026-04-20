@@ -36,9 +36,10 @@ interface GameCardProps {
 function TiltCard({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+  const [isPressed, setIsPressed] = useState(false)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return
+    if (!cardRef.current || isPressed) return
     const rect = cardRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -49,21 +50,42 @@ function TiltCard({ children }: { children: React.ReactNode }) {
     setTilt({ rotateX, rotateY })
   }
 
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!cardRef.current || isPressed || e.touches.length === 0) return
+    const touch = e.touches[0]
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    // Milder tilt on touch devices
+    const rotateX = ((y - centerY) / centerY) * -2
+    const rotateY = ((x - centerX) / centerX) * 2
+    setTilt({ rotateX, rotateY })
+  }
+
   const handleMouseLeave = () => {
     setTilt({ rotateX: 0, rotateY: 0 })
   }
+
+  const handleMouseDown = () => setIsPressed(true)
+  const handleMouseUp = () => setIsPressed(false)
 
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseLeave}
       style={{ perspective: '800px' }}
     >
       <div
         className="transition-transform duration-200 ease-out"
         style={{
-          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${isPressed ? 0.98 : 1})`,
           transformStyle: 'preserve-3d',
         }}
       >
@@ -102,12 +124,20 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
       tabIndex={tabIndex}
     >
       <TiltCard>
-        <div className="group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-0.5">
-          {/* Top accent line */}
+        <div className="group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-0.5 hover:shadow-lg">
+          {/* Top accent line - 渐变增强 */}
           <div
-            className="h-px w-full"
+            className="h-0.5 w-full transition-all duration-300"
             style={{
-              background: `linear-gradient(90deg, transparent 0%, ${game.color}60 50%, transparent 100%)`,
+              background: `linear-gradient(90deg, transparent 0%, ${game.color}80 50%, transparent 100%)`,
+              boxShadow: `0 0 12px ${game.color}40`,
+            }}
+          />
+          <div
+            className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background: `linear-gradient(90deg, transparent 0%, ${game.color} 50%, transparent 100%)`,
+              boxShadow: `0 0 8px ${game.color}`,
             }}
           />
 
@@ -164,7 +194,7 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
 
             {/* Game title */}
             <h3
-              className="text-xl mb-1 transition-colors duration-300"
+              className="text-xl mb-1 transition-colors duration-300 group-hover:translate-x-1"
               style={{
                 color: game.color,
                 fontFamily: 'var(--font-serif), Noto Serif SC, serif',
@@ -184,12 +214,23 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
             </p>
 
             {/* Enter link */}
-            <div className="mt-3 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="mt-3">
               <span
-                className="text-xs"
+                className="text-xs inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:gap-2"
                 style={{ color: game.color }}
               >
-                进入游戏 →
+                进入游戏
+                <svg
+                  className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M2 6h8M7 3l3 3-3 3" />
+                </svg>
               </span>
             </div>
           </div>
