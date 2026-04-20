@@ -146,17 +146,27 @@ export default function GameFrame({ game }: GameFrameProps) {
       {/* Fullscreen toggle button */}
       <button
         onClick={toggleFullscreen}
-        className="absolute top-4 right-4 z-30 p-2.5 rounded-lg bg-[#0a0d0f]/80 backdrop-blur-sm border border-[#2a2d2f] opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity duration-200 group"
+        className="absolute top-4 right-4 z-30 p-2.5 rounded-lg bg-[#0a0d0f]/80 backdrop-blur-sm border border-[#2a2d2f] transition-all duration-200 group"
         aria-label={isFullscreen ? '退出全屏' : '进入全屏'}
       >
         {isFullscreen ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-          </svg>
+          <>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+            </svg>
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0a0d0f]/90 border border-[#2a2d2f] rounded text-[10px] text-[#8a8680] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              ESC 退出
+            </span>
+          </>
         ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-          </svg>
+          <>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5e5e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+            </svg>
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0a0d0f]/90 border border-[#2a2d2f] rounded text-[10px] text-[#8a8680] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              全屏
+            </span>
+          </>
         )}
       </button>
 
