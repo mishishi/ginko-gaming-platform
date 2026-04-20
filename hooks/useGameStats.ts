@@ -5,9 +5,9 @@ import { useState, useEffect, useCallback } from 'react'
 const STATS_KEY = 'yinqiu-stats'
 
 export interface GameStats {
-  playCount: number
-  highScore: number
-  lastPlayedAt: string | null
+  playCount: Record<string, number>
+  highScore: Record<string, number>
+  lastPlayedAt: Record<string, string>
   achievements: string[]
 }
 
@@ -29,7 +29,7 @@ const ACHIEVEMENTS: Achievement[] = [
     id: 'first_play',
     name: 'First Steps',
     description: 'Play your first game',
-    condition: () => true,
+    condition: (stats) => stats.playCount === 1,
   },
   {
     id: 'idol_master',
@@ -59,9 +59,9 @@ const ACHIEVEMENTS: Achievement[] = [
 
 export function useGameStats() {
   const [stats, setStats] = useState<GameStats>({
-    playCount: 0,
-    highScore: 0,
-    lastPlayedAt: null,
+    playCount: {},
+    highScore: {},
+    lastPlayedAt: {},
     achievements: [],
   })
 
@@ -71,44 +71,46 @@ export function useGameStats() {
       if (stored) {
         setStats(JSON.parse(stored))
       }
-    } catch {
-      // localStorage not available or parse error
+    } catch (e) {
+      console.warn('Failed to load stats from localStorage:', e)
     }
   }, [])
 
   const recordPlay = useCallback((gameSlug: string, score: number) => {
     setStats((prev) => {
-      const newStats = { ...prev }
-      newStats.playCount += 1
-      newStats.lastPlayedAt = new Date().toISOString()
-
-      // Track per-game high scores and games played
-      const gameKey = `game_${gameSlug}`
-      const prevExt = prev as unknown as Record<string, number>
-      const currentGameHigh = prevExt[gameKey] || 0
-      if (score > currentGameHigh) {
-        ;(newStats as unknown as Record<string, number>)[gameKey] = score
+      const newStats = {
+        ...prev,
+        playCount: { ...prev.playCount },
+        highScore: { ...prev.highScore },
+        lastPlayedAt: { ...prev.lastPlayedAt },
       }
 
-      if (score > newStats.highScore) {
-        newStats.highScore = score
+      // Update per-game play count
+      newStats.playCount[gameSlug] = (newStats.playCount[gameSlug] || 0) + 1
+
+      // Update per-game high score
+      const prevHigh = newStats.highScore[gameSlug] || 0
+      if (score > prevHigh) {
+        newStats.highScore[gameSlug] = score
       }
 
-      // Build gameHighScores from stored per-game keys
+      // Update per-game last played timestamp
+      newStats.lastPlayedAt[gameSlug] = new Date().toISOString()
+
+      // Build gameHighScores and gamesPlayed for achievements check
       const gameHighScores: Record<string, number> = {}
-      const gameSlugs = ['idol', 'quiz', 'fate']
-      const newStatsExt = newStats as unknown as Record<string, number>
+      const gamesPlayed: string[] = []
+      const gameSlugs = Object.keys(newStats.playCount)
       for (const slug of gameSlugs) {
-        const key = `game_${slug}`
-        if (newStatsExt[key] !== undefined) {
-          gameHighScores[slug] = newStatsExt[key]
+        if (newStats.highScore[slug] !== undefined) {
+          gameHighScores[slug] = newStats.highScore[slug]
+          gamesPlayed.push(slug)
         }
       }
 
       // Check achievements
-      const gamesPlayed = Object.keys(gameHighScores)
       const statsContext: GameStatsContext = {
-        playCount: newStats.playCount,
+        playCount: Object.values(newStats.playCount).reduce((a, b) => a + b, 0),
         gameHighScores,
         gamesPlayed,
       }
@@ -124,8 +126,8 @@ export function useGameStats() {
 
       try {
         localStorage.setItem(STATS_KEY, JSON.stringify(newStats))
-      } catch {
-        // localStorage not available
+      } catch (e) {
+        console.warn('Failed to save stats to localStorage:', e)
       }
 
       return newStats

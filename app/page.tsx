@@ -2,6 +2,7 @@ import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
 import ScrollReveal from '@/components/ScrollReveal'
 import StatsSection from '@/components/StatsSection'
+import DebugPanel from '@/components/DebugPanel'
 
 function LanternIcon({ className }: { className?: string }) {
   return (
@@ -158,6 +159,9 @@ export default function HomePage() {
 
       {/* Stats & Achievements Section */}
       <StatsSection />
+
+      {/* Debug Panel - TODO: remove after testing */}
+      <DebugPanel />
 
       {/* Footer - 简约雅致 */}
       <ScrollReveal>
