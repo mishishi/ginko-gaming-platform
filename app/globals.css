@@ -247,6 +247,22 @@ a:hover {
   filter: drop-shadow(0 0 3px rgba(212, 165, 116, 0.5));
 }
 
+/* Keyboard focus indicator */
+a:focus-visible {
+  outline: 2px solid var(--accent-amber);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* GameCard keyboard focus glow */
+.game-card-link:focus-visible {
+  outline: none;
+}
+
+.game-card-link:focus-visible .game-card-inner {
+  box-shadow: 0 0 0 2px var(--accent-amber), 0 8px 32px rgba(0,0,0,0.4);
+}
+
 /* Selection color */
 ::selection {
   background: rgba(212, 165, 116, 0.3);

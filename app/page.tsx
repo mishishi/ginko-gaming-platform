@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import GameCard from '@/components/GameCard'
-import { games } from '@/lib/games'
+import GameGrid from '@/components/GameGrid'
 
 export default function HomePage() {
   return (
@@ -82,11 +81,7 @@ export default function HomePage() {
           珍藏展品
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {games.map((game, index) => (
-            <GameCard key={game.slug} game={game} index={index} />
-          ))}
-        </div>
+        <GameGrid />
       </section>
 
       {/* Footer */}

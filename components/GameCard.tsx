@@ -85,7 +85,21 @@ function DifficultyStars({ level }: { level: number }) {
   )
 }
 
-function StatusBadge({ game, isReachable }: { game: Game; isReachable: boolean }) {
+function StatusBadge({ game, isReachable, isLoading }: { game: Game; isReachable: boolean; isLoading?: boolean }) {
+  if (isLoading) {
+    return (
+      <span
+        className="text-[9px] px-1.5 py-0.5 rounded font-medium"
+        style={{
+          backgroundColor: 'rgba(74, 92, 79, 0.2)',
+          color: 'var(--text-muted)',
+        }}
+      >
+        检测中
+      </span>
+    )
+  }
+
   const status = game.playable && isReachable ? 'online' : game.playable ? 'reachable' : 'maintenance'
 
   return (
@@ -113,14 +127,14 @@ function StatusBadge({ game, isReachable }: { game: Game; isReachable: boolean }
 
 export default function GameCard({ game, index }: GameCardProps) {
   const staggerClass = `stagger-${index + 1}`
-  const { status } = useGameStatus()
+  const { status, isLoading } = useGameStatus()
   const gameStatus = status[game.slug]
   const isReachable = gameStatus?.reachable ?? false
 
   return (
-    <Link href={`/games/${game.slug}`} className={`block animate-fade-in-up ${staggerClass}`}>
+    <Link href={`/games/${game.slug}`} className={`game-card-link block animate-fade-in-up ${staggerClass}`}>
       <TiltCard game={game} index={index}>
-        <div className="group relative">
+        <div className="game-card-inner group relative">
         {/* Card container */}
         <div
           className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1"
@@ -153,7 +167,7 @@ export default function GameCard({ game, index }: GameCardProps) {
               <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
               <span className="text-[10px] text-[var(--text-secondary)]">{game.playerCount}</span>
               <span className="text-[10px] text-[var(--text-secondary)] opacity-60">|</span>
-              <StatusBadge game={game} isReachable={isReachable} />
+              <StatusBadge game={game} isReachable={isReachable} isLoading={isLoading} />
             </div>
 
             {/* Game title */}
