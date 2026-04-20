@@ -119,8 +119,16 @@ h1, h2, h3, h4 {
    ============================================ */
 
 ::selection {
-  background: rgba(184, 149, 110, 0.3);
+  background: rgba(184, 149, 110, 0.25);
   color: var(--text-primary);
+}
+
+/* ============================================
+   CUSTOM CURSOR
+   ============================================ */
+
+a, button, [role="button"], .cursor-pointer {
+  cursor: pointer;
 }
 
 /* ============================================
@@ -211,12 +219,12 @@ a:not(.no-underline):hover {
 /* 呼吸光晕 - 缓慢柔和 */
 @keyframes lantern-glow {
   0%, 100% {
-    opacity: 0.6;
-    filter: blur(1px);
+    opacity: 0.4;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.9;
-    filter: blur(0.5px);
+    opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 
@@ -266,11 +274,12 @@ a:not(.no-underline):hover {
 
 /* 墨点装饰 */
 .ink-dot {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--accent-copper);
-  opacity: 0.6;
+  opacity: 0.7;
+  box-shadow: 0 0 8px rgba(184, 149, 110, 0.5);
 }
 
 /* 墨线分隔 */
@@ -279,12 +288,13 @@ a:not(.no-underline):hover {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--border-default) 20%,
+    var(--accent-copper) 20%,
     var(--accent-copper) 50%,
-    var(--border-default) 80%,
+    var(--accent-copper) 80%,
     transparent 100%
   );
-  opacity: 0.5;
+  opacity: 0.6;
+  box-shadow: 0 0 10px rgba(184, 149, 110, 0.3);
 }
 
 /* 纸张纹理叠加 */

@@ -5,85 +5,72 @@ interface HomepageSkeletonProps {
 }
 
 function SkeletonCard({ theme }: HomepageSkeletonProps) {
-  const color = theme === 'idol' ? '#ff9ecf' : theme === 'quiz' ? '#00f5ff' : '#b8945f'
+  const color = theme === 'idol' ? '#e8b4c8' : theme === 'quiz' ? '#a8d8d8' : '#b8956e'
 
   return (
-    <div className="relative bg-[var(--bg-card)] rounded-2xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-      {/* Noise overlay */}
-      <div className="noise-overlay rounded-2xl" aria-hidden="true" />
+    <div className="relative bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+      {/* Top accent line */}
+      <div
+        className="h-0.5 w-full"
+        style={{
+          background: `linear-gradient(90deg, transparent 0%, ${color}50 50%, transparent 100%)`,
+        }}
+      />
 
       {/* Screenshot area skeleton */}
-      <div className="h-36 w-full relative overflow-hidden bg-[var(--bg-elevated)]">
+      <div className="h-32 w-full relative overflow-hidden bg-[var(--bg-elevated)]">
         <div
-          className="absolute inset-0 Skeleton-shimmer"
+          className="absolute inset-0 skeleton-shimmer"
           style={{
-            background: `linear-gradient(90deg, transparent 0%, ${color}15 50%, transparent 100%)`,
+            background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)`,
           }}
         />
       </div>
 
-      {/* Top color glow bar */}
-      <div
-        className="h-1 w-full"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${color}40, transparent)`,
-        }}
-      />
-
       {/* Card content skeleton */}
-      <div className="p-6 space-y-3">
+      <div className="p-4 space-y-3">
         {/* Metadata row */}
         <div className="flex items-center gap-2">
-          <div className="h-3 w-16 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
-            <div className="absolute inset-0 Skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)` }} />
+          <div className="h-3 w-12 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
+            <div className="absolute inset-0 skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}08 50%, transparent 100%)` }} />
           </div>
-          <div className="h-3 w-8 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
-            <div className="absolute inset-0 Skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)` }} />
+          <div className="h-3 w-6 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
+            <div className="absolute inset-0 skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}08 50%, transparent 100%)` }} />
           </div>
         </div>
 
         {/* Title */}
-        <div className="h-8 w-32 rounded-lg bg-[var(--bg-elevated)] relative overflow-hidden">
+        <div className="h-7 w-28 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
           <div
-            className="absolute inset-0 Skeleton-shimmer"
+            className="absolute inset-0 skeleton-shimmer"
             style={{
-              background: `linear-gradient(90deg, transparent 0%, ${color}15 50%, transparent 100%)`,
+              background: `linear-gradient(90deg, transparent 0%, ${color}12 50%, transparent 100%)`,
             }}
           />
         </div>
 
         {/* Subtitle */}
-        <div className="h-4 w-40 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
-          <div className="absolute inset-0 Skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)` }} />
+        <div className="h-3 w-32 rounded bg-[var(--bg-elevated)] relative overflow-hidden">
+          <div className="absolute inset-0 skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}08 50%, transparent 100%)` }} />
         </div>
 
         {/* Description lines */}
         <div className="space-y-2 pt-1">
           <div className="h-3 rounded bg-[var(--bg-elevated)] w-full relative overflow-hidden">
-            <div className="absolute inset-0 Skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)` }} />
+            <div className="absolute inset-0 skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}08 50%, transparent 100%)` }} />
           </div>
           <div className="h-3 rounded bg-[var(--bg-elevated)] w-4/5 relative overflow-hidden">
-            <div className="absolute inset-0 Skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}10 50%, transparent 100%)` }} />
+            <div className="absolute inset-0 skeleton-shimmer" style={{ background: `linear-gradient(90deg, transparent 0%, ${color}08 50%, transparent 100%)` }} />
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes Skeleton-shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .Skeleton-shimmer {
-          animation: Skeleton-shimmer 1.5s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   )
 }
 
 export default function HomepageSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 opacity-60">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <SkeletonCard theme="idol" />
       <SkeletonCard theme="quiz" />
       <SkeletonCard theme="fate" />
