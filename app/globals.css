@@ -371,8 +371,33 @@ a:not(.no-underline):hover {
    PAGE TRANSITION
    ============================================ */
 
+.page-transition-container {
+  position: relative;
+  width: 100%;
+}
+
 .page-transition {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.page-exiting .page-transition {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.page-entering .page-transition {
   animation: fade-in-up 0.4s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============================================
@@ -413,6 +438,11 @@ a:not(.no-underline):hover {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 2px;
+}
+
+.skeleton-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+  background-size: 200% 100%;
 }
 
 /* ============================================

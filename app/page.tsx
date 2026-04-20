@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
+import ScrollReveal from '@/components/ScrollReveal'
 
 function LanternIcon({ className }: { className?: string }) {
   return (
@@ -149,48 +150,52 @@ export default function HomePage() {
           <div className="flex-1 ink-divider ml-2" />
         </div>
 
-        <GameGrid />
+        <ScrollReveal>
+          <GameGrid />
+        </ScrollReveal>
       </section>
 
       {/* Footer - 简约雅致 */}
-      <footer className="py-24 mt-16 relative">
-        {/* 顶部装饰 */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48">
-          <div className="ink-divider" />
-        </div>
-
-        {/* 底部灯笼 */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-15" aria-hidden="true">
-          <LanternIcon className="w-6 h-10 text-[var(--accent-copper)]" />
-        </div>
-
-        <div className="max-w-3xl mx-auto px-4">
-          {/* 页脚文字 */}
-          <div className="text-center space-y-3">
-            <p
-              className="text-[var(--accent-silver)] text-base tracking-[0.3em]"
-              style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
-            >
-              银古客栈
-            </p>
-
-            <p className="text-[var(--text-muted)] text-[11px] tracking-wider">
-              © {new Date().getFullYear()} · 保留所有权利
-            </p>
-
-            <p className="text-[var(--text-muted)] text-[11px] opacity-60">
-              openginko.tech
-            </p>
+      <ScrollReveal>
+        <footer className="py-24 mt-16 relative">
+          {/* 顶部装饰 */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48">
+            <div className="ink-divider" />
           </div>
 
-          {/* 底部装饰 */}
-          <div className="flex justify-center items-center gap-3 mt-8">
-            <div className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--border-default)]" />
-            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-copper)] opacity-40" />
-            <div className="w-12 h-px bg-gradient-to-l from-transparent to-[var(--border-default)]" />
+          {/* 底部灯笼 */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-15" aria-hidden="true">
+            <LanternIcon className="w-6 h-10 text-[var(--accent-copper)]" />
           </div>
-        </div>
-      </footer>
+
+          <div className="max-w-3xl mx-auto px-4">
+            {/* 页脚文字 */}
+            <div className="text-center space-y-3">
+              <p
+                className="text-[var(--accent-silver)] text-base tracking-[0.3em]"
+                style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
+              >
+                银古客栈
+              </p>
+
+              <p className="text-[var(--text-muted)] text-[11px] tracking-wider">
+                © {new Date().getFullYear()} · 保留所有权利
+              </p>
+
+              <p className="text-[var(--text-muted)] text-[11px] opacity-60">
+                openginko.tech
+              </p>
+            </div>
+
+            {/* 底部装饰 */}
+            <div className="flex justify-center items-center gap-3 mt-8">
+              <div className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--border-default)]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-copper)] opacity-40" />
+              <div className="w-12 h-px bg-gradient-to-l from-transparent to-[var(--border-default)]" />
+            </div>
+          </div>
+        </footer>
+      </ScrollReveal>
     </div>
   )
 }
