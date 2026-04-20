@@ -106,7 +106,37 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 mt-auto border-t border-[#1a1f24]">
+      <footer className="py-16 mt-auto relative">
+        {/* Top decorative border with ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-px">
+          <div
+            className="absolute inset-0 opacity-60"
+            style={{
+              background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
+              boxShadow: '0 0 20px var(--accent-amber)',
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-40 blur-sm"
+            style={{
+              background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
+            }}
+          />
+        </div>
+
+        {/* Small floating lantern decoration */}
+        <div
+          className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-20"
+          style={{ animation: 'float 8s ease-in-out infinite' }}
+          aria-hidden="true"
+        >
+          <svg width="24" height="32" viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="24" cy="36" rx="10" ry="14" fill="var(--accent-amber)" />
+            <rect x="19" y="18" width="10" height="6" rx="2" fill="var(--accent-amber)" opacity="0.7" />
+            <rect x="22" y="12" width="4" height="6" rx="1" fill="var(--accent-amber)" opacity="0.5" />
+          </svg>
+        </div>
+
         <div className="max-w-4xl mx-auto px-4">
           {/* Main footer content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
@@ -177,9 +207,27 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Decorative line */}
-          <div className="flex justify-center mb-6">
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/30 to-transparent" />
+          {/* Decorative line with lantern ornaments */}
+          <div className="flex justify-center items-center gap-4 mb-6">
+            <div
+              className="w-16 h-px"
+              style={{
+                background: 'linear-gradient(90deg, transparent, var(--accent-amber)/30)',
+              }}
+            />
+            <div
+              className="w-1.5 h-1.5 rounded-full"
+              style={{
+                background: 'var(--accent-amber)',
+                boxShadow: '0 0 8px var(--accent-amber)',
+              }}
+            />
+            <div
+              className="w-16 h-px"
+              style={{
+                background: 'linear-gradient(90deg, var(--accent-amber)/30, transparent)',
+              }}
+            />
           </div>
 
           {/* Copyright - subtle and elegant */}
