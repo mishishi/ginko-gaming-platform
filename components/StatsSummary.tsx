@@ -49,10 +49,12 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
         backgroundColor: 'rgba(74, 92, 79, 0.2)',
         border: '1px solid rgba(184, 148, 95, 0.3)',
       }}
+      role="region"
+      aria-label="游戏统计数据"
     >
       {/* Header */}
       <div className="flex items-center gap-2" style={{ color: 'var(--accent-copper)' }}>
-        <span className="text-lg">📊</span>
+        <span className="text-lg" aria-hidden="true">📊</span>
         <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
           游戏统计
         </h3>
@@ -60,7 +62,7 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
 
       {/* Total Plays */}
       <div className="flex items-center gap-3">
-        <span className="text-base">🎮</span>
+        <span className="text-base" aria-hidden="true">🎮</span>
         <div className="flex-1">
           <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
             总游戏次数
@@ -87,7 +89,7 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
               className="flex items-center gap-3 p-2 rounded"
               style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}
             >
-              <span className="text-base">{GAME_ICONS[slug]}</span>
+              <span className="text-base" aria-hidden="true">{GAME_ICONS[slug]}</span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                   {GAME_NAMES[slug]}
@@ -115,7 +117,7 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
       {totalPlays > 0 && (
         <div className="pt-2" style={{ borderTop: '1px solid rgba(184, 148, 95, 0.2)' }}>
           <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <span>⏱️</span>
+            <span aria-hidden="true">⏱️</span>
             <span>
               最后游戏:{' '}
               {Object.values(stats.lastPlayedAt)

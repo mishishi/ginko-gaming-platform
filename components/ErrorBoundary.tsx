@@ -5,6 +5,7 @@ import { Component, ReactNode } from 'react'
 interface Props {
   children: ReactNode
   fallback?: ReactNode
+  onRetry?: () => void
 }
 
 interface State {
@@ -24,6 +25,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   handleRetry = () => {
     this.setState({ hasError: false, error: null })
+    this.props.onRetry?.()
   }
 
   render() {

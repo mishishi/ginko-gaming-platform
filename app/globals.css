@@ -542,3 +542,39 @@ a:not(.no-underline):hover {
 .animate-breathe {
   animation: breathe 2s ease-in-out infinite;
 }
+
+/* ============================================
+   REDUCED MOTION - 尊重用户偏好
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-float,
+  .animate-breathe,
+  .lantern-glow-themed {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .page-exiting .page-transition,
+  .page-entering .page-transition {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

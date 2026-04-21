@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import Skeleton from './Skeleton'
 import ErrorBoundary from './ErrorBoundary'
 import { useRecentlyPlayed } from '@/hooks/useRecentlyPlayed'
+import { useGameStats } from '@/hooks/useGameStats'
+import { useToast } from '@/contexts/ToastContext'
 
 interface GameFrameProps {
   game: Game
@@ -22,12 +24,19 @@ export default function GameFrame({ game }: GameFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { markPlayed } = useRecentlyPlayed()
+  const { recordPlay } = useGameStats()
+  const { showToast } = useToast()
 
   const handleLoad = useCallback(() => {
     setIsLoading(false)
     setHasError(false)
     markPlayed(game.slug)
-  }, [markPlayed, game.slug])
+    // Record play and notify if achievements unlocked
+    const { newlyUnlocked } = recordPlay(game.slug, 0)
+    for (const achievement of newlyUnlocked) {
+      showToast(`🏆 成就解锁: ${achievement.name}`, 'achievement', 4000)
+    }
+  }, [markPlayed, recordPlay, showToast, game.slug])
 
   const handleError = useCallback(() => {
     setIsLoading(false)
@@ -126,6 +135,16 @@ export default function GameFrame({ game }: GameFrameProps) {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   })
 
+  // Loading timeout: force error state after 30s if iframe never loads
+  useEffect(() => {
+    if (!isLoading || hasError) return
+    const timeout = setTimeout(() => {
+      setIsLoading(false)
+      setHasError(true)
+    }, 30000)
+    return () => clearTimeout(timeout)
+  }, [isLoading, hasError])
+
   return (
     <div
       ref={containerRef}
@@ -184,7 +203,7 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* iframe */}
       {!hasError && (
-        <ErrorBoundary>
+        <ErrorBoundary onRetry={handleRetry}>
           <iframe
             ref={iframeRef}
             src={game.devUrl}

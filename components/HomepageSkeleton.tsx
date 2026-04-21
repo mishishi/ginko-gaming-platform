@@ -70,7 +70,7 @@ function SkeletonCard({ theme }: HomepageSkeletonProps) {
 
 export default function HomepageSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-4">
       <SkeletonCard theme="idol" />
       <SkeletonCard theme="quiz" />
       <SkeletonCard theme="fate" />

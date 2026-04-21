@@ -9,7 +9,8 @@ export default function StatsSection() {
   const { stats, unlockedIds } = useGameStats()
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-16 space-y-16">
+    <section className="max-w-5xl mx-auto px-4 py-16 space-y-16" aria-labelledby="stats-heading">
+      <h2 id="stats-heading" className="sr-only">游戏数据与成就</h2>
       <StatsSummary stats={stats} />
       <AchievementWall unlockedIds={unlockedIds as AchievementId[]} />
     </section>

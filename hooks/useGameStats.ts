@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const STATS_KEY = 'yinqiu-stats'
 
@@ -24,35 +24,40 @@ export interface GameStatsContext {
   gamesPlayed: string[]
 }
 
+export interface RecordPlayResult {
+  newlyUnlocked: Achievement[]
+  storageError: boolean
+}
+
 const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'first_play',
-    name: 'First Steps',
-    description: 'Play your first game',
+    name: '初入客栈',
+    description: '首次开始任意游戏',
     condition: (stats) => stats.playCount === 1,
   },
   {
     id: 'idol_master',
-    name: 'Idol Master',
-    description: 'Reach 100 points in idol game',
+    name: '偶像达人',
+    description: '偶像游戏达到100分',
     condition: (stats) => (stats.gameHighScores['idol'] || 0) >= 100,
   },
   {
     id: 'quiz_master',
-    name: 'Quiz Master',
-    description: 'Reach 100 points in quiz game',
+    name: '知识大师',
+    description: '竞技游戏达到100分',
     condition: (stats) => (stats.gameHighScores['quiz'] || 0) >= 100,
   },
   {
     id: 'fate_explorer',
-    name: 'Fate Explorer',
-    description: 'Reach 100 points in fate game',
+    name: '命运探索者',
+    description: '命运游戏达到100分',
     condition: (stats) => (stats.gameHighScores['fate'] || 0) >= 100,
   },
   {
     id: 'all_games',
-    name: 'Explorer',
-    description: 'Play all 3 games',
+    name: '全能旅人',
+    description: '三个游戏都玩过',
     condition: (stats) => stats.gamesPlayed.length >= 3,
   },
 ]
@@ -64,6 +69,7 @@ export function useGameStats() {
     lastPlayedAt: {},
     achievements: [],
   })
+  const storageErrorRef = useRef(false)
 
   useEffect(() => {
     try {
@@ -76,65 +82,73 @@ export function useGameStats() {
     }
   }, [])
 
-  const recordPlay = useCallback((gameSlug: string, score: number) => {
-    setStats((prev) => {
-      const newStats = {
-        ...prev,
-        playCount: { ...prev.playCount },
-        highScore: { ...prev.highScore },
-        lastPlayedAt: { ...prev.lastPlayedAt },
+  const recordPlay = useCallback((gameSlug: string, score: number): RecordPlayResult => {
+    let result: RecordPlayResult = { newlyUnlocked: [], storageError: false }
+
+    const newStats = {
+      playCount: { ...stats.playCount },
+      highScore: { ...stats.highScore },
+      lastPlayedAt: { ...stats.lastPlayedAt },
+      achievements: [...stats.achievements],
+    }
+
+    // Update per-game play count
+    newStats.playCount[gameSlug] = (newStats.playCount[gameSlug] || 0) + 1
+
+    // Update per-game high score
+    const prevHigh = newStats.highScore[gameSlug] || 0
+    if (score > prevHigh) {
+      newStats.highScore[gameSlug] = score
+    }
+
+    // Update per-game last played timestamp
+    newStats.lastPlayedAt[gameSlug] = new Date().toISOString()
+
+    // Build gameHighScores and gamesPlayed for achievements check
+    const gameHighScores: Record<string, number> = {}
+    const gamesPlayed: string[] = []
+    const gameSlugs = Object.keys(newStats.playCount)
+    for (const slug of gameSlugs) {
+      if (newStats.highScore[slug] !== undefined) {
+        gameHighScores[slug] = newStats.highScore[slug]
+        gamesPlayed.push(slug)
       }
+    }
 
-      // Update per-game play count
-      newStats.playCount[gameSlug] = (newStats.playCount[gameSlug] || 0) + 1
+    // Check achievements
+    const statsContext: GameStatsContext = {
+      playCount: Object.values(newStats.playCount).reduce((a, b) => a + b, 0),
+      gameHighScores,
+      gamesPlayed,
+    }
 
-      // Update per-game high score
-      const prevHigh = newStats.highScore[gameSlug] || 0
-      if (score > prevHigh) {
-        newStats.highScore[gameSlug] = score
-      }
+    const newlyUnlocked = ACHIEVEMENTS
+      .filter((a) => !newStats.achievements.includes(a.id))
+      .filter((a) => a.condition(statsContext))
 
-      // Update per-game last played timestamp
-      newStats.lastPlayedAt[gameSlug] = new Date().toISOString()
+    if (newlyUnlocked.length > 0) {
+      newStats.achievements = [...stats.achievements, ...newlyUnlocked.map((a) => a.id)]
+    }
 
-      // Build gameHighScores and gamesPlayed for achievements check
-      const gameHighScores: Record<string, number> = {}
-      const gamesPlayed: string[] = []
-      const gameSlugs = Object.keys(newStats.playCount)
-      for (const slug of gameSlugs) {
-        if (newStats.highScore[slug] !== undefined) {
-          gameHighScores[slug] = newStats.highScore[slug]
-          gamesPlayed.push(slug)
-        }
-      }
+    // Persist to localStorage
+    let localStorageFailed = false
+    try {
+      localStorage.setItem(STATS_KEY, JSON.stringify(newStats))
+    } catch (e) {
+      console.warn('Failed to save stats to localStorage:', e)
+      localStorageFailed = true
+      storageErrorRef.current = true
+    }
 
-      // Check achievements
-      const statsContext: GameStatsContext = {
-        playCount: Object.values(newStats.playCount).reduce((a, b) => a + b, 0),
-        gameHighScores,
-        gamesPlayed,
-      }
+    // Update state
+    setStats(newStats)
 
-      const newlyUnlocked = ACHIEVEMENTS
-        .filter((a) => !newStats.achievements.includes(a.id))
-        .filter((a) => a.condition(statsContext))
-        .map((a) => a.id)
-
-      if (newlyUnlocked.length > 0) {
-        newStats.achievements = [...newStats.achievements, ...newlyUnlocked]
-      }
-
-      try {
-        localStorage.setItem(STATS_KEY, JSON.stringify(newStats))
-      } catch (e) {
-        console.warn('Failed to save stats to localStorage:', e)
-      }
-
-      return newStats
-    })
-  }, [])
+    result = { newlyUnlocked, storageError: localStorageFailed }
+    return result
+  }, [stats])
 
   const unlockedIds = stats.achievements
+  const hasStorageError = storageErrorRef.current
 
-  return { stats, recordPlay, achievements: ACHIEVEMENTS, unlockedIds }
+  return { stats, recordPlay, achievements: ACHIEVEMENTS, unlockedIds, hasStorageError }
 }

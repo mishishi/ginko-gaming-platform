@@ -22,7 +22,7 @@ export default function AchievementWall({ unlockedIds }: AchievementWallProps) {
   const totalCount = achievements.length
 
   return (
-    <div className="w-full">
+    <div className="w-full" role="region" aria-label="成就墙">
       {/* Header with progress */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-medium" style={{ color: 'var(--text-primary)' }}>
