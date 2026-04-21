@@ -105,22 +105,34 @@ function StepComplete() {
 export default function TourGuide() {
   const { hasSeenTour, isLoading, completeTour } = useTour()
   const [currentStep, setCurrentStep] = useState(0)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const open = useCallback(() => {
+    setIsOpen(true)
+  }, [])
+
+  const close = useCallback(() => {
+    setIsOpen(false)
+  }, [])
 
   const handleNext = useCallback(() => {
     if (currentStep < 3) {
       setCurrentStep((prev) => prev + 1)
     } else {
+      close()
       completeTour()
     }
-  }, [currentStep, completeTour])
+  }, [currentStep, close, completeTour])
 
   const handleSkip = useCallback(() => {
+    close()
     completeTour()
-  }, [completeTour])
+  }, [close, completeTour])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        close()
         completeTour()
       } else if (e.key === 'ArrowRight' && currentStep < 3) {
         handleNext()
@@ -130,9 +142,18 @@ export default function TourGuide() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentStep, handleNext, completeTour])
+  }, [currentStep, handleNext, close, completeTour])
 
-  if (isLoading || hasSeenTour) return null
+  useEffect(() => {
+    if (!hasSeenTour && isLoading === false) {
+      const timer = setTimeout(() => {
+        open()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [hasSeenTour, isLoading, open])
+
+  if (isLoading || hasSeenTour || !isOpen) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="新手引导">
