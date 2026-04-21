@@ -233,45 +233,41 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
                 >
                   检测中
                 </span>
-              ) : game.playable && isReachable ? (
+              ) : game.playable ? (
                 <span
                   className="text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 group/-status relative"
                   style={{
-                    backgroundColor: gameStatus?.latency != null
-                      ? (gameStatus.latency < 50
-                        ? 'rgba(34, 197, 94, 0.2)'
-                        : gameStatus.latency < 200
-                        ? 'rgba(234, 179, 8, 0.2)'
-                        : 'rgba(239, 68, 68, 0.2)')
-                      : 'rgba(34, 197, 94, 0.2)',
-                    color: gameStatus?.latency != null
-                      ? (gameStatus.latency < 50
-                        ? 'var(--late-green)'
-                        : gameStatus.latency < 200
-                        ? 'var(--late-yellow)'
-                        : 'var(--late-red)')
-                      : 'var(--late-green)'
+                    backgroundColor: !isOnline
+                      ? 'rgba(234, 179, 8, 0.2)'
+                      : isReachable
+                        ? (gameStatus?.latency != null
+                          ? (gameStatus.latency < 50
+                            ? 'rgba(34, 197, 94, 0.2)'
+                            : gameStatus.latency < 200
+                            ? 'rgba(234, 179, 8, 0.2)'
+                            : 'rgba(239, 68, 68, 0.2)')
+                          : 'rgba(34, 197, 94, 0.2)')
+                        : 'rgba(239, 68, 68, 0.2)',
+                    color: !isOnline
+                      ? 'var(--late-gray)'
+                      : isReachable
+                        ? (gameStatus?.latency != null
+                          ? (gameStatus.latency < 50
+                            ? 'var(--late-green)'
+                            : gameStatus.latency < 200
+                            ? 'var(--late-yellow)'
+                            : 'var(--late-red)')
+                          : 'var(--late-green)')
+                        : 'var(--late-red)'
                   }}
                 >
                   <span className="w-1 h-1 rounded-full bg-current opacity-60" />
-                  可玩{gameStatus?.latency != null && ` · ${gameStatus.latency}ms`}
+                  {!isOnline ? '离线' : isReachable ? `可玩${gameStatus?.latency != null ? ` · ${gameStatus.latency}ms` : ''}` : '不可用'}
                   <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/-status:opacity-100 transition-opacity delay-150 duration-200 pointer-events-none z-10">
-                    延迟 {gameStatus?.latency ?? '--'}ms | 更新于 刚刚
+                    {isOnline
+                      ? `延迟 ${gameStatus?.latency ?? '--'}ms | 更新于 刚刚`
+                      : '网络已断开'}
                   </span>
-                </span>
-              ) : !isOnline && game.playable ? (
-                <span
-                  className="text-[9px] px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(234, 179, 8, 0.2)', color: 'var(--late-gray)' }}
-                >
-                  离线
-                </span>
-              ) : game.playable ? (
-                <span
-                  className="text-[9px] px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--late-red)' }}
-                >
-                  不可用
                 </span>
               ) : (
                 <span
