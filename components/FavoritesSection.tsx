@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useFavorites } from '@/hooks/useFavorites'
+import { useFavorites } from '@/contexts/FavoritesContext'
 import { games, Game } from '@/lib/games'
 import GameCard from '@/components/GameCard'
 
@@ -21,7 +21,12 @@ function EmptyState() {
 }
 
 export default function FavoritesSection() {
-  const { favorites } = useFavorites()
+  const { favorites, isLoaded } = useFavorites()
+
+  // Don't render until favorites are loaded from localStorage
+  if (!isLoaded) {
+    return null
+  }
 
   const favoriteGames = useMemo(() => {
     return favorites

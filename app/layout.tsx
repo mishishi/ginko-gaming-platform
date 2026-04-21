@@ -12,6 +12,7 @@ import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistratio
 import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { AudioProvider } from '@/contexts/AudioContext'
+import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import MusicToggle from '@/components/MusicToggle'
 import OfflineIndicator from '@/components/OfflineIndicator'
 
@@ -42,9 +43,10 @@ export default function RootLayout({
         <OfflineIndicator />
         <ServiceWorkerRegistration />
         <GameStatusProvider>
-          <ToastProvider>
-            <ThemeProvider>
-            <TourGuide />
+          <FavoritesProvider>
+            <ToastProvider>
+              <ThemeProvider>
+              <TourGuide />
             <InstallPrompt />
             {/* Skip to main content link for accessibility */}
             <a
@@ -65,7 +67,8 @@ export default function RootLayout({
               <MusicToggle key="music-toggle" />
             </AudioProvider>
           </ThemeProvider>
-          </ToastProvider>
+            </ToastProvider>
+          </FavoritesProvider>
         </GameStatusProvider>
       </body>
     </html>
