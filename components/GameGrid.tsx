@@ -16,10 +16,10 @@ function SearchIcon() {
   )
 }
 
-type FilterOption = 'all' | 'playable' | 'coming-soon'
+type FilterOption = 'all' | 'playable' | 'coming-soon' | 'online-only'
 
 export default function GameGrid() {
-  const { isLoading } = useGameStatus()
+  const { isLoading, status } = useGameStatus()
   const { recentlyPlayed, clearRecentlyPlayed } = useRecentlyPlayed()
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
@@ -43,11 +43,12 @@ export default function GameGrid() {
 
       const matchesFilter = filter === 'all' ||
         (filter === 'playable' && game.playable) ||
-        (filter === 'coming-soon' && !game.playable)
+        (filter === 'coming-soon' && !game.playable) ||
+        (filter === 'online-only' && game.playable && status[game.slug]?.reachable)
 
       return matchesSearch && matchesFilter
     })
-  }, [searchQuery, filter])
+  }, [searchQuery, filter, status])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number) => {
     const totalCards = filteredGames.length
@@ -145,6 +146,18 @@ export default function GameGrid() {
               {option.label}
             </button>
           ))}
+          <button
+            key="online-only"
+            onClick={() => setFilter(filter === 'online-only' ? 'all' : 'online-only')}
+            className={`px-4 py-3 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+              filter === 'online-only'
+                ? 'bg-[var(--late-green)] text-[var(--bg-primary)]'
+                : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
+            }`}
+            aria-pressed={filter === 'online-only'}
+          >
+            可玩
+          </button>
         </div>
       </div>
 
@@ -203,6 +216,12 @@ export default function GameGrid() {
               key={game.slug}
               role="gridcell"
               ref={(el) => { cardRefs.current[index] = el }}
+              className="transition-all duration-300 ease-out"
+              style={{
+                opacity: 1,
+                transform: 'scale(1)',
+                animation: `fade-scale-in 0.3s ease-out ${index * 30}ms both`,
+              }}
             >
               <GameCard
                 game={game}
