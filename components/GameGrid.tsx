@@ -135,7 +135,7 @@ export default function GameGrid() {
             <button
               key={option.value}
               onClick={() => setFilter(option.value)}
-              className={`px-3 py-2 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+              className={`px-4 py-3 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
                 filter === option.value
                   ? 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
                   : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
