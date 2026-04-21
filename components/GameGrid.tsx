@@ -216,23 +216,24 @@ export default function GameGrid() {
           <div className="col-span-full py-20 text-center">
             {/* Empty state lantern */}
             <div className="flex justify-center mb-6">
-              <svg
-                className="w-12 h-16 text-[var(--accent-copper)] opacity-30"
-                viewBox="0 0 40 60"
-                fill="none"
-                aria-hidden="true"
-              >
+              <svg className="w-12 h-16 text-[var(--accent-copper)] opacity-30" viewBox="0 0 40 60" fill="none" aria-hidden="true">
                 <rect x="15" y="2" width="10" height="3" rx="1" fill="currentColor" opacity="0.5" />
-                <path
-                  d="M12 8 C8 8 6 14 6 20 L6 40 C6 46 10 50 14 50 L26 50 C30 50 34 46 34 40 L34 20 C34 14 32 8 28 8 L12 8Z"
-                  fill="currentColor"
-                  opacity="0.1"
-                  stroke="currentColor"
-                  strokeWidth="0.5"
-                />
+                <path d="M12 8 C8 8 6 14 6 20 L6 40 C6 46 10 50 14 50 L26 50 C30 50 34 46 34 40 L34 20 C34 14 32 8 28 8 L12 8Z" fill="currentColor" opacity="0.1" stroke="currentColor" strokeWidth="0.5" />
               </svg>
             </div>
             <p className="text-[var(--text-secondary)] text-sm mb-4">没有找到匹配的游戏</p>
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              <span className="text-xs text-[var(--text-muted)]">试试:</span>
+              {['偶像', '竞技', '命运', '推理'].map((term) => (
+                <button
+                  key={term}
+                  onClick={() => setSearchQuery(term)}
+                  className="px-2 py-1 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => { setSearchQuery(''); setFilter('all') }}
               className="px-4 py-2 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200"
