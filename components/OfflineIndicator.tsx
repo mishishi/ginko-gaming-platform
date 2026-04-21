@@ -25,7 +25,11 @@ export default function OfflineIndicator() {
   if (!offline) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-amber-500 text-black text-xs py-1.5 text-center z-50 font-medium">
+    <div
+      className="fixed top-0 left-0 right-0 bg-amber-500 text-black text-xs py-1.5 text-center z-50 font-medium"
+      role="alert"
+      aria-live="polite"
+    >
       网络连接已断开，部分功能可能不可用
     </div>
   )
