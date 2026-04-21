@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
@@ -31,6 +31,7 @@ interface GameCardProps {
   index: number
   onKeyDown?: (e: React.KeyboardEvent<HTMLAnchorElement>) => void
   tabIndex?: number
+  lastPlayedAt?: number
 }
 
 function TiltCard({ children }: { children: React.ReactNode }) {
@@ -103,12 +104,37 @@ function DifficultyStars({ level }: { level: number }) {
   )
 }
 
-export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameCardProps) {
+function formatTimeAgo(timestamp: number): string {
+  const diffMs = Date.now() - timestamp
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  if (diffMins < 1) return '刚刚'
+  if (diffMins < 60) return `${diffMins} 分钟前`
+  if (diffHours < 24) return `${diffHours} 小时前`
+  if (diffDays < 7) return `${diffDays} 天前`
+  return new Date(timestamp).toLocaleDateString('zh-CN')
+}
+
+export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPlayedAt }: GameCardProps) {
   const { status, isLoading } = useGameStatus()
   const { favorites, toggleFavorite } = useFavorites()
   const gameStatus = status[game.slug]
   const isReachable = gameStatus?.reachable ?? false
   const isFavorited = favorites.includes(game.slug)
+  const [isOnline, setIsOnline] = useState(true)
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine)
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -175,7 +201,22 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
               <DifficultyStars level={game.difficulty} />
               <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
               <span className="text-[10px] text-[var(--text-muted)]">{game.playerCount}</span>
-              {isLoading ? (
+              {lastPlayedAt && (
+                <>
+                  <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
+                  <span className="text-[10px]" style={{ color: 'var(--accent-copper)' }}>
+                    {formatTimeAgo(lastPlayedAt)}
+                  </span>
+                </>
+              )}
+              {!isOnline && game.playable ? (
+                <span
+                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: 'rgba(212, 132, 90, 0.2)', color: 'var(--accent-orange)' }}
+                >
+                  离线
+                </span>
+              ) : isLoading ? (
                 <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                   检测中
                 </span>
@@ -202,9 +243,9 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0 }: GameC
               ) : game.playable ? (
                 <span
                   className="text-[9px] px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: 'rgba(212, 132, 90, 0.2)', color: 'var(--accent-orange)' }}
+                  style={{ backgroundColor: 'rgba(139, 122, 139, 0.2)', color: 'var(--text-muted)' }}
                 >
-                  离线
+                  不可用
                 </span>
               ) : (
                 <span
