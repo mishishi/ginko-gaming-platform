@@ -43,5 +43,12 @@ export function useRecentlyPlayed() {
     })
   }, [])
 
-  return { recentlyPlayed, markPlayed }
+  const clearRecentlyPlayed = useCallback(() => {
+    setRecentlyPlayed([])
+    try {
+      localStorage.removeItem(RECENTLY_PLAYED_KEY)
+    } catch {}
+  }, [])
+
+  return { recentlyPlayed, markPlayed, clearRecentlyPlayed }
 }

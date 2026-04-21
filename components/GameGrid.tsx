@@ -20,7 +20,7 @@ type FilterOption = 'all' | 'playable' | 'coming-soon'
 
 export default function GameGrid() {
   const { isLoading } = useGameStatus()
-  const { recentlyPlayed } = useRecentlyPlayed()
+  const { recentlyPlayed, clearRecentlyPlayed } = useRecentlyPlayed()
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -163,15 +163,28 @@ export default function GameGrid() {
             <h2 id="recently-played-heading" className="text-[var(--text-secondary)] text-xs uppercase tracking-[0.15em]">
               最近游玩
             </h2>
+            {recentGames.length > 0 && (
+              <button
+                onClick={clearRecentlyPlayed}
+                className="text-[10px] text-[var(--text-muted)] hover:text-[var(--accent-copper)] transition-colors"
+                aria-label="清除最近游玩记录"
+              >
+                清除
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {recentGames.slice(0, 3).map((game, index) => (
-              <GameCard
-                key={game.slug}
-                game={game}
-                index={index}
-              />
-            ))}
+            {recentGames.slice(0, 3).map((game, index) => {
+              const entry = recentlyPlayed.find((r) => r.slug === game.slug)
+              return (
+                <GameCard
+                  key={game.slug}
+                  game={game}
+                  index={index}
+                  lastPlayedAt={entry?.timestamp}
+                />
+              )
+            })}
           </div>
         </section>
       )}
