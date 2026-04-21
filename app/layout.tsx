@@ -10,6 +10,8 @@ import TourGuide from '@/components/TourGuide'
 import InstallPrompt from '@/components/InstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
+import { ToastProvider } from '@/contexts/ToastContext'
+import OfflineIndicator from '@/components/OfflineIndicator'
 
 export const metadata: Metadata = {
   title: '银古客栈',
@@ -35,9 +37,11 @@ export default function RootLayout({
         <ResourceHints />
       </head>
       <body>
+        <OfflineIndicator />
         <ServiceWorkerRegistration />
         <GameStatusProvider>
-          <ThemeProvider>
+          <ToastProvider>
+            <ThemeProvider>
             <TourGuide />
             <InstallPrompt />
             {/* Skip to main content link for accessibility */}
@@ -56,6 +60,7 @@ export default function RootLayout({
               </PageTransition>
             </main>
           </ThemeProvider>
+          </ToastProvider>
         </GameStatusProvider>
       </body>
     </html>
