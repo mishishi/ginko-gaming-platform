@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
-import { useFavorites } from '@/hooks/useFavorites'
+import { useFavorites } from '@/contexts/FavoritesContext'
 import GameScreenshot from './GameScreenshots'
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -86,7 +86,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
       <div
         className="transition-transform duration-200 ease-out"
         style={{
-          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${isPressed ? 0.97 : 1})`,
+          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${isPressed ? 0.95 : 1})`,
           transformStyle: 'preserve-3d',
         }}
       >
@@ -123,6 +123,9 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
   const isReachable = gameStatus?.reachable ?? false
   const isFavorited = favorites.includes(game.slug)
   const [isOnline, setIsOnline] = useState(true)
+  const [favoriteAnimating, setFavoriteAnimating] = useState(false)
+  const prevStatusRef = useRef(gameStatus)
+  const [statusPulse, setStatusPulse] = useState(false)
 
   useEffect(() => {
     setIsOnline(navigator.onLine)
@@ -136,9 +139,23 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
     }
   }, [])
 
+  useEffect(() => {
+    if (prevStatusRef.current?.reachable !== gameStatus?.reachable) {
+      if (gameStatus?.reachable === true) {
+        setStatusPulse(true)
+        setTimeout(() => setStatusPulse(false), 600)
+      }
+    }
+    prevStatusRef.current = gameStatus
+  }, [gameStatus])
+
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!isFavorited) {
+      setFavoriteAnimating(true)
+      setTimeout(() => setFavoriteAnimating(false), 300)
+    }
     toggleFavorite(game.slug)
   }
 
@@ -150,7 +167,7 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
       tabIndex={tabIndex}
     >
       <TiltCard>
-        <div className="group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-0.5 hover:shadow-lg">
+        <div className={`group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-1 hover:shadow-[0_0_12px_rgba(251,191,36,0.25)]${statusPulse ? ' card-status-pulse' : ''}`}>
           {/* Top accent line - 渐变增强 */}
           <div
             className="h-0.5 w-full transition-all duration-300"
@@ -175,7 +192,7 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
             {/* Favorite button */}
             <button
               onClick={handleFavoriteClick}
-              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 ${isFavorited ? 'animate-pulse-once' : ''}`}
+              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 ${isFavorited ? (favoriteAnimating ? 'animate-favorite-burst' : 'animate-pulse-once') : ''}`}
               style={{
                 backgroundColor: isFavorited ? 'rgba(184, 149, 110, 0.3)' : 'rgba(0, 0, 0, 0.4)',
                 color: isFavorited ? 'var(--accent-copper)' : 'rgba(255, 255, 255, 0.6)',
@@ -209,48 +226,56 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
                   </span>
                 </>
               )}
-              {!isOnline && game.playable ? (
+              {isLoading ? (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: 'rgba(212, 132, 90, 0.2)', color: 'var(--accent-orange)' }}
-                  aria-label="网络离线，此游戏不可用"
+                  className="text-[9px] px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--late-gray)' }}
                 >
-                  离线
-                </span>
-              ) : isLoading ? (
-                <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                   检测中
                 </span>
               ) : game.playable && isReachable ? (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1 group/-status relative"
-                  style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--accent-green)' }}
+                  className="text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 group/-status relative"
+                  style={{
+                    backgroundColor: gameStatus?.latency != null
+                      ? (gameStatus.latency < 50
+                        ? 'rgba(34, 197, 94, 0.2)'
+                        : gameStatus.latency < 200
+                        ? 'rgba(234, 179, 8, 0.2)'
+                        : 'rgba(239, 68, 68, 0.2)')
+                      : 'rgba(34, 197, 94, 0.2)',
+                    color: gameStatus?.latency != null
+                      ? (gameStatus.latency < 50
+                        ? 'var(--late-green)'
+                        : gameStatus.latency < 200
+                        ? 'var(--late-yellow)'
+                        : 'var(--late-red)')
+                      : 'var(--late-green)'
+                  }}
                 >
                   <span className="w-1 h-1 rounded-full bg-current opacity-60" />
-                  可玩{gameStatus?.latency != null && <span className="opacity-50">{gameStatus.latency}ms</span>}
-                  {/* Latency quality tooltip on hover */}
-                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/status:opacity-100 transition-opacity pointer-events-none z-10">
-                    {gameStatus.latency != null && (
-                      <>
-                        {gameStatus.latency < 50 ? '极低延迟' :
-                         gameStatus.latency < 100 ? '低延迟' :
-                         gameStatus.latency < 200 ? '中等延迟' :
-                         gameStatus.latency < 500 ? '较高延迟' : '高延迟'}
-                        <span className="opacity-50 ml-1">{gameStatus.latency}ms</span>
-                      </>
-                    )}
+                  可玩{gameStatus?.latency != null && ` · ${gameStatus.latency}ms`}
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/-status:opacity-100 transition-opacity delay-150 duration-200 pointer-events-none z-10">
+                    延迟 {gameStatus?.latency ?? '--'}ms | 更新于 刚刚
                   </span>
+                </span>
+              ) : !isOnline && game.playable ? (
+                <span
+                  className="text-[9px] px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: 'rgba(234, 179, 8, 0.2)', color: 'var(--late-gray)' }}
+                >
+                  离线
                 </span>
               ) : game.playable ? (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: 'rgba(139, 122, 139, 0.2)', color: 'var(--text-muted)' }}
+                  className="text-[9px] px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--late-red)' }}
                 >
                   不可用
                 </span>
               ) : (
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  className="text-[9px] px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(139, 122, 155, 0.2)', color: 'var(--accent-purple)' }}
                 >
                   维护中
