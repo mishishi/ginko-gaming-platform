@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 
 const config: Config = {
   content: [
@@ -24,8 +25,19 @@ const config: Config = {
         serif: ['Noto Serif SC', 'serif'],
         sans: ['Noto Sans SC', 'sans-serif'],
       },
+      keyframes: {
+        pulseOnce: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.15)' },
+        },
+      },
+      animation: {
+        pulseOnce: 'pulseOnce 0.3s',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addVariant }) => addVariant('active', '&:active')),
+  ],
 }
 export default config
