@@ -213,6 +213,7 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
                 <span
                   className="text-[9px] px-1.5 py-0.5 rounded"
                   style={{ backgroundColor: 'rgba(212, 132, 90, 0.2)', color: 'var(--accent-orange)' }}
+                  aria-label="网络离线，此游戏不可用"
                 >
                   离线
                 </span>
