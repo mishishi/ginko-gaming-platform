@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
+import { useKeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp'
 import SoundToggle from '@/components/SoundToggle'
 
 const games = [
@@ -56,6 +57,7 @@ function CloseIcon() {
 export default function NavBar() {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
+  const { toggle: toggleKeyboardHelp } = useKeyboardShortcutsHelp()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMd, setIsMd] = useState(true)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
@@ -157,6 +159,19 @@ export default function NavBar() {
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
               </svg>
             )}
+          </button>
+
+          {/* Help Button */}
+          <button
+            onClick={toggleKeyboardHelp}
+            className="p-2 rounded hover:bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--accent-copper)] transition-colors"
+            aria-label="键盘快捷键"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
           </button>
 
           {/* Sound Toggle */}
