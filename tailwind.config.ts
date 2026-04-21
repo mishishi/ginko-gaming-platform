@@ -20,6 +20,10 @@ const config: Config = {
         'glow-idol': '#ff9ecf',
         'glow-quiz': '#00f5ff',
         'glow-fate': '#b8945f',
+        'late-green': '#22c55e',
+        'late-yellow': '#eab308',
+        'late-red': '#ef4444',
+        'late-gray': '#6b7280',
       },
       fontFamily: {
         serif: ['Noto Serif SC', 'serif'],

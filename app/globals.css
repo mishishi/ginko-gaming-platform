@@ -37,6 +37,12 @@
   --glow-quiz: #a8d8d8;
   --glow-fate: #d4c4a8;
 
+  /* Latency indicator colors */
+  --late-green: #22c55e;
+  --late-yellow: #eab308;
+  --late-red: #ef4444;
+  --late-gray: #6b7280;
+
   /* 背景层次 */
   --bg-vignette: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
 }
@@ -200,6 +206,45 @@ a:not(.no-underline):hover {
 :focus-visible {
   outline: 1px solid var(--accent-copper);
   outline-offset: 2px;
+}
+
+/* Status change pulse - card glow effect */
+@keyframes card-status-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(251, 191, 36, 0);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
+  }
+}
+
+.card-status-pulse {
+  animation: card-status-pulse 0.6s ease-out;
+}
+
+/* Favorite heart burst animation */
+@keyframes favorite-burst {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.8); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.animate-favorite-burst {
+  animation: favorite-burst 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+/* Filter transition - fade + scale */
+@keyframes fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ============================================
