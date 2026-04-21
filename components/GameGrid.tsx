@@ -156,7 +156,7 @@ export default function GameGrid() {
             }`}
             aria-pressed={filter === 'online-only'}
           >
-            可玩
+            在线
           </button>
         </div>
       </div>
