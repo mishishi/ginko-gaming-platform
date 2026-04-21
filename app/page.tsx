@@ -3,6 +3,7 @@ import GameGrid from '@/components/GameGrid'
 import ScrollReveal from '@/components/ScrollReveal'
 import StatsSection from '@/components/StatsSection'
 import DebugPanel from '@/components/DebugPanel'
+import ScrollToTop from '@/components/ScrollToTop'
 
 function LanternIcon({ className }: { className?: string }) {
   return (
@@ -161,7 +162,9 @@ export default function HomePage() {
       <StatsSection />
 
       {/* Debug Panel - TODO: remove after testing */}
-      <DebugPanel />
+      {process.env.NODE_ENV === 'development' && <DebugPanel />}
+
+      <ScrollToTop />
 
       {/* Footer - 简约雅致 */}
       <ScrollReveal>
@@ -190,7 +193,7 @@ export default function HomePage() {
                 © {new Date().getFullYear()} · 保留所有权利
               </p>
 
-              <p className="text-[var(--text-muted)] text-[11px] opacity-60">
+              <p className="text-[var(--text-secondary)] text-[11px]">
                 openginko.tech
               </p>
             </div>
