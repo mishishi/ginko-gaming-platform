@@ -154,11 +154,11 @@ export default function HomePage() {
           <div className="flex-1 ink-divider ml-2" />
         </div>
 
+        <FavoritesSection />
         <ScrollReveal>
-          <FavoritesSection />
-        </ScrollReveal>
-        <ScrollReveal>
-          <GameGrid />
+          <div className="mt-12">
+            <GameGrid />
+          </div>
         </ScrollReveal>
       </section>
 
