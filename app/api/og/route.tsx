@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             fontSize: 72,
-            fontStyle: 'bold',
+            fontWeight: 'bold',
             color: color,
             textAlign: 'center',
             padding: '0 60px',
