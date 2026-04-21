@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { games, getGameBySlug } from '@/lib/games'
 import GameFrame from '@/components/GameFrame'
 import GameStatusBanner from '@/components/GameStatusBanner'
+import GamePageOfflineWrapper from '@/components/GamePageOfflineWrapper'
 
 interface GamePageProps {
   params: {
@@ -198,6 +199,7 @@ export default function GamePage({ params }: GamePageProps) {
       </div>
 
       {/* Game iframe or maintenance state */}
+      <GamePageOfflineWrapper game={game}>
       {!game.playable ? (
         <div className="w-full h-[calc(100vh-7rem)] flex flex-col items-center justify-center gap-6 relative">
           {/* Ambient glow */}
@@ -244,6 +246,9 @@ export default function GamePage({ params }: GamePageProps) {
               这款游戏正在休息，请稍后再来
             </p>
           </div>
+          <div className="flex flex-col items-center gap-2 text-xs text-[var(--text-muted)]">
+            <p>有问题？请联系 <a href="mailto:support@ginko.example.com" className="underline hover:text-[var(--accent-copper)] transition-colors">support@ginko.example.com</a></p>
+          </div>
           <Link
             href="/"
             className="mt-2 px-5 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:bg-[var(--bg-card)]"
@@ -265,6 +270,7 @@ export default function GamePage({ params }: GamePageProps) {
           <GameFrame game={game} />
         </div>
       )}
+      </GamePageOfflineWrapper>
     </div>
     </>
   )
