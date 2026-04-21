@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ginko-v1';
+const CACHE_NAME = 'ginko-v3';
 
 const PRECACHE_URLS = [
   '/',
@@ -41,7 +41,7 @@ self.addEventListener('fetch', (event) => {
         }
         return fetch(event.request)
           .then((networkResponse) => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               const responseClone = networkResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseClone);
