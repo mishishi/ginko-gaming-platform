@@ -1,34 +1,26 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [displayChildren, setDisplayChildren] = useState(children)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const prevPathname = useRef(pathname)
+  const [isAnimating, setIsAnimating] = useState(true)
 
   useEffect(() => {
-    if (pathname !== prevPathname.current) {
-      setIsTransitioning(true)
-      const timer = setTimeout(() => {
-        setDisplayChildren(children)
-        setIsTransitioning(false)
-        prevPathname.current = pathname
-      }, 150)
-      return () => clearTimeout(timer)
-    }
-  }, [pathname, children])
+    const timer = setTimeout(() => setIsAnimating(false), 100)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    setIsAnimating(true)
+    const timer = setTimeout(() => setIsAnimating(false), 400)
+    return () => clearTimeout(timer)
+  }, [pathname])
 
   return (
-    <div
-      className={`page-transition-container ${isTransitioning ? 'page-exiting' : 'page-entering'}`}
-      key={pathname}
-    >
-      <div className={`page-transition ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-        {displayChildren}
-      </div>
+    <div className={`page-transition ${isAnimating ? 'page-entering' : ''}`}>
+      {children}
     </div>
   )
 }

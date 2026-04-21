@@ -10,12 +10,16 @@ import TourGuide from '@/components/TourGuide'
 import InstallPrompt from '@/components/InstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
+import { ToastProvider } from '@/contexts/ToastContext'
+import { AudioProvider } from '@/contexts/AudioContext'
+import MusicToggle from '@/components/MusicToggle'
+import OfflineIndicator from '@/components/OfflineIndicator'
 
 export const metadata: Metadata = {
   title: '银古客栈',
   description: '旅人的游戏驿站',
   icons: {
-    icon: '/icon.svg',
+    icon: '/favicon.svg',
   },
 }
 
@@ -35,9 +39,11 @@ export default function RootLayout({
         <ResourceHints />
       </head>
       <body>
+        <OfflineIndicator />
         <ServiceWorkerRegistration />
         <GameStatusProvider>
-          <ThemeProvider>
+          <ToastProvider>
+            <ThemeProvider>
             <TourGuide />
             <InstallPrompt />
             {/* Skip to main content link for accessibility */}
@@ -50,12 +56,16 @@ export default function RootLayout({
 
             <NavBar />
             <KeyboardShortcutsProvider />
-            <main id="main-content" className="relative z-10">
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </main>
+            <AudioProvider>
+              <main id="main-content" className="relative z-10">
+                <PageTransition>
+                  {children}
+                </PageTransition>
+              </main>
+              <MusicToggle key="music-toggle" />
+            </AudioProvider>
           </ThemeProvider>
+          </ToastProvider>
         </GameStatusProvider>
       </body>
     </html>
