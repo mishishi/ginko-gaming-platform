@@ -86,7 +86,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
       <div
         className="transition-transform duration-200 ease-out"
         style={{
-          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${isPressed ? 0.98 : 1})`,
+          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${isPressed ? 0.97 : 1})`,
           transformStyle: 'preserve-3d',
         }}
       >
@@ -175,7 +175,7 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
             {/* Favorite button */}
             <button
               onClick={handleFavoriteClick}
-              className="absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110"
+              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 ${isFavorited ? 'animate-pulse-once' : ''}`}
               style={{
                 backgroundColor: isFavorited ? 'rgba(184, 149, 110, 0.3)' : 'rgba(0, 0, 0, 0.4)',
                 color: isFavorited ? 'var(--accent-copper)' : 'rgba(255, 255, 255, 0.6)',
