@@ -164,7 +164,7 @@ export default function NavBar() {
           {/* Help Button */}
           <button
             onClick={toggleKeyboardHelp}
-            className="p-2 rounded hover:bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--accent-copper)] transition-colors"
+            className="p-2 rounded hover:bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--accent-copper)] transition-colors focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
             aria-label="键盘快捷键"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
