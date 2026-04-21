@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
+import FavoritesSection from '@/components/FavoritesSection'
 import ScrollReveal from '@/components/ScrollReveal'
 import StatsSection from '@/components/StatsSection'
 import DebugPanel from '@/components/DebugPanel'
@@ -153,6 +154,9 @@ export default function HomePage() {
           <div className="flex-1 ink-divider ml-2" />
         </div>
 
+        <ScrollReveal>
+          <FavoritesSection />
+        </ScrollReveal>
         <ScrollReveal>
           <GameGrid />
         </ScrollReveal>
