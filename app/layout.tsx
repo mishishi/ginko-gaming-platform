@@ -11,6 +11,7 @@ import InstallPrompt from '@/components/InstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { CheckInProvider } from '@/contexts/CheckInContext'
 import { AudioProvider } from '@/contexts/AudioContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import MusicToggle from '@/components/MusicToggle'
@@ -44,6 +45,7 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <GameStatusProvider>
           <ToastProvider>
+            <CheckInProvider>
             <FavoritesProvider>
               <ThemeProvider>
                 <AudioProvider>
@@ -67,6 +69,7 @@ export default function RootLayout({
                 </AudioProvider>
               </ThemeProvider>
             </FavoritesProvider>
+            </CheckInProvider>
           </ToastProvider>
         </GameStatusProvider>
       </body>
