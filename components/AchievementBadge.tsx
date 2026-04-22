@@ -2,6 +2,41 @@
 
 import { useState } from 'react'
 
+export type AchievementRarity = 'common' | 'rare' | 'epic' | 'legendary'
+
+// Rarity colors and effects
+export const RARITY_CONFIG: Record<AchievementRarity, {
+  border: string
+  glow: string
+  bg: string
+  label: string
+}> = {
+  common: {
+    border: 'var(--text-muted)',
+    glow: 'rgba(109, 104, 98, 0.3)',
+    bg: 'rgba(109, 104, 98, 0.1)',
+    label: '普通',
+  },
+  rare: {
+    border: 'var(--accent-blue)',
+    glow: 'rgba(59, 130, 246, 0.4)',
+    bg: 'rgba(59, 130, 246, 0.1)',
+    label: '稀有',
+  },
+  epic: {
+    border: 'var(--accent-purple)',
+    glow: 'rgba(168, 85, 247, 0.4)',
+    bg: 'rgba(168, 85, 247, 0.1)',
+    label: '史诗',
+  },
+  legendary: {
+    border: 'var(--accent-copper)',
+    glow: 'rgba(184, 149, 110, 0.6)',
+    bg: 'rgba(184, 149, 110, 0.15)',
+    label: '传说',
+  },
+}
+
 // Achievement data with Chinese names from design spec
 export const ACHIEVEMENTS_CONFIG = {
   first_play: {
@@ -9,30 +44,77 @@ export const ACHIEVEMENTS_CONFIG = {
     name: '初入客栈',
     description: '首次开始任意游戏',
     icon: '🎴',
+    rarity: 'common' as AchievementRarity,
   },
   idol_master: {
     id: 'idol_master' as const,
     name: '偶像达人',
     description: '偶像游戏达到100分',
     icon: '⭐',
+    rarity: 'rare' as AchievementRarity,
   },
   quiz_master: {
     id: 'quiz_master' as const,
     name: '知识大师',
     description: '竞技游戏达到100分',
     icon: '🧠',
+    rarity: 'rare' as AchievementRarity,
   },
   fate_explorer: {
     id: 'fate_explorer' as const,
     name: '命运探索者',
     description: '命运游戏达到100分',
     icon: '🔮',
+    rarity: 'rare' as AchievementRarity,
   },
   all_games: {
     id: 'all_games' as const,
     name: '全能旅人',
     description: '三个游戏都玩过',
     icon: '🏮',
+    rarity: 'epic' as AchievementRarity,
+  },
+  first_score: {
+    id: 'first_score' as const,
+    name: '初试锋芒',
+    description: '任意游戏首次获得分数',
+    icon: '📝',
+    rarity: 'common' as AchievementRarity,
+  },
+  perfect_score: {
+    id: 'perfect_score' as const,
+    name: '完美通关',
+    description: '任意游戏达到满分',
+    icon: '💯',
+    rarity: 'legendary' as AchievementRarity,
+  },
+  play_10_times: {
+    id: 'play_10_times' as const,
+    name: '熟能生巧',
+    description: '累计游玩10次',
+    icon: '🔟',
+    rarity: 'common' as AchievementRarity,
+  },
+  play_50_times: {
+    id: 'play_50_times' as const,
+    name: '游刃有余',
+    description: '累计游玩50次',
+    icon: '🎮',
+    rarity: 'epic' as AchievementRarity,
+  },
+  high_scorer: {
+    id: 'high_scorer' as const,
+    name: '高分得主',
+    description: '总分达到500分',
+    icon: '🏆',
+    rarity: 'rare' as AchievementRarity,
+  },
+  marathoner: {
+    id: 'marathoner' as const,
+    name: '马拉松选手',
+    description: '累计游玩100次',
+    icon: '🏃',
+    rarity: 'legendary' as AchievementRarity,
   },
 }
 
@@ -43,11 +125,13 @@ export interface Achievement {
   name: string
   description: string
   icon: string
+  rarity: AchievementRarity
 }
 
 export interface AchievementBadgeProps {
   achievement: Achievement
   isUnlocked: boolean
+  showRarity?: boolean
 }
 
 function LockIcon() {
@@ -70,8 +154,9 @@ function LockIcon() {
   )
 }
 
-export default function AchievementBadge({ achievement, isUnlocked }: AchievementBadgeProps) {
+export default function AchievementBadge({ achievement, isUnlocked, showRarity = false }: AchievementBadgeProps) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const rarityConfig = RARITY_CONFIG[achievement.rarity]
 
   return (
     <div className="relative inline-block">
@@ -80,16 +165,13 @@ export default function AchievementBadge({ achievement, isUnlocked }: Achievemen
         className={`
           relative w-16 h-16 rounded-full flex items-center justify-center
           transition-all duration-300 cursor-pointer
-          ${isUnlocked
-            ? 'animate-unlock-glow'
-            : 'opacity-40 grayscale'
-          }
+          ${isUnlocked ? 'animate-unlock-glow' : 'opacity-40 grayscale'}
         `}
         style={{
-          backgroundColor: isUnlocked ? 'rgba(184, 149, 110, 0.15)' : 'rgba(109, 104, 98, 0.1)',
-          border: `2px solid ${isUnlocked ? 'var(--accent-copper)' : 'var(--text-muted)'}`,
+          backgroundColor: isUnlocked ? rarityConfig.bg : 'rgba(109, 104, 98, 0.1)',
+          border: `2px solid ${isUnlocked ? rarityConfig.border : 'var(--text-muted)'}`,
           boxShadow: isUnlocked
-            ? '0 0 20px rgba(184, 149, 110, 0.4), inset 0 0 15px rgba(184, 149, 110, 0.1)'
+            ? `0 0 20px ${rarityConfig.glow}, inset 0 0 15px ${rarityConfig.bg}`
             : 'none',
         }}
         onMouseEnter={() => setShowTooltip(true)}
@@ -125,7 +207,10 @@ export default function AchievementBadge({ achievement, isUnlocked }: Achievemen
 
         {/* Glow burst animation on unlock */}
         {isUnlocked && (
-          <div className="absolute inset-0 rounded-full animate-ping-glow" />
+          <div
+            className="absolute inset-0 rounded-full animate-ping-glow"
+            style={{ boxShadow: `0 0 15px ${rarityConfig.glow}` }}
+          />
         )}
       </div>
 
@@ -157,11 +242,25 @@ export default function AchievementBadge({ achievement, isUnlocked }: Achievemen
           />
 
           <div className="text-center">
-            <div
-              className="text-sm font-medium mb-0.5"
-              style={{ color: isUnlocked ? 'var(--accent-copper)' : 'var(--text-muted)' }}
-            >
-              {achievement.name}
+            <div className="flex items-center justify-center gap-2 mb-0.5">
+              <div
+                className="text-sm font-medium"
+                style={{ color: isUnlocked ? rarityConfig.border : 'var(--text-muted)' }}
+              >
+                {achievement.name}
+              </div>
+              {showRarity && (
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: rarityConfig.bg,
+                    border: `1px solid ${rarityConfig.border}`,
+                    color: rarityConfig.border,
+                  }}
+                >
+                  {rarityConfig.label}
+                </span>
+              )}
             </div>
             <div
               className="text-xs"
@@ -178,42 +277,6 @@ export default function AchievementBadge({ achievement, isUnlocked }: Achievemen
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes ping-glow {
-          0% {
-            box-shadow: 0 0 0 0 rgba(184, 149, 110, 0.7);
-          }
-          70% {
-            box-shadow: 0 0 0 15px rgba(184, 149, 110, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(184, 149, 110, 0);
-          }
-        }
-
-        @keyframes unlock-glow {
-          0% {
-            transform: scale(0.8);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.1);
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        .animate-ping-glow {
-          animation: ping-glow 1.5s ease-out infinite;
-        }
-
-        .animate-unlock-glow {
-          animation: unlock-glow 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }

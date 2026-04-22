@@ -7,8 +7,6 @@ import GameCard from '@/components/GameCard'
 import HomepageSkeleton from '@/components/HomepageSkeleton'
 import { games, Game } from '@/lib/games'
 
-const RECENTLY_PLAYED_KEY = 'recently-played'
-
 function SearchIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -26,20 +24,7 @@ export default function GameGrid() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
   const [focusedIndex, setFocusedIndex] = useState(-1)
-  const [hasRecentHistory, setHasRecentHistory] = useState(false)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
-
-  // Check if user has used recently played feature before
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(RECENTLY_PLAYED_KEY)
-      if (stored && JSON.parse(stored).length > 0) {
-        setHasRecentHistory(true)
-      }
-    } catch {
-      // ignore
-    }
-  }, [])
 
   const recentGames = useMemo(() => {
     return recentlyPlayed
@@ -179,7 +164,7 @@ export default function GameGrid() {
       )}
 
       {/* Recently Played */}
-      {!searchQuery && (recentGames.length > 0 || hasRecentHistory) && (
+      {!searchQuery && recentGames.length > 0 && (
         <section aria-labelledby="recently-played-heading">
           <div className="flex items-center gap-3 mb-6">
             <div className="ink-dot" />

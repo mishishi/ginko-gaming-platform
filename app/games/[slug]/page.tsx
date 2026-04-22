@@ -1,8 +1,12 @@
+'use client'
+
+import { useState } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Script from 'next/script'
 import { games, getGameBySlug } from '@/lib/games'
 import GameFrame from '@/components/GameFrame'
+import GameIntro from '@/components/GameIntro'
 import GameStatusBanner from '@/components/GameStatusBanner'
 import GamePageOfflineWrapper from '@/components/GamePageOfflineWrapper'
 
@@ -12,47 +16,9 @@ interface GamePageProps {
   }
 }
 
-export async function generateStaticParams() {
-  return games.map((game) => ({
-    slug: game.slug,
-  }))
-}
-
-export async function generateMetadata({ params }: GamePageProps) {
-  const game = getGameBySlug(params.slug)
-  if (!game) return {}
-
-  const baseUrl = 'https://ginko.example.com'
-  const gameUrl = `${baseUrl}/games/${game.slug}`
-
-  return {
-    title: `${game.title} - 银古客栈`,
-    description: game.description,
-    openGraph: {
-      title: game.title,
-      description: game.description,
-      url: gameUrl,
-      type: 'website',
-      siteName: '银古客栈',
-      images: [
-        {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.color)}`,
-          width: 1200,
-          height: 630,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary',
-      title: game.title,
-      description: game.description,
-      images: [`${baseUrl}/api/og?title=${encodeURIComponent(game.title)}&color=${encodeURIComponent(game.color)}`],
-    },
-  }
-}
-
 export default function GamePage({ params }: GamePageProps) {
   const game = getGameBySlug(params.slug)
+  const [hasStarted, setHasStarted] = useState(false)
 
   if (!game) {
     notFound()
@@ -171,32 +137,34 @@ export default function GamePage({ params }: GamePageProps) {
       </div>
 
       {/* Game metadata bar with icons */}
-      <div className="flex items-center justify-center gap-5 py-3 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/30">
-        {/* Difficulty with star icon */}
-        <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none">
-            <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
-          </svg>
-          <span style={{ color: game.color }}>{'★'.repeat(game.difficulty)}{'☆'.repeat(5 - game.difficulty)}</span>
-        </span>
+      {hasStarted && (
+        <div className="flex items-center justify-center gap-5 py-3 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/30 animate-fade-in">
+          {/* Difficulty with star icon */}
+          <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent-amber)" stroke="none">
+              <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
+            </svg>
+            <span style={{ color: game.color }}>{'★'.repeat(game.difficulty)}{'☆'.repeat(5 - game.difficulty)}</span>
+          </span>
 
-        <span className="w-px h-3 bg-[var(--border-subtle)]" />
+          <span className="w-px h-3 bg-[var(--border-subtle)]" />
 
-        {/* Player count with user icon */}
-        <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <span className="text-[var(--text-muted)]">玩家</span>
-          <span>{game.playerCount}</span>
-        </span>
+          {/* Player count with user icon */}
+          <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span className="text-[var(--text-muted)]">玩家</span>
+            <span>{game.playerCount}</span>
+          </span>
 
-        <span className="w-px h-3 bg-[var(--border-subtle)]" />
+          <span className="w-px h-3 bg-[var(--border-subtle)]" />
 
-        {/* Status badge */}
-        <GameStatusBanner game={game} />
-      </div>
+          {/* Status badge */}
+          <GameStatusBanner game={game} />
+        </div>
+      )}
 
       {/* Game iframe or maintenance state */}
       <GamePageOfflineWrapper game={game}>
@@ -257,6 +225,9 @@ export default function GamePage({ params }: GamePageProps) {
             返回首页
           </Link>
         </div>
+      ) : !hasStarted ? (
+        /* Show game intro before starting */
+        <GameIntro game={game} onStart={() => setHasStarted(true)} />
       ) : (
         /* Game iframe with decorative frame */
         <div className="relative">

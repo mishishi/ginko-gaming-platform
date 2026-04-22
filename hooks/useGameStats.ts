@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { ACHIEVEMENTS_CONFIG, type AchievementRarity, type AchievementId } from '@/components/AchievementBadge'
 
 const STATS_KEY = 'yinqiu-stats'
 
@@ -15,6 +16,8 @@ export interface Achievement {
   id: string
   name: string
   description: string
+  icon: string
+  rarity: AchievementRarity
   condition: (stats: GameStatsContext) => boolean
 }
 
@@ -22,6 +25,7 @@ export interface GameStatsContext {
   playCount: number
   gameHighScores: Record<string, number>
   gamesPlayed: string[]
+  totalHighScore: number
 }
 
 export interface RecordPlayResult {
@@ -29,36 +33,51 @@ export interface RecordPlayResult {
   storageError: boolean
 }
 
+// Convert ACHIEVEMENTS_CONFIG to Achievement array with conditions
 const ACHIEVEMENTS: Achievement[] = [
   {
-    id: 'first_play',
-    name: '初入客栈',
-    description: '首次开始任意游戏',
-    condition: (stats) => stats.playCount === 1,
+    ...ACHIEVEMENTS_CONFIG.first_play,
+    condition: (stats) => stats.playCount >= 1,
   },
   {
-    id: 'idol_master',
-    name: '偶像达人',
-    description: '偶像游戏达到100分',
+    ...ACHIEVEMENTS_CONFIG.first_score,
+    condition: (stats) => stats.totalHighScore > 0,
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.idol_master,
     condition: (stats) => (stats.gameHighScores['idol'] || 0) >= 100,
   },
   {
-    id: 'quiz_master',
-    name: '知识大师',
-    description: '竞技游戏达到100分',
+    ...ACHIEVEMENTS_CONFIG.quiz_master,
     condition: (stats) => (stats.gameHighScores['quiz'] || 0) >= 100,
   },
   {
-    id: 'fate_explorer',
-    name: '命运探索者',
-    description: '命运游戏达到100分',
+    ...ACHIEVEMENTS_CONFIG.fate_explorer,
     condition: (stats) => (stats.gameHighScores['fate'] || 0) >= 100,
   },
   {
-    id: 'all_games',
-    name: '全能旅人',
-    description: '三个游戏都玩过',
+    ...ACHIEVEMENTS_CONFIG.all_games,
     condition: (stats) => stats.gamesPlayed.length >= 3,
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.perfect_score,
+    condition: (stats) => Object.values(stats.gameHighScores).some(score => score >= 100),
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.play_10_times,
+    condition: (stats) => stats.playCount >= 10,
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.play_50_times,
+    condition: (stats) => stats.playCount >= 50,
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.high_scorer,
+    condition: (stats) => stats.totalHighScore >= 500,
+  },
+  {
+    ...ACHIEVEMENTS_CONFIG.marathoner,
+    condition: (stats) => stats.playCount >= 100,
   },
 ]
 
@@ -121,11 +140,15 @@ export function useGameStats() {
       }
     }
 
+    // Calculate total high score
+    const totalHighScore = Object.values(newStats.highScore).reduce((a, b) => a + b, 0)
+
     // Check achievements
     const statsContext: GameStatsContext = {
       playCount: Object.values(newStats.playCount).reduce((a, b) => a + b, 0),
       gameHighScores,
       gamesPlayed,
+      totalHighScore,
     }
 
     const newlyUnlocked = ACHIEVEMENTS
@@ -153,7 +176,7 @@ export function useGameStats() {
     return result
   }, [])
 
-  const unlockedIds = stats.achievements
+  const unlockedIds = stats.achievements as AchievementId[]
   const hasStorageError = storageErrorRef.current
 
   return { stats, recordPlay, achievements: ACHIEVEMENTS, unlockedIds, hasStorageError }

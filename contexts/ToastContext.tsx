@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, ReactNode, useRef, useEffect } from 'react'
+import { AchievementRarity, RARITY_CONFIG } from '@/components/AchievementBadge'
 
 type ToastType = 'success' | 'error' | 'info' | 'achievement'
 
@@ -9,10 +10,12 @@ interface Toast {
   message: string
   type: ToastType
   duration?: number
+  icon?: string
+  rarity?: AchievementRarity
 }
 
 interface ToastContextValue {
-  showToast: (message: string, type?: ToastType, duration?: number) => void
+  showToast: (message: string, type?: ToastType, duration?: number, icon?: string, rarity?: AchievementRarity) => void
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null)
@@ -30,9 +33,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const showToast = useCallback((message: string, type: ToastType = 'info', duration = 3000) => {
+  const showToast = useCallback((message: string, type: ToastType = 'info', duration = 3000, icon?: string, rarity?: AchievementRarity) => {
     const id = ++toastId
-    setToasts((prev) => [...prev, { id, message, type, duration }])
+    setToasts((prev) => [...prev, { id, message, type, duration, icon, rarity }])
 
     if (duration > 0) {
       const timeoutId = setTimeout(() => {
@@ -64,9 +67,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               style={
                 toast.type === 'achievement'
                   ? {
-                      backgroundColor: 'rgba(184, 149, 110, 0.95)',
-                      borderColor: 'var(--accent-glow)',
-                      color: '#0f0f0f',
+                      backgroundColor: 'rgba(20, 18, 16, 0.98)',
+                      borderColor: toast.rarity ? RARITY_CONFIG[toast.rarity].border : 'var(--accent-copper)',
+                      color: '#e8e4df',
+                      boxShadow: toast.rarity ? `0 0 20px ${RARITY_CONFIG[toast.rarity].glow}` : '0 4px 16px rgba(0,0,0,0.3)',
                     }
                   : toast.type === 'success'
                   ? {
@@ -87,20 +91,37 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     }
               }
             >
-              <div className="flex items-center gap-2">
-                {toast.type === 'achievement' && (
-                  <span aria-hidden="true" style={{ fontSize: 16 }}>
-                    🏆
+              {toast.type === 'achievement' ? (
+                <div className="flex items-center gap-3">
+                  <span aria-hidden="true" style={{ fontSize: 24 }}>
+                    {toast.icon || '🏆'}
                   </span>
-                )}
-                {toast.type === 'success' && (
-                  <span aria-hidden="true">✓</span>
-                )}
-                {toast.type === 'error' && (
-                  <span aria-hidden="true">✕</span>
-                )}
-                <span>{toast.message}</span>
-              </div>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs uppercase tracking-wider opacity-70">成就解锁</span>
+                      {toast.rarity && (
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: RARITY_CONFIG[toast.rarity].bg,
+                            border: `1px solid ${RARITY_CONFIG[toast.rarity].border}`,
+                            color: RARITY_CONFIG[toast.rarity].border,
+                          }}
+                        >
+                          {RARITY_CONFIG[toast.rarity].label}
+                        </span>
+                      )}
+                    </div>
+                    <span>{toast.message}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {toast.type === 'success' && <span aria-hidden="true">✓</span>}
+                  {toast.type === 'error' && <span aria-hidden="true">✕</span>}
+                  <span>{toast.message}</span>
+                </div>
+              )}
             </div>
           </div>
         ))}

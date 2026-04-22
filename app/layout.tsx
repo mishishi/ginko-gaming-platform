@@ -46,26 +46,25 @@ export default function RootLayout({
           <ToastProvider>
             <FavoritesProvider>
               <ThemeProvider>
-              <TourGuide />
-            <InstallPrompt />
-            {/* Skip to main content link for accessibility */}
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[var(--accent-copper)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none"
-            >
-              跳转到主要内容
-            </a>
-
-            <NavBar />
-            <KeyboardShortcutsProvider />
-            <AudioProvider>
-              <main id="main-content" className="relative z-10">
-                <PageTransition>
-                  {children}
-                </PageTransition>
-              </main>
-              <MusicToggle key="music-toggle" />
-            </AudioProvider>
+                <AudioProvider>
+                  <TourGuide />
+                  <InstallPrompt />
+                  {/* Skip to main content link for accessibility */}
+                  <a
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[var(--accent-copper)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none"
+                  >
+                    跳转到主要内容
+                  </a>
+                  <NavBar />
+                  <KeyboardShortcutsProvider />
+                  <main id="main-content" className="relative z-10">
+                    <PageTransition>
+                      {children}
+                    </PageTransition>
+                  </main>
+                  <MusicToggle key="music-toggle" />
+                </AudioProvider>
               </ThemeProvider>
             </FavoritesProvider>
           </ToastProvider>

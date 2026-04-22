@@ -589,6 +589,44 @@ a:not(.no-underline):hover {
 }
 
 /* ============================================
+   ACHIEVEMENT BADGE ANIMATIONS
+   ============================================ */
+
+@keyframes ping-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(184, 149, 110, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(184, 149, 110, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(184, 149, 110, 0);
+  }
+}
+
+@keyframes unlock-glow {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-ping-glow {
+  animation: ping-glow 1.5s ease-out infinite;
+}
+
+.animate-unlock-glow {
+  animation: unlock-glow 0.5s ease-out forwards;
+}
+
+/* ============================================
    REDUCED MOTION - 尊重用户偏好
    ============================================ */
 

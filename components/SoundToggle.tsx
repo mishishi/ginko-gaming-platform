@@ -1,20 +1,18 @@
 'use client'
 
-import { useSound } from '@/hooks/useSound'
+import { useAudio } from '@/contexts/AudioContext'
 
 export default function SoundToggle() {
-  const { soundEnabled, toggleSound, initialized } = useSound()
-
-  if (!initialized) return null
+  const { sfxOn, toggleSfx } = useAudio()
 
   return (
     <button
-      onClick={toggleSound}
+      onClick={toggleSfx}
       className="p-2 rounded-lg transition-all duration-200 hover:bg-[var(--bg-elevated)]"
-      aria-label={soundEnabled ? '关闭音效' : '开启音效'}
-      title={soundEnabled ? '关闭音效' : '开启音效'}
+      aria-label={sfxOn ? '关闭音效' : '开启音效'}
+      title={sfxOn ? '关闭音效' : '开启音效'}
     >
-      {soundEnabled ? (
+      {sfxOn ? (
         <svg
           width="18"
           height="18"
