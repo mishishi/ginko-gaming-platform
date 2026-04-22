@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useKeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp'
 import SoundToggle from '@/components/SoundToggle'
+import { useCheckInContext } from '@/contexts/CheckInContext'
+import { useToast } from '@/contexts/ToastContext'
 
 const games = [
   { slug: 'idol', name: '偶像' },
@@ -126,7 +128,28 @@ export default function NavBar() {
                 </Link>
               )
             })}
+
+            {/* Leaderboard */}
+            <Link
+              href="/leaderboard"
+              className={`group relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
+                pathname === '/leaderboard'
+                  ? 'text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              排行榜
+              <span
+                className={`absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-copper)] to-transparent transition-opacity duration-300 ${
+                  pathname === '/leaderboard' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
+                aria-hidden="true"
+              />
+            </Link>
           </div>
+
+          {/* Compact Check-in Button */}
+          <CompactCheckIn />
 
           {/* Theme Toggle */}
           <button
@@ -269,8 +292,68 @@ export default function NavBar() {
               )
             })}
           </div>
+
+          {/* Mobile Leaderboard Link */}
+          <div className="px-4 pt-2">
+            <Link
+              href="/leaderboard"
+              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+                pathname === '/leaderboard'
+                  ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <span>🏆</span>
+              <span>排行榜</span>
+            </Link>
+          </div>
         </div>
       </div>
     </>
+  )
+}
+
+// Compact Check-in Button Component
+function CompactCheckIn() {
+  const { checkInData, checkIn, isCheckedInToday } = useCheckInContext()
+  const { showToast } = useToast()
+  const checkedIn = isCheckedInToday()
+
+  const handleClick = () => {
+    if (checkedIn) {
+      showToast(`今日已签到 ${checkInData.streak}天连续 🔥`, 'info')
+      return
+    }
+    const result = checkIn()
+    if (result.success) {
+      let msg = `签到成功！连续${result.newStreak}天 🔥`
+      if (result.reward) {
+        msg = `${result.reward.icon} ${result.reward.name}！${msg}`
+      }
+      showToast(msg, 'success')
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`
+        flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+        transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1
+        ${checkedIn
+          ? 'bg-[var(--accent-copper)]/10 text-[var(--accent-copper)] cursor-default'
+          : 'bg-[var(--accent-copper)] text-[var(--bg-primary)] hover:scale-105 active:scale-95'
+        }
+      `}
+      aria-label={checkedIn ? `今日已签到，连续${checkInData.streak}天` : '点击签到'}
+    >
+      <span>{checkedIn ? '✓' : '📅'}</span>
+      <span className="hidden lg:inline">{checkedIn ? '已签到' : '签到'}</span>
+      {checkInData.streak > 0 && (
+        <span className="text-xs opacity-75">🔥{checkInData.streak}</span>
+      )}
+    </button>
   )
 }
