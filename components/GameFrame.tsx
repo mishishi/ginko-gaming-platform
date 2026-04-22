@@ -13,6 +13,7 @@ import GameFrameError from './GameFrameError'
 import KeyboardHints from './KeyboardHints'
 import GameFrameControls from './GameFrameControls'
 import { useLeaderboard } from '@/hooks/useLeaderboard'
+import AchievementUnlockModal from './AchievementUnlockModal'
 
 interface GameFrameProps {
   game: Game
@@ -24,6 +25,13 @@ export default function GameFrame({ game }: GameFrameProps) {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showKeyboardHints, setShowKeyboardHints] = useState(true)
   const [loadingProgress, setLoadingProgress] = useState(0)
+  const [unlockedAchievement, setUnlockedAchievement] = useState<{
+    id: string
+    name: string
+    description: string
+    icon: string
+    rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  } | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -38,8 +46,15 @@ export default function GameFrame({ game }: GameFrameProps) {
     markPlayed(game.slug)
     // Record play and notify if achievements unlocked
     const { newlyUnlocked } = recordPlay(game.slug, 0)
-    for (const achievement of newlyUnlocked) {
-      showToast(achievement.name, 'achievement', 4000, achievement.icon, achievement.rarity)
+    if (newlyUnlocked.length > 0) {
+      // Show first achievement as fullscreen modal, rest as toasts
+      setUnlockedAchievement(newlyUnlocked[0])
+      showToast(`🏆 成就解锁: ${newlyUnlocked[0].name}`, 'achievement', 4000, newlyUnlocked[0].icon, newlyUnlocked[0].rarity)
+      // Queue remaining achievements as toasts
+      for (let i = 1; i < newlyUnlocked.length; i++) {
+        const achievement = newlyUnlocked[i]
+        showToast(`🏆 成就解锁: ${achievement.name}`, 'achievement', 4000, achievement.icon, achievement.rarity)
+      }
     }
   }, [markPlayed, recordPlay, showToast, game.slug])
 
@@ -248,6 +263,12 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* Keyboard hints */}
       <KeyboardHints visible={showKeyboardHints && !isLoading && !hasError} />
+
+      {/* Achievement unlock modal */}
+      <AchievementUnlockModal
+        achievement={unlockedAchievement}
+        onClose={() => setUnlockedAchievement(null)}
+      />
     </div>
   )
 }
