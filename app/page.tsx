@@ -198,35 +198,6 @@ export default function HomePage() {
           </div>
 
           <div className="max-w-3xl mx-auto px-4">
-            {/* Brand column */}
-            <div className="text-center md:text-left">
-              {/* Decorative element */}
-              <div className="flex items-center gap-2 mb-3">
-                <div
-                  className="w-8 h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, var(--accent-amber), transparent)',
-                  }}
-                />
-                <h3
-                  className="text-xl text-[var(--accent-amber)]"
-                  style={{ fontFamily: "'Noto Serif SC', serif" }}
-                >
-                  银古客栈
-                </h3>
-                <div
-                  className="w-8 h-px"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, var(--accent-amber))',
-                  }}
-                />
-              </div>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                穿越迷雾，遇见珍藏<br />
-                每一个游戏，都是一段旅程
-              </p>
-            </div>
-
             {/* Quick links with underline hover */}
             <div className="text-center">
               <h4 className="text-[var(--text-primary)] text-sm font-medium mb-4">快速导航</h4>
