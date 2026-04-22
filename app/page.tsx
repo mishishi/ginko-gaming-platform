@@ -101,43 +101,58 @@ export default function HomePage() {
           <div className="ink-dot opacity-30" style={{ width: 5, height: 5 }} />
         </div>
 
-        <div className="max-w-3xl mx-auto relative">
-          {/* 主标题 */}
-          <h1
-            className="font-serif text-6xl md:text-7xl lg:text-8xl text-[var(--accent-silver)] animate-fade-in-up"
-            style={{
-              fontFamily: 'var(--font-serif), Noto Serif SC, serif',
-              letterSpacing: '0.15em',
-              textShadow: '0 0 80px rgba(201,197,192,0.25), 0 2px 4px rgba(0,0,0,0.5)',
-            }}
-          >
-            银古客栈
-          </h1>
-
-          {/* 副标题 */}
-          <p
-            className="text-[var(--accent-copper)] text-xs md:text-sm mt-6 tracking-[0.5em] uppercase animate-fade-in-up stagger-2"
-          >
-            Silver Ancient Inn
-          </p>
-
-          {/* 墨线分隔 */}
-          <div className="mt-10 flex justify-center animate-fade-in stagger-3">
-            <div className="ink-divider w-40" />
+        <div className="max-w-4xl mx-auto relative">
+          {/* Main title with enhanced glow */}
+          <div className="relative inline-block">
+            <h1
+              className="font-serif text-6xl md:text-7xl text-[var(--accent-amber)] mb-2 animate-fade-in-up"
+              style={{
+                fontFamily: "'Noto Serif SC', serif",
+                textShadow: '0 0 60px rgba(212,165,116,0.5), 0 0 120px rgba(212,165,116,0.3)',
+              }}
+            >
+              银古客栈
+            </h1>
+            {/* Subtle glow underline */}
+            <div
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 w-32 rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, transparent, var(--accent-amber), transparent)',
+                boxShadow: '0 0 20px var(--accent-amber)',
+              }}
+            />
           </div>
 
-          {/* 标语 */}
-          <p
-            className="text-[var(--text-secondary)] text-lg md:text-xl mt-10 italic animate-fade-in-up stagger-4"
-            style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
-          >
+          {/* Tagline - clearly secondary */}
+          <p className="text-[var(--text-secondary)] text-base md:text-lg animate-fade-in-up stagger-2 tracking-wide">
             旅人的游戏驿站
           </p>
 
-          {/* 装饰性小字 */}
-          <p className="text-[var(--text-muted)] text-xs mt-5 tracking-[0.4em] animate-fade-in stagger-5">
+          {/* Poetic description - tertiary, subtle */}
+          <p
+            className="text-[var(--text-muted)] text-xs mt-2 italic animate-fade-in-up stagger-3"
+            style={{ fontFamily: "'Noto Serif SC', serif" }}
+          >
             穿越迷雾，遇见珍藏
           </p>
+
+          {/* Decorative line - subtle separator */}
+          <div className="mt-6 flex justify-center animate-fade-in stagger-4">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-[var(--accent-amber)]/20 to-transparent" />
+          </div>
+
+          {/* Scroll indicator CTA */}
+          <div className="mt-12 animate-fade-in stagger-4">
+            <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
+              <span className="text-[10px] uppercase tracking-widest">探索</span>
+              <div
+                className="w-5 h-8 rounded-full border border-[var(--text-muted)]/30 flex items-start justify-center p-1"
+                style={{ animation: 'scroll-hint 2s ease-in-out infinite' }}
+              >
+                <div className="w-1 h-2 rounded-full bg-[var(--accent-amber)]/60" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <ScrollIndicator />
@@ -183,30 +198,67 @@ export default function HomePage() {
           </div>
 
           <div className="max-w-3xl mx-auto px-4">
-            {/* 页脚文字 */}
-            <div className="text-center space-y-3">
-              <p
-                className="text-[var(--accent-silver)] text-base tracking-[0.3em]"
-                style={{ fontFamily: 'var(--font-serif), Noto Serif SC, serif' }}
-              >
-                银古客栈
-              </p>
-
-              <p className="text-[var(--text-muted)] text-[11px] tracking-wider">
-                © {new Date().getFullYear()} · 保留所有权利
-              </p>
-
-              <p className="text-[var(--text-secondary)] text-[11px]">
-                openginko.tech
+            {/* Brand column */}
+            <div className="text-center md:text-left">
+              {/* Decorative element */}
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-8 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, var(--accent-amber), transparent)',
+                  }}
+                />
+                <h3
+                  className="text-xl text-[var(--accent-amber)]"
+                  style={{ fontFamily: "'Noto Serif SC', serif" }}
+                >
+                  银古客栈
+                </h3>
+                <div
+                  className="w-8 h-px"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, var(--accent-amber))',
+                  }}
+                />
+              </div>
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+                穿越迷雾，遇见珍藏<br />
+                每一个游戏，都是一段旅程
               </p>
             </div>
 
-            {/* 底部装饰 */}
-            <div className="flex justify-center items-center gap-3 mt-8">
-              <div className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--border-default)]" />
-              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-copper)] opacity-40" />
-              <div className="w-12 h-px bg-gradient-to-l from-transparent to-[var(--border-default)]" />
+            {/* Quick links with underline hover */}
+            <div className="text-center">
+              <h4 className="text-[var(--text-primary)] text-sm font-medium mb-4">快速导航</h4>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/games/idol"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
+                  偶像收藏
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
+                </Link>
+                <Link
+                  href="/games/quiz"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
+                  知识竞技
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
+                </Link>
+                <Link
+                  href="/games/fate"
+                  className="text-[var(--text-secondary)] text-sm hover:text-[var(--accent-amber)] transition-all duration-300 inline-block relative group"
+                >
+                  命运占卜
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[var(--accent-amber)] transition-all duration-300 group-hover:w-full" />
+                </Link>
+              </div>
             </div>
+
+            {/* Copyright - subtle and elegant */}
+            <p className="text-center text-[var(--text-muted)] text-[11px] tracking-wide">
+              © {new Date().getFullYear()} 银古客栈 · 保留所有权利
+            </p>
           </div>
         </footer>
       </ScrollReveal>

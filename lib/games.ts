@@ -12,6 +12,7 @@ export interface Game {
   title: string
   subtitle: string
   description: string
+  screenshot: string
   color: string
   glowColor: string
   devUrl: string
@@ -34,6 +35,7 @@ export const games: Game[] = [
     title: '偶像收藏',
     subtitle: '收集你的偶像，组成最强阵容',
     description: '在樱粉色的梦境中，遇见独一无二的她。每一次抽取都是惊喜，每一张卡牌都值得珍藏。',
+    screenshot: 'https://picsum.photos/seed/idol-game/600/400',
     color: '#ff9ecf',
     glowColor: 'rgba(255,158,207,0.4)',
     devUrl: 'http://localhost:3002',
@@ -49,6 +51,7 @@ export const games: Game[] = [
     title: '知识竞技',
     subtitle: '知识对战，先得 10 分获胜',
     description: '文学、历史、地理、科学……谁才是真正的百科全书？与好友一战，见证知识的巅峰对决。',
+    screenshot: 'https://picsum.photos/seed/quiz-game/600/400',
     color: '#00f5ff',
     glowColor: 'rgba(0,245,255,0.4)',
     devUrl: 'http://localhost:3003',
@@ -64,6 +67,7 @@ export const games: Game[] = [
     title: '命运占卜',
     subtitle: '探索你的命运轨迹',
     description: '古老的星盘缓缓转动，命运的丝线若隐若现。AI与你对话，探寻那些指引前路的答案。',
+    screenshot: 'https://picsum.photos/seed/fate-game/600/400',
     color: '#b8945f',
     glowColor: 'rgba(184,148,95,0.4)',
     devUrl: 'http://localhost:3004',
