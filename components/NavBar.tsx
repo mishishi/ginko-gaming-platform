@@ -132,7 +132,7 @@ export default function NavBar() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-300 active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
             aria-label={theme === 'dark' ? '切换到亮色模式' : '切换到暗色模式'}
           >
             {theme === 'dark' ? (
@@ -175,7 +175,7 @@ export default function NavBar() {
             ref={hamburgerRef}
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
+            className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-300 active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
             aria-label="打开导航菜单"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-menu"
@@ -241,7 +241,7 @@ export default function NavBar() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:rounded"
+              className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:rounded"
               aria-label="关闭导航菜单"
             >
               <CloseIcon />

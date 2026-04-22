@@ -141,7 +141,7 @@ export default function GameGrid() {
             <button
               key={option.value}
               onClick={() => handleFilterClick(option.value)}
-              className={`px-4 py-3 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+              className={`px-4 py-3 text-xs rounded transition-all duration-200 active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
                 filter === option.value
                   ? option.value === 'online-only'
                     ? 'bg-[var(--late-green)] text-[var(--bg-primary)]'
@@ -248,7 +248,7 @@ export default function GameGrid() {
                 <button
                   key={term}
                   onClick={() => setSearchQuery(term)}
-                  className="px-2 py-1 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200"
+                  className="px-2 py-1 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200 active:scale-95"
                 >
                   {term}
                 </button>
@@ -256,7 +256,7 @@ export default function GameGrid() {
             </div>
             <button
               onClick={() => { setSearchQuery(''); setFilter('all') }}
-              className="px-4 py-2 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200"
+              className="px-4 py-2 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200 active:scale-95"
             >
               清除搜索条件
             </button>

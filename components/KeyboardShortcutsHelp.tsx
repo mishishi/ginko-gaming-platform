@@ -134,7 +134,7 @@ export default function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShort
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)]"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[var(--accent-amber)]"
             aria-label="关闭"
           >
             <CloseIcon />

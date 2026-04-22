@@ -8,7 +8,7 @@ export default function SoundToggle() {
   return (
     <button
       onClick={toggleSfx}
-      className="p-2 rounded-lg transition-all duration-200 hover:bg-[var(--bg-elevated)]"
+      className="p-2 rounded-lg transition-all duration-200 active:scale-95 hover:bg-[var(--bg-elevated)]"
       aria-label={sfxOn ? '关闭音效' : '开启音效'}
       title={sfxOn ? '关闭音效' : '开启音效'}
     >

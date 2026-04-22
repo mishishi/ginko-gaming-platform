@@ -255,7 +255,7 @@ function RatingStars({ stats, onRate }: RatingStarsProps) {
             }}
             onMouseEnter={() => setHoverRating(star)}
             onMouseLeave={() => setHoverRating(null)}
-            className="text-[10px] transition-transform duration-100 hover:scale-125"
+            className="text-[10px] transition-transform duration-100 active:scale-95 hover:scale-125"
             style={{
               color: star <= displayRating ? 'var(--accent-copper)' : 'var(--text-muted)',
               opacity: star <= displayRating ? 1 : 0.3,
@@ -457,7 +457,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
             {/* Favorite button */}
             <button
               onClick={handleFavoriteClick}
-              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 ${isFavorited ? (favoriteAnimating ? 'animate-favorite-burst' : 'animate-pulse-once') : ''}`}
+              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 active:scale-95 hover:scale-110 ${isFavorited ? (favoriteAnimating ? 'animate-favorite-burst' : 'animate-pulse-once') : ''}`}
               style={{
                 backgroundColor: isFavorited ? 'rgba(184, 149, 110, 0.3)' : 'rgba(0, 0, 0, 0.4)',
                 color: isFavorited ? 'var(--accent-copper)' : 'rgba(255, 255, 255, 0.6)',
