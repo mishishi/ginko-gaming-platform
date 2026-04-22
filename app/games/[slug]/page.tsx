@@ -131,6 +131,15 @@ export default function GamePage({ params }: GamePageProps) {
                   {game.title}
                 </span>
               </li>
+              <li className="text-[var(--text-muted)]" aria-hidden="true">/</li>
+              <li>
+                <Link
+                  href={`/games/${game.slug}/info`}
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
+                >
+                  详情
+                </Link>
+              </li>
             </ol>
           </nav>
         </div>
