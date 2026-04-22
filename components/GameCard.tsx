@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
 import { useFavorites } from '@/contexts/FavoritesContext'
+import { useGameRatings } from '@/hooks/useGameRatings'
 import GameScreenshot from './GameScreenshots'
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -122,6 +123,49 @@ function DifficultyStars({ level }: { level: number }) {
   )
 }
 
+interface RatingStarsProps {
+  gameSlug: string
+  stats: { average: number; count: number; userRating: number | null }
+  onRate: (rating: number) => void
+}
+
+function RatingStars({ stats, onRate }: RatingStarsProps) {
+  const [hoverRating, setHoverRating] = useState<number | null>(null)
+  const displayRating = hoverRating ?? stats.userRating ?? 0
+
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map(star => (
+          <button
+            key={star}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onRate(star)
+            }}
+            onMouseEnter={() => setHoverRating(star)}
+            onMouseLeave={() => setHoverRating(null)}
+            className="text-[10px] transition-transform duration-100 hover:scale-125"
+            style={{
+              color: star <= displayRating ? 'var(--accent-copper)' : 'var(--text-muted)',
+              opacity: star <= displayRating ? 1 : 0.3,
+            }}
+            aria-label={`Rate ${star} stars`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      {stats.count > 0 && (
+        <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
+          {stats.average.toFixed(1)}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function formatTimeAgo(timestamp: number): string {
   const diffMs = Date.now() - timestamp
   const diffMins = Math.floor(diffMs / 60000)
@@ -212,6 +256,7 @@ function StatusBadge({ isLoading, game, isOnline, isReachable, latency }: Status
 const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPlayedAt }: GameCardProps) {
   const { status, isLoading } = useGameStatus()
   const { favorites, toggleFavorite } = useFavorites()
+  const { getRatingStats, rateGame } = useGameRatings()
   const gameStatus = status[game.slug]
   const isReachable = gameStatus?.reachable ?? false
   const isFavorited = favorites.includes(game.slug)
@@ -219,6 +264,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false)
   const prevStatusRef = useRef(gameStatus)
   const [statusPulse, setStatusPulse] = useState(false)
+  const ratingStats = getRatingStats(game.slug)
 
   useEffect(() => {
     setIsOnline(navigator.onLine)
@@ -307,10 +353,12 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
           {/* Content */}
           <div className="p-4">
             {/* Metadata row */}
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <DifficultyStars level={game.difficulty} />
               <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
               <span className="text-[10px] text-[var(--text-muted)]">{game.playerCount}</span>
+              <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
+              <RatingStars gameSlug={game.slug} stats={ratingStats} onRate={(r) => rateGame(game.slug, r)} />
               {lastPlayedAt && (
                 <>
                   <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
