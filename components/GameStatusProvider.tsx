@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 
 interface GameStatus {
   reachable: boolean
@@ -29,22 +29,22 @@ export function GameStatusProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<GameStatusMap>({})
   const [isLoading, setIsLoading] = useState(true)
 
+  const fetchStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/game-status')
+      if (response.ok) {
+        const data = await response.json()
+        setStatus(data)
+      }
+    } catch {
+      // Keep default status (all unreachable) on error
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null
-
-    async function fetchStatus() {
-      try {
-        const response = await fetch('/api/game-status')
-        if (response.ok) {
-          const data = await response.json()
-          setStatus(data)
-        }
-      } catch {
-        // Keep default status (all unreachable) on error
-      } finally {
-        setIsLoading(false)
-      }
-    }
 
     const startInterval = () => {
       if (!intervalId) intervalId = setInterval(fetchStatus, 30000)
@@ -65,7 +65,7 @@ export function GameStatusProvider({ children }: { children: ReactNode }) {
       stopInterval()
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [])
+  }, [fetchStatus])
 
   return (
     <GameStatusContext.Provider value={{ status, isLoading }}>

@@ -7,6 +7,8 @@ import GameCard from '@/components/GameCard'
 import HomepageSkeleton from '@/components/HomepageSkeleton'
 import { games, Game } from '@/lib/games'
 
+const RECENTLY_PLAYED_KEY = 'recently-played'
+
 function SearchIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -24,7 +26,20 @@ export default function GameGrid() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterOption>('all')
   const [focusedIndex, setFocusedIndex] = useState(-1)
+  const [hasRecentHistory, setHasRecentHistory] = useState(false)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  // Check if user has used recently played feature before
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(RECENTLY_PLAYED_KEY)
+      if (stored && JSON.parse(stored).length > 0) {
+        setHasRecentHistory(true)
+      }
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const recentGames = useMemo(() => {
     return recentlyPlayed
@@ -33,6 +48,10 @@ export default function GameGrid() {
   }, [recentlyPlayed])
 
   const columnsCount = 3
+
+  const handleFilterClick = useCallback((value: FilterOption) => {
+    setFilter((prev) => prev === value ? 'all' : value)
+  }, [])
 
   const filteredGames = useMemo(() => {
     return games.filter((game: Game) => {
@@ -132,13 +151,16 @@ export default function GameGrid() {
             { value: 'all', label: '全部' },
             { value: 'playable', label: '可玩' },
             { value: 'coming-soon', label: '待发' },
+            { value: 'online-only', label: '在线' },
           ] as { value: FilterOption; label: string }[]).map((option) => (
             <button
               key={option.value}
-              onClick={() => setFilter(option.value)}
+              onClick={() => handleFilterClick(option.value)}
               className={`px-4 py-3 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
                 filter === option.value
-                  ? 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
+                  ? option.value === 'online-only'
+                    ? 'bg-[var(--late-green)] text-[var(--bg-primary)]'
+                    : 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
                   : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
               }`}
               aria-pressed={filter === option.value}
@@ -146,18 +168,6 @@ export default function GameGrid() {
               {option.label}
             </button>
           ))}
-          <button
-            key="online-only"
-            onClick={() => setFilter(filter === 'online-only' ? 'all' : 'online-only')}
-            className={`px-4 py-3 text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
-              filter === 'online-only'
-                ? 'bg-[var(--late-green)] text-[var(--bg-primary)]'
-                : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
-            }`}
-            aria-pressed={filter === 'online-only'}
-          >
-            在线
-          </button>
         </div>
       </div>
 
@@ -169,7 +179,7 @@ export default function GameGrid() {
       )}
 
       {/* Recently Played */}
-      {!searchQuery && recentGames.length > 0 && (
+      {!searchQuery && (recentGames.length > 0 || hasRecentHistory) && (
         <section aria-labelledby="recently-played-heading">
           <div className="flex items-center gap-3 mb-6">
             <div className="ink-dot" />
@@ -186,19 +196,25 @@ export default function GameGrid() {
               </button>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {recentGames.slice(0, 3).map((game, index) => {
-              const entry = recentlyPlayed.find((r) => r.slug === game.slug)
-              return (
-                <GameCard
-                  key={game.slug}
-                  game={game}
-                  index={index}
-                  lastPlayedAt={entry?.timestamp}
-                />
-              )
-            })}
-          </div>
+          {recentGames.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recentGames.slice(0, 3).map((game, index) => {
+                const entry = recentlyPlayed.find((r) => r.slug === game.slug)
+                return (
+                  <GameCard
+                    key={game.slug}
+                    game={game}
+                    index={index}
+                    lastPlayedAt={entry?.timestamp}
+                  />
+                )
+              })}
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <p className="text-xs text-[var(--text-muted)]">暂无最近游玩记录</p>
+            </div>
+          )}
         </section>
       )}
 

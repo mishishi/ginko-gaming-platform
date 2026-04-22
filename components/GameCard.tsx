@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { Game } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
@@ -38,39 +38,57 @@ function TiltCard({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
   const [isPressed, setIsPressed] = useState(false)
+  const rafRef = useRef<number | null>(null)
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || isPressed) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    const rotateX = ((y - centerY) / centerY) * -4
-    const rotateY = ((x - centerX) / centerX) * 4
-    setTilt({ rotateX, rotateY })
-  }
 
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (rafRef.current) return
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      if (!cardRef.current) return
+      const rect = cardRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+      const rotateX = ((y - centerY) / centerY) * -4
+      const rotateY = ((x - centerX) / centerX) * 4
+      setTilt({ rotateX, rotateY })
+    })
+  }, [isPressed])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (!cardRef.current || isPressed || e.touches.length === 0) return
-    const touch = e.touches[0]
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = touch.clientX - rect.left
-    const y = touch.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    // Milder tilt on touch devices
-    const rotateX = ((y - centerY) / centerY) * -2
-    const rotateY = ((x - centerX) / centerX) * 2
-    setTilt({ rotateX, rotateY })
-  }
 
-  const handleMouseLeave = () => {
+    if (rafRef.current) return
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      if (!cardRef.current) return
+      const touch = e.touches[0]
+      const rect = cardRef.current.getBoundingClientRect()
+      const x = touch.clientX - rect.left
+      const y = touch.clientY - rect.top
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+      const rotateX = ((y - centerY) / centerY) * -2
+      const rotateY = ((x - centerX) / centerX) * 2
+      setTilt({ rotateX, rotateY })
+    })
+  }, [isPressed])
+
+  const handleMouseLeave = useCallback(() => {
     setTilt({ rotateX: 0, rotateY: 0 })
-  }
+  }, [])
 
-  const handleMouseDown = () => setIsPressed(true)
-  const handleMouseUp = () => setIsPressed(false)
+  const handleMouseDown = useCallback(() => setIsPressed(true), [])
+  const handleMouseUp = useCallback(() => setIsPressed(false), [])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
 
   return (
     <div
@@ -116,7 +134,82 @@ function formatTimeAgo(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('zh-CN')
 }
 
-export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPlayedAt }: GameCardProps) {
+interface StatusBadgeProps {
+  isLoading: boolean
+  game: Game
+  isOnline: boolean
+  isReachable: boolean
+  latency: number | null | undefined
+}
+
+function StatusBadge({ isLoading, game, isOnline, isReachable, latency }: StatusBadgeProps) {
+  if (isLoading) {
+    return (
+      <span
+        className="text-[9px] px-2 py-0.5 rounded-full"
+        style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--late-gray)' }}
+      >
+        检测中
+      </span>
+    )
+  }
+
+  if (!game.playable) {
+    return (
+      <span
+        className="text-[9px] px-2 py-0.5 rounded-full"
+        style={{ backgroundColor: 'rgba(139, 122, 155, 0.2)', color: 'var(--accent-purple)' }}
+      >
+        维护中
+      </span>
+    )
+  }
+
+  let bgColor: string
+  let textColor: string
+
+  if (!isOnline) {
+    bgColor = 'rgba(234, 179, 8, 0.2)'
+    textColor = 'var(--late-gray)'
+  } else if (isReachable) {
+    if (latency != null) {
+      if (latency < 50) {
+        bgColor = 'rgba(34, 197, 94, 0.2)'
+        textColor = 'var(--late-green)'
+      } else if (latency < 200) {
+        bgColor = 'rgba(234, 179, 8, 0.2)'
+        textColor = 'var(--late-yellow)'
+      } else {
+        bgColor = 'rgba(239, 68, 68, 0.2)'
+        textColor = 'var(--late-red)'
+      }
+    } else {
+      bgColor = 'rgba(34, 197, 94, 0.2)'
+      textColor = 'var(--late-green)'
+    }
+  } else {
+    bgColor = 'rgba(239, 68, 68, 0.2)'
+    textColor = 'var(--late-red)'
+  }
+
+  const label = !isOnline ? '离线' : isReachable ? `可玩${latency != null ? ` · ${latency}ms` : ''}` : '不可用'
+  const tooltip = isOnline ? `延迟 ${latency ?? '--'}ms | 更新于 刚刚` : '网络已断开'
+
+  return (
+    <span
+      className="text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 group/-status relative"
+      style={{ backgroundColor: bgColor, color: textColor }}
+    >
+      <span className="w-1 h-1 rounded-full bg-current opacity-60" />
+      {label}
+      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/-status:opacity-100 transition-opacity delay-150 duration-200 pointer-events-none z-10">
+        {tooltip}
+      </span>
+    </span>
+  )
+}
+
+const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPlayedAt }: GameCardProps) {
   const { status, isLoading } = useGameStatus()
   const { favorites, toggleFavorite } = useFavorites()
   const gameStatus = status[game.slug]
@@ -226,57 +319,13 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
                   </span>
                 </>
               )}
-              {isLoading ? (
-                <span
-                  className="text-[9px] px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(107, 155, 122, 0.2)', color: 'var(--late-gray)' }}
-                >
-                  检测中
-                </span>
-              ) : game.playable ? (
-                <span
-                  className="text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 group/-status relative"
-                  style={{
-                    backgroundColor: !isOnline
-                      ? 'rgba(234, 179, 8, 0.2)'
-                      : isReachable
-                        ? (gameStatus?.latency != null
-                          ? (gameStatus.latency < 50
-                            ? 'rgba(34, 197, 94, 0.2)'
-                            : gameStatus.latency < 200
-                            ? 'rgba(234, 179, 8, 0.2)'
-                            : 'rgba(239, 68, 68, 0.2)')
-                          : 'rgba(34, 197, 94, 0.2)')
-                        : 'rgba(239, 68, 68, 0.2)',
-                    color: !isOnline
-                      ? 'var(--late-gray)'
-                      : isReachable
-                        ? (gameStatus?.latency != null
-                          ? (gameStatus.latency < 50
-                            ? 'var(--late-green)'
-                            : gameStatus.latency < 200
-                            ? 'var(--late-yellow)'
-                            : 'var(--late-red)')
-                          : 'var(--late-green)')
-                        : 'var(--late-red)'
-                  }}
-                >
-                  <span className="w-1 h-1 rounded-full bg-current opacity-60" />
-                  {!isOnline ? '离线' : isReachable ? `可玩${gameStatus?.latency != null ? ` · ${gameStatus.latency}ms` : ''}` : '不可用'}
-                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[10px] whitespace-nowrap opacity-0 group-hover/-status:opacity-100 transition-opacity delay-150 duration-200 pointer-events-none z-10">
-                    {isOnline
-                      ? `延迟 ${gameStatus?.latency ?? '--'}ms | 更新于 刚刚`
-                      : '网络已断开'}
-                  </span>
-                </span>
-              ) : (
-                <span
-                  className="text-[9px] px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(139, 122, 155, 0.2)', color: 'var(--accent-purple)' }}
-                >
-                  维护中
-                </span>
-              )}
+              <StatusBadge
+                isLoading={isLoading}
+                game={game}
+                isOnline={isOnline}
+                isReachable={isReachable}
+                latency={gameStatus?.latency}
+              />
             </div>
 
             {/* Game title */}
@@ -325,4 +374,6 @@ export default function GameCard({ game, index, onKeyDown, tabIndex = 0, lastPla
       </TiltCard>
     </Link>
   )
-}
+})
+
+export default GameCard
