@@ -416,7 +416,23 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
     >
       <TouchGestures game={game} isFavorited={isFavorited} onFavorite={handleFavoriteClick}>
       <TiltCard>
-        <div className={`group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-1 hover:shadow-[0_0_12px_rgba(251,191,36,0.25)]${statusPulse ? ' card-status-pulse' : ''}`}>
+        <div className={`group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1${statusPulse ? ' card-status-pulse' : ''}`}
+          style={{
+            boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.2)`,
+          }}
+        >
+          {/* Noise texture overlay */}
+          <div className="noise-overlay rounded-2xl" aria-hidden="true" />
+
+          {/* Breathing glow effect */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
+            style={{
+              boxShadow: `inset 0 0 80px ${game.glowColor}30`,
+              animation: 'glow-breathe 3s ease-in-out infinite',
+            }}
+          />
+
           {/* Top accent line - 渐变增强 */}
           <div
             className="h-0.5 w-full transition-all duration-300"
@@ -461,9 +477,9 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
           </div>
 
           {/* Content */}
-          <div className="p-4">
+          <div className="p-4 flex flex-col min-h-[180px]">
             {/* Metadata row */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-2 mb-2 flex-wrap leading-none overflow-visible">
               <DifficultyStars level={game.difficulty} />
               <span className="text-[10px] text-[var(--text-muted)] opacity-40">|</span>
               <span className="text-[10px] text-[var(--text-muted)]">{game.playerCount}</span>
@@ -484,17 +500,18 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
                 isReachable={isReachable}
                 latency={gameStatus?.latency}
               />
-              <span
-                className="text-[9px] px-1.5 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: `${GAME_CATEGORIES[game.category].color}15`,
-                  border: `1px solid ${GAME_CATEGORIES[game.category].color}40`,
-                  color: GAME_CATEGORIES[game.category].color,
-                }}
-              >
-                {GAME_CATEGORIES[game.category].label}
-              </span>
             </div>
+            {/* Category badge - always on new line */}
+            <span
+              className="text-[9px] px-1.5 py-0.5 rounded-full whitespace-nowrap self-start"
+              style={{
+                backgroundColor: `${GAME_CATEGORIES[game.category].color}15`,
+                border: `1px solid ${GAME_CATEGORIES[game.category].color}40`,
+                color: GAME_CATEGORIES[game.category].color,
+              }}
+            >
+              {GAME_CATEGORIES[game.category].label}
+            </span>
 
             {/* Game title */}
             <h3
@@ -518,7 +535,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
             </p>
 
             {/* Enter link */}
-            <div className="mt-3">
+            <div className="mt-auto pt-3">
               <span
                 className="text-xs inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:gap-2"
                 style={{ color: game.color }}

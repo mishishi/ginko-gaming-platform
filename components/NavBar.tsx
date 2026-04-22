@@ -110,19 +110,19 @@ export default function NavBar() {
                   key={game.slug}
                   href={`/games/${game.slug}`}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
+                  className={`group relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
                     isActive
                       ? 'text-[var(--accent-copper)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   {game.name}
-                  {isActive && (
-                    <span
-                      className="absolute -bottom-0.5 left-0 right-0 h-px bg-[var(--accent-copper)]"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <span
+                    className={`absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-copper)] to-transparent transition-opacity duration-300 ${
+                      isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                    aria-hidden="true"
+                  />
                 </Link>
               )
             })}
