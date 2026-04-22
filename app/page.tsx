@@ -3,7 +3,6 @@ import GameGrid from '@/components/GameGrid'
 import FavoritesSection from '@/components/FavoritesSection'
 import ScrollReveal from '@/components/ScrollReveal'
 import StatsSection from '@/components/StatsSection'
-import DebugPanel from '@/components/DebugPanel'
 import ScrollToTop from '@/components/ScrollToTop'
 
 function LanternIcon({ className }: { className?: string }) {
@@ -164,9 +163,6 @@ export default function HomePage() {
 
       {/* Stats & Achievements Section */}
       <StatsSection />
-
-      {/* Debug Panel - TODO: remove after testing */}
-      {process.env.NODE_ENV === 'development' && <DebugPanel />}
 
       <ScrollToTop />
 

@@ -23,16 +23,16 @@ function EmptyState() {
 export default function FavoritesSection() {
   const { favorites, isLoaded } = useFavorites()
 
-  // Don't render until favorites are loaded from localStorage
-  if (!isLoaded) {
-    return null
-  }
-
   const favoriteGames = useMemo(() => {
     return favorites
       .map((slug) => games.find((g: Game) => g.slug === slug))
       .filter((g): g is Game => g !== undefined)
   }, [favorites])
+
+  // Don't render until favorites are loaded from localStorage
+  if (!isLoaded) {
+    return null
+  }
 
   if (favoriteGames.length === 0) {
     return (

@@ -70,6 +70,11 @@ export function useGameStats() {
     achievements: [],
   })
   const storageErrorRef = useRef(false)
+  const statsRef = useRef(stats)
+
+  useEffect(() => {
+    statsRef.current = stats
+  }, [stats])
 
   useEffect(() => {
     try {
@@ -83,13 +88,14 @@ export function useGameStats() {
   }, [])
 
   const recordPlay = useCallback((gameSlug: string, score: number): RecordPlayResult => {
+    const currentStats = statsRef.current
     let result: RecordPlayResult = { newlyUnlocked: [], storageError: false }
 
     const newStats = {
-      playCount: { ...stats.playCount },
-      highScore: { ...stats.highScore },
-      lastPlayedAt: { ...stats.lastPlayedAt },
-      achievements: [...stats.achievements],
+      playCount: { ...currentStats.playCount },
+      highScore: { ...currentStats.highScore },
+      lastPlayedAt: { ...currentStats.lastPlayedAt },
+      achievements: [...currentStats.achievements],
     }
 
     // Update per-game play count
@@ -127,7 +133,7 @@ export function useGameStats() {
       .filter((a) => a.condition(statsContext))
 
     if (newlyUnlocked.length > 0) {
-      newStats.achievements = [...stats.achievements, ...newlyUnlocked.map((a) => a.id)]
+      newStats.achievements = [...currentStats.achievements, ...newlyUnlocked.map((a) => a.id)]
     }
 
     // Persist to localStorage
@@ -145,7 +151,7 @@ export function useGameStats() {
 
     result = { newlyUnlocked, storageError: localStorageFailed }
     return result
-  }, [stats])
+  }, [])
 
   const unlockedIds = stats.achievements
   const hasStorageError = storageErrorRef.current

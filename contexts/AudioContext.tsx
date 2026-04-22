@@ -31,6 +31,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [audioBlocked, setAudioBlocked] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const bgAudioRef = useRef<HTMLAudioElement | null>(null)
+  const audioBlockedRef = useRef(false)
   const sfxAudioRef = useRef<Record<SoundType, HTMLAudioElement | null>>({
     click: null,
     success: null,
@@ -86,6 +87,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         playPromise.catch((err) => {
           if (err.name === 'NotAllowedError') {
             setAudioBlocked(true)
+            audioBlockedRef.current = true
           }
         })
       }
@@ -108,26 +110,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       if (!audio) return
       if (document.hidden) {
         audio.pause()
-      } else if (musicOn && !audioBlocked) {
+      } else if (musicOn && !audioBlockedRef.current) {
         audio.play().catch(() => {})
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [musicOn, audioBlocked])
+  }, [musicOn])
 
   const toggleMusic = useCallback(() => {
     setMusicOn(prev => {
       const next = !prev
       localStorage.setItem(STORAGE_KEYS.music, next ? 'on' : 'off')
       // If unblocking audio, try to play immediately
-      if (next && audioBlocked && bgAudioRef.current) {
+      if (next && audioBlockedRef.current && bgAudioRef.current) {
         bgAudioRef.current.play().catch(() => {})
         setAudioBlocked(false)
       }
       return next
     })
-  }, [audioBlocked])
+  }, [])
 
   const toggleSfx = useCallback(() => {
     setSfxOn(prev => {

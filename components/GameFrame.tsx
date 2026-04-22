@@ -117,13 +117,35 @@ export default function GameFrame({ game }: GameFrameProps) {
       return
     }
     setLoadingProgress(0)
-    const interval = setInterval(() => {
+    let interval: ReturnType<typeof setInterval> | null = null
+    const tick = () => {
       setLoadingProgress((prev) => {
         if (prev >= 90) return prev
         return prev + Math.random() * 15
       })
-    }, 300)
-    return () => clearInterval(interval)
+    }
+    const startInterval = () => {
+      if (!interval) interval = setInterval(tick, 300)
+    }
+    const stopInterval = () => {
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
+    }
+    startInterval()
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopInterval()
+      } else {
+        startInterval()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      stopInterval()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [isLoading, hasError])
 
   // Listen for fullscreen changes
@@ -173,7 +195,7 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* Error state */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-20">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-20" role="alert" aria-live="assertive">
           <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
             <div className="text-4xl">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">

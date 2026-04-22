@@ -43,8 +43,8 @@ export default function RootLayout({
         <OfflineIndicator />
         <ServiceWorkerRegistration />
         <GameStatusProvider>
-          <FavoritesProvider>
-            <ToastProvider>
+          <ToastProvider>
+            <FavoritesProvider>
               <ThemeProvider>
               <TourGuide />
             <InstallPrompt />
@@ -66,9 +66,9 @@ export default function RootLayout({
               </main>
               <MusicToggle key="music-toggle" />
             </AudioProvider>
-          </ThemeProvider>
-            </ToastProvider>
-          </FavoritesProvider>
+              </ThemeProvider>
+            </FavoritesProvider>
+          </ToastProvider>
         </GameStatusProvider>
       </body>
     </html>

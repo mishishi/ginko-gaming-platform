@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
+import { useToast } from './ToastContext'
 
 interface FavoritesContextType {
   favorites: string[]
@@ -15,6 +16,7 @@ const FAVORITES_KEY = 'game-favorites'
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const { showToast } = useToast()
 
   // Read from localStorage after mount
   useEffect(() => {
@@ -24,10 +26,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         setFavorites(JSON.parse(stored))
       }
     } catch {
-      // ignore
+      showToast('无法加载收藏数据', 'error')
     }
     setIsLoaded(true)
-  }, [])
+  }, [showToast])
 
   // Listen for storage changes from other tabs
   useEffect(() => {
@@ -53,11 +55,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(FAVORITES_KEY, JSON.stringify(next))
       } catch {
-        // ignore
+        showToast('无法保存收藏', 'error')
       }
       return next
     })
-  }, [])
+  }, [showToast])
 
   return (
     <FavoritesContext.Provider value={{ favorites, toggleFavorite, isLoaded }}>
