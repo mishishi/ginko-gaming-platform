@@ -115,6 +115,115 @@ function TiltCard({ children }: { children: React.ReactNode }) {
   )
 }
 
+interface TouchGesturesProps {
+  game: Game
+  isFavorited: boolean
+  onFavorite: (e?: React.MouseEvent | React.TouchEvent) => void
+  children: React.ReactNode
+}
+
+function TouchGestures({ game, isFavorited, onFavorite, children }: TouchGesturesProps) {
+  const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const swipeStartXRef = useRef<number | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewPos, setPreviewPos] = useState({ x: 0, y: 0 })
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    swipeStartXRef.current = touch.clientX
+
+    // Start long press detection
+    longPressTimeoutRef.current = setTimeout(() => {
+      const rect = (e.target as HTMLElement).getBoundingClientRect()
+      setPreviewPos({ x: rect.width / 2, y: rect.height / 2 })
+      setShowPreview(true)
+    }, 500)
+  }, [])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (swipeStartXRef.current === null) return
+
+    const touch = e.touches[0]
+    const deltaX = touch.clientX - swipeStartXRef.current
+
+    // Cancel long press if user moves finger significantly
+    if (Math.abs(deltaX) > 10 || Math.abs(touch.clientY - (longPressTimeoutRef.current ? 0 : 0)) > 10) {
+      if (longPressTimeoutRef.current) {
+        clearTimeout(longPressTimeoutRef.current)
+        longPressTimeoutRef.current = null
+      }
+    }
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current)
+      longPressTimeoutRef.current = null
+    }
+
+    if (swipeStartXRef.current === null) return
+
+    const touch = e.changedTouches[0]
+    const deltaX = touch.clientX - swipeStartXRef.current
+
+    // Swipe right to favorite (> 50px swipe)
+    if (deltaX > 50) {
+      onFavorite(e)
+    }
+
+    swipeStartXRef.current = null
+    setShowPreview(false)
+  }, [onFavorite])
+
+  return (
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative"
+    >
+      {children}
+
+      {/* Long press preview */}
+      {showPreview && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-lg"
+          style={{
+            animation: 'fadeIn 0.15s ease-out',
+          }}
+        >
+          <div className="text-center p-4 max-w-[200px]">
+            <div
+              className="text-2xl font-serif mb-2"
+              style={{ color: game.color, textShadow: `0 0 12px ${game.color}` }}
+            >
+              {game.title}
+            </div>
+            <div className="text-xs text-white/70 mb-2">
+              {game.subtitle}
+            </div>
+            <div
+              className="text-[10px] px-2 py-1 rounded-full mx-auto"
+              style={{
+                backgroundColor: `${game.color}20`,
+                border: `1px solid ${game.color}40`,
+                color: game.color,
+              }}
+            >
+              {game.playerCount}
+            </div>
+            {!isFavorited && (
+              <div className="mt-3 text-xs text-white/50">
+                右滑收藏 →
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DifficultyStars({ level }: { level: number }) {
   return (
     <span className="text-[10px] tracking-wider" style={{ color: 'var(--text-muted)' }}>
@@ -288,9 +397,9 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
     prevStatusRef.current = gameStatus
   }, [gameStatus])
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleFavoriteClick = (e?: React.MouseEvent | React.TouchEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
     if (!isFavorited) {
       setFavoriteAnimating(true)
       setTimeout(() => setFavoriteAnimating(false), 300)
@@ -305,6 +414,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}
     >
+      <TouchGestures game={game} isFavorited={isFavorited} onFavorite={handleFavoriteClick}>
       <TiltCard>
         <div className={`group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-1 hover:shadow-[0_0_12px_rgba(251,191,36,0.25)]${statusPulse ? ' card-status-pulse' : ''}`}>
           {/* Top accent line - 渐变增强 */}
@@ -420,6 +530,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
           </div>
         </div>
       </TiltCard>
+      </TouchGestures>
     </Link>
   )
 })
