@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import Link from 'next/link'
-import { Game } from '@/lib/games'
+import { Game, GAME_CATEGORIES } from '@/lib/games'
 import { useGameStatus } from './GameStatusProvider'
 import { useFavorites } from '@/contexts/FavoritesContext'
 import { useGameRatings } from '@/hooks/useGameRatings'
@@ -484,6 +484,16 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
                 isReachable={isReachable}
                 latency={gameStatus?.latency}
               />
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: `${GAME_CATEGORIES[game.category].color}15`,
+                  border: `1px solid ${GAME_CATEGORIES[game.category].color}40`,
+                  color: GAME_CATEGORIES[game.category].color,
+                }}
+              >
+                {GAME_CATEGORIES[game.category].label}
+              </span>
             </div>
 
             {/* Game title */}

@@ -1,3 +1,12 @@
+export type GameCategory = 'casual' | 'strategy' | 'competitive' | 'rpg'
+
+export const GAME_CATEGORIES: Record<GameCategory, { label: string; color: string }> = {
+  casual: { label: '休闲', color: '#4ade80' },
+  strategy: { label: '策略', color: '#60a5fa' },
+  competitive: { label: '竞技', color: '#f97316' },
+  rpg: { label: '角色扮演', color: '#a855f7' },
+}
+
 export interface Game {
   slug: string
   title: string
@@ -15,6 +24,8 @@ export interface Game {
   playerCount: string
   /** Whether the game is currently playable */
   playable: boolean
+  /** Game category */
+  category: GameCategory
 }
 
 export const games: Game[] = [
@@ -31,6 +42,7 @@ export const games: Game[] = [
     difficulty: 2,
     playerCount: '1-2人',
     playable: true,
+    category: 'casual',
   },
   {
     slug: 'quiz',
@@ -45,6 +57,7 @@ export const games: Game[] = [
     difficulty: 3,
     playerCount: '2人',
     playable: true,
+    category: 'competitive',
   },
   {
     slug: 'fate',
@@ -59,6 +72,7 @@ export const games: Game[] = [
     difficulty: 1,
     playerCount: '1人',
     playable: true,
+    category: 'rpg',
   },
 ]
 
