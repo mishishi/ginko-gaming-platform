@@ -12,6 +12,7 @@ import LoadingProgress from './LoadingProgress'
 import GameFrameError from './GameFrameError'
 import KeyboardHints from './KeyboardHints'
 import GameFrameControls from './GameFrameControls'
+import { useLeaderboard } from '@/hooks/useLeaderboard'
 
 interface GameFrameProps {
   game: Game
@@ -29,6 +30,7 @@ export default function GameFrame({ game }: GameFrameProps) {
   const { markPlayed } = useRecentlyPlayed()
   const { recordPlay } = useGameStats()
   const { showToast } = useToast()
+  const { submitScore: submitLeaderboardScore } = useLeaderboard()
 
   const handleLoad = useCallback(() => {
     setIsLoading(false)
@@ -151,6 +153,33 @@ export default function GameFrame({ game }: GameFrameProps) {
     }
   }, [isLoading, hasError])
 
+  // Listen for postMessage from games (score reports, etc.)
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      const { type, score, playerName } = event.data || {}
+
+      if (type === 'SCORE_REPORT' && typeof score === 'number') {
+        const result = await submitLeaderboardScore(game.slug, score, playerName)
+        if (result) {
+          if (result.isNewHighScore) {
+            showToast(`新纪录！排名第 ${result.rank} 位`, 'success')
+          }
+          // Notify parent frame of rank update
+          if (iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.postMessage({
+              type: 'RANK_UPDATE',
+              rank: result.rank,
+              isNewHighScore: result.isNewHighScore,
+            }, '*')
+          }
+        }
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [game.slug, submitLeaderboardScore, showToast])
+
   // Listen for fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -219,9 +248,6 @@ export default function GameFrame({ game }: GameFrameProps) {
 
       {/* Keyboard hints */}
       <KeyboardHints visible={showKeyboardHints && !isLoading && !hasError} />
-
-      {/* Reserved: postMessage communication */}
-      {/* Games can send messages via window.parent.postMessage() */}
     </div>
   )
 }
