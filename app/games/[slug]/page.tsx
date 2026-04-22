@@ -9,6 +9,7 @@ import GameFrame from '@/components/GameFrame'
 import GameIntro from '@/components/GameIntro'
 import GameStatusBanner from '@/components/GameStatusBanner'
 import GamePageOfflineWrapper from '@/components/GamePageOfflineWrapper'
+import GameAudioBridge from '@/components/GameAudioBridge'
 
 interface GamePageProps {
   params: {
@@ -97,6 +98,7 @@ export default function GamePage({ params }: GamePageProps) {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      <GameAudioBridge />
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Mini nav bar */}
       <div className="h-12 flex items-center px-4 border-b border-[var(--bg-card)] bg-[var(--bg-primary)]/90 backdrop-blur-sm">
