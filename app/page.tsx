@@ -4,6 +4,7 @@ import FavoritesSection from '@/components/FavoritesSection'
 import ScrollReveal from '@/components/ScrollReveal'
 import StatsSection from '@/components/StatsSection'
 import ScrollToTop from '@/components/ScrollToTop'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 function LanternIcon({ className }: { className?: string }) {
   return (
@@ -155,9 +156,11 @@ export default function HomePage() {
 
         <FavoritesSection />
         <ScrollReveal>
-          <div className="mt-12">
-            <GameGrid />
-          </div>
+          <ErrorBoundary>
+            <div className="mt-12">
+              <GameGrid />
+            </div>
+          </ErrorBoundary>
         </ScrollReveal>
       </section>
 

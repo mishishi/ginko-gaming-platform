@@ -30,6 +30,8 @@ export function GameStatusProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null
+
     async function fetchStatus() {
       try {
         const response = await fetch('/api/game-status')
@@ -44,11 +46,25 @@ export function GameStatusProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    fetchStatus()
+    const startInterval = () => {
+      if (!intervalId) intervalId = setInterval(fetchStatus, 30000)
+    }
+    const stopInterval = () => {
+      if (intervalId) { clearInterval(intervalId); intervalId = null }
+    }
 
-    // Refresh status every 30 seconds
-    const interval = setInterval(fetchStatus, 30000)
-    return () => clearInterval(interval)
+    const handleVisibilityChange = () => {
+      if (document.hidden) stopInterval()
+      else { fetchStatus(); startInterval() }
+    }
+
+    fetchStatus()
+    startInterval()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      stopInterval()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   return (
