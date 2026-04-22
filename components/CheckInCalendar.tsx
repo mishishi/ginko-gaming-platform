@@ -23,7 +23,7 @@ function isYesterday(dateStr: string, todayStr: string): boolean {
 }
 
 export default function CheckInCalendar({ className = '' }: CheckInCalendarProps) {
-  const { checkInData, checkIn, isCheckedInToday } = useCheckInContext()
+  const { checkInData, checkIn, isCheckedInToday, canMakeUpCheckIn, hasStreakFreeze } = useCheckInContext()
   const { showToast } = useToast()
   const [isAnimating, setIsAnimating] = useState(false)
   const [justCheckedIn, setJustCheckedIn] = useState(false)
@@ -242,10 +242,36 @@ export default function CheckInCalendar({ className = '' }: CheckInCalendarProps
               </div>
             </div>
           </div>
+
+          {/* Streak Freeze */}
+          {checkInData.streakFreeze > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm" role="img" aria-hidden="true">❄️</span>
+              <div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>补签卡</div>
+                <div className="text-sm font-medium" style={{ color: 'var(--accent-copper)' }}>
+                  ×{checkInData.streakFreeze}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Make-up reminder */}
+        {canMakeUpCheckIn() && (
+          <div
+            className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-full animate-pulse"
+            style={{
+              backgroundColor: 'rgba(184, 149, 110, 0.15)',
+              color: 'var(--accent-copper)',
+            }}
+          >
+            <span>⏰</span>
+            <span>今日可补签</span>
+          </div>
+        )}
         {/* Streak motivation */}
-        {checkInData.streak > 0 && !checkedInToday && (
+        {!checkedInToday && !canMakeUpCheckIn() && checkInData.streak > 0 && (
           <div
             className="text-xs px-2 py-1 rounded-full"
             style={{
@@ -269,6 +295,41 @@ export default function CheckInCalendar({ className = '' }: CheckInCalendarProps
           </div>
         )}
       </div>
+
+      {/* Make-up info banner */}
+      {canMakeUpCheckIn() && (
+        <div
+          className="mt-4 p-3 rounded-lg text-xs"
+          style={{
+            backgroundColor: 'rgba(184, 149, 110, 0.08)',
+            border: '1px solid rgba(184, 149, 110, 0.2)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <span>💡</span>
+            <span className="font-medium" style={{ color: 'var(--accent-copper)' }}>补签机会</span>
+          </div>
+          <p>昨天错过了签到？今日补签可以保留你的连续 streak（但不会增加天数）</p>
+        </div>
+      )}
+      {/* Streak freeze info */}
+      {!checkedInToday && checkInData.streakFreeze > 0 && (
+        <div
+          className="mt-3 p-3 rounded-lg text-xs"
+          style={{
+            backgroundColor: 'rgba(100, 180, 255, 0.08)',
+            border: '1px solid rgba(100, 180, 255, 0.2)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <span>❄️</span>
+            <span className="font-medium" style={{ color: 'var(--accent-cyan)' }}>补签卡保护</span>
+          </div>
+          <p>如果明天也忘记签到，补签卡将自动启用，保护你的 streak</p>
+        </div>
+      )}
 
       {/* Stamp animation keyframes */}
       <style jsx>{`

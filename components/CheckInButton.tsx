@@ -47,7 +47,7 @@ interface CheckInButtonProps {
 }
 
 export default function CheckInButton({ variant = 'default', className = '' }: CheckInButtonProps) {
-  const { checkInData, checkIn, isCheckedInToday } = useCheckInContext()
+  const { checkInData, checkIn, isCheckedInToday, canMakeUpCheckIn, hasStreakFreeze } = useCheckInContext()
   const { showToast } = useToast()
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -78,6 +78,7 @@ export default function CheckInButton({ variant = 'default', className = '' }: C
   }
 
   if (variant === 'compact') {
+    const showMakeUp = canMakeUpCheckIn()
     return (
       <button
         onClick={handleCheckIn}
@@ -87,18 +88,25 @@ export default function CheckInButton({ variant = 'default', className = '' }: C
           transition-all duration-200 active:scale-95
           ${checkedInToday
             ? 'bg-[var(--accent-copper)]/20 text-[var(--accent-copper)] cursor-default'
-            : 'bg-[var(--accent-copper)] text-[var(--bg-primary)] hover:bg-[var(--accent-copper)]/90 cursor-pointer'
+            : showMakeUp
+              ? 'bg-[var(--accent-copper)]/30 text-[var(--accent-copper)] border border-[var(--accent-copper)]/40 cursor-pointer animate-pulse-subtle'
+              : 'bg-[var(--accent-copper)] text-[var(--bg-primary)] hover:bg-[var(--accent-copper)]/90 cursor-pointer'
           }
           ${isAnimating ? 'animate-pulse-once' : ''}
           ${className}
         `}
-        aria-label={checkedInToday ? `今日已签到，连续 ${checkInData.streak} 天` : '点击签到'}
+        aria-label={checkedInToday ? `今日已签到，连续 ${checkInData.streak} 天` : showMakeUp ? '点击补签' : '点击签到'}
       >
         <CalendarIcon />
         {checkedInToday ? (
           <>
             <span>{checkInData.streak}天</span>
             {checkInData.streak >= 3 && <FireIcon />}
+          </>
+        ) : showMakeUp ? (
+          <>
+            <span>补签</span>
+            {hasStreakFreeze() && <span className="text-[10px] opacity-70">❄️</span>}
           </>
         ) : (
           <span>签到</span>

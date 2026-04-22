@@ -410,13 +410,19 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
   return (
     <Link
       href={`/games/${game.slug}`}
-      className="block animate-fade-in-up"
+      className="block animate-fade-in-up focus-visible:outline-none"
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}
     >
       <TouchGestures game={game} isFavorited={isFavorited} onFavorite={handleFavoriteClick}>
       <TiltCard>
-        <div className={`group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1${statusPulse ? ' card-status-pulse' : ''}`}
+        <div className={`
+          group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden
+          transition-all duration-300 ease-out
+          group-hover:scale-[1.02] group-hover:-translate-y-1
+          focus-within:ring-2 focus-within:ring-[var(--accent-copper)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--bg-primary)]
+          ${statusPulse ? ' card-status-pulse' : ''}
+        `}
           style={{
             boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.2)`,
           }}

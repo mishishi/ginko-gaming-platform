@@ -105,6 +105,8 @@ export default function GameGrid() {
     if (focusedIndex >= 0 && cardRefs.current[focusedIndex]) {
       const link = cardRefs.current[focusedIndex]?.querySelector('a')
       link?.focus()
+      // Scroll the card into view when navigating with keyboard
+      cardRefs.current[focusedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
     }
   }, [focusedIndex])
 

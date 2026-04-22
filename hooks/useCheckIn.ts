@@ -10,6 +10,8 @@ export interface CheckInData {
   streak: number              // Consecutive check-in days
   totalDays: number           // Total check-in days
   rewardsClaimed: string[]    // Array of reward dates claimed
+  streakFreeze: number        // Number of streak freezes available
+  missedDays: number          // Track consecutive missed days for grace period
 }
 
 export interface CheckInResult {
@@ -100,6 +102,8 @@ export function useCheckIn() {
     streak: 0,
     totalDays: 0,
     rewardsClaimed: [],
+    streakFreeze: 0,
+    missedDays: 0,
   })
   const { showToast } = useToast()
   const toastRef = useRef(showToast)
@@ -119,13 +123,32 @@ export function useCheckIn() {
       const stored = localStorage.getItem(CHECKIN_KEY)
       if (stored) {
         const parsed = JSON.parse(stored) as CheckInData
+        // Ensure new fields exist
+        if (parsed.streakFreeze === undefined) parsed.streakFreeze = 0
+        if (parsed.missedDays === undefined) parsed.missedDays = 0
+
         // Check if streak should be reset (missed a day)
         const todayStr = getDateString(new Date())
         if (parsed.lastCheckIn && parsed.streak > 0) {
           if (!isYesterday(parsed.lastCheckIn, todayStr) && parsed.lastCheckIn !== todayStr) {
-            // Streak is broken - reset it
-            parsed.streak = 0
-            localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
+            // User missed a day - apply grace period logic
+            if (parsed.missedDays === 0) {
+              // First miss - grant grace period (1 day buffer)
+              parsed.missedDays = 1
+              localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
+            } else {
+              // Already had grace period used, streak is now broken
+              parsed.streak = 0
+              parsed.missedDays = 0
+              // Use streak freeze if available
+              if (parsed.streakFreeze > 0) {
+                parsed.streakFreeze -= 1
+                parsed.streak = 1 // Restore minimal streak
+                parsed.missedDays = 0
+                toastRef.current('🔒 使用了补签卡，你的 streak 已恢复！', 'info')
+              }
+              localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
+            }
           }
         }
         setCheckInData(parsed)
@@ -149,12 +172,28 @@ export function useCheckIn() {
     }
 
     let newStreak: number
+    let isMakeUp = false
+    let usedStreakFreeze = false
+
     if (current.lastCheckIn && isYesterday(current.lastCheckIn, todayStr)) {
-      // Continue streak
+      // Continue streak normally
       newStreak = current.streak + 1
+      current.missedDays = 0
+    } else if (current.lastCheckIn && current.missedDays > 0) {
+      // Using grace period - streak preserved but not incremented
+      newStreak = current.streak
+      isMakeUp = true
+      current.missedDays = 0
     } else {
-      // Start new streak
+      // Start new streak (first time or after streak break)
       newStreak = 1
+      current.missedDays = 0
+    }
+
+    // Check if we should grant a streak freeze (at 7-day multiples)
+    let newStreakFreeze = current.streakFreeze
+    if (newStreak > 0 && newStreak % 7 === 0 && !isMakeUp) {
+      newStreakFreeze += 1
     }
 
     const newTotalDays = current.totalDays + 1
@@ -164,6 +203,8 @@ export function useCheckIn() {
       streak: newStreak,
       totalDays: newTotalDays,
       rewardsClaimed: current.rewardsClaimed,
+      streakFreeze: newStreakFreeze,
+      missedDays: 0,
     }
 
     // Check for reward
@@ -193,9 +234,25 @@ export function useCheckIn() {
     return checkInData.lastCheckIn === todayStr
   }, [checkInData.lastCheckIn])
 
+  // Check if user can do a make-up check-in (has grace period available)
+  const canMakeUpCheckIn = useCallback((): boolean => {
+    if (isCheckedInToday()) return false
+    const todayStr = getDateString(new Date())
+    if (!checkInData.lastCheckIn) return false
+    // Can make up if: had a previous streak, missed yesterday (grace period active)
+    return checkInData.streak > 0 && checkInData.missedDays > 0
+  }, [checkInData.lastCheckIn, checkInData.streak, checkInData.missedDays, isCheckedInToday])
+
+  // Check if user has streak freeze available
+  const hasStreakFreeze = useCallback((): boolean => {
+    return checkInData.streakFreeze > 0
+  }, [checkInData.streakFreeze])
+
   return {
     checkInData,
     checkIn,
     isCheckedInToday,
+    canMakeUpCheckIn,
+    hasStreakFreeze,
   }
 }

@@ -7,15 +7,17 @@ interface CheckInContextValue {
   checkInData: CheckInData
   checkIn: () => CheckInResult
   isCheckedInToday: () => boolean
+  canMakeUpCheckIn: () => boolean
+  hasStreakFreeze: () => boolean
 }
 
 const CheckInContext = createContext<CheckInContextValue | null>(null)
 
 export function CheckInProvider({ children }: { children: ReactNode }) {
-  const { checkInData, checkIn, isCheckedInToday } = useCheckIn()
+  const { checkInData, checkIn, isCheckedInToday, canMakeUpCheckIn, hasStreakFreeze } = useCheckIn()
 
   return (
-    <CheckInContext.Provider value={{ checkInData, checkIn, isCheckedInToday }}>
+    <CheckInContext.Provider value={{ checkInData, checkIn, isCheckedInToday, canMakeUpCheckIn, hasStreakFreeze }}>
       {children}
     </CheckInContext.Provider>
   )
