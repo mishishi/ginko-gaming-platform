@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useCheckInContext } from '@/contexts/CheckInContext'
 import { useUserContext } from '@/contexts/UserContext'
 import { useGameStats } from '@/hooks/useGameStats'
+import { useDailyTasks } from '@/hooks/useDailyTasks'
 import { useToast } from '@/contexts/ToastContext'
+import DailyTasksCard from '@/components/daily-tasks/DailyTasksCard'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -14,12 +16,19 @@ export default function CheckInCalendarPage() {
   const { isLoggedIn, syncToCloud } = useUserContext()
   const { stats } = useGameStats()
   const { showToast } = useToast()
+  const { tasksData, getTasksWithStatus, refreshTasks, allTasksCompleted } = useDailyTasks(stats, checkInData)
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Refresh tasks when game sessions or check-in history changes
+  useEffect(() => {
+    if (!mounted) return
+    refreshTasks()
+  }, [stats.gameSessions, checkInData.checkInHistory])
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -36,6 +45,14 @@ export default function CheckInCalendarPage() {
     }
     const result = checkIn()
     if (result.success) {
+      // Refresh tasks after check-in (triggers daily_checkin completion)
+      const newTasks = refreshTasks()
+      if (newTasks.length > 0) {
+        for (const nt of newTasks) {
+          showToast(`${nt.exp > 0 ? `+${nt.exp} EXP` : ''} 任务完成！`, 'success', 2000)
+        }
+      }
+
       let msg = ''
       if (result.isMakeUp) {
         msg = `补签成功！连续${result.newStreak}天`
@@ -154,6 +171,15 @@ export default function CheckInCalendarPage() {
             记录每日的坚持与收获
           </p>
         </header>
+
+        {mounted && (
+          <div className="mb-6">
+            <DailyTasksCard
+              tasks={getTasksWithStatus()}
+              totalExp={tasksData.expEarned}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           <div className="rounded-xl p-4 text-center" style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
