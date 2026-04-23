@@ -116,6 +116,36 @@ export const ACHIEVEMENTS_CONFIG = {
     icon: '🏃',
     rarity: 'legendary' as AchievementRarity,
   },
+  // 新成就：连续游玩天数
+  consecutive_3_days: {
+    id: 'consecutive_3_days' as const,
+    name: '连续三天',
+    description: '连续三天有游戏记录',
+    icon: '📆',
+    rarity: 'rare' as AchievementRarity,
+  },
+  consecutive_7_days: {
+    id: 'consecutive_7_days' as const,
+    name: '连续一周',
+    description: '连续七天有游戏记录',
+    icon: '🔥',
+    rarity: 'epic' as AchievementRarity,
+  },
+  consecutive_30_days: {
+    id: 'consecutive_30_days' as const,
+    name: '满月之旅',
+    description: '连续三十天有游戏记录',
+    icon: '🌕',
+    rarity: 'legendary' as AchievementRarity,
+  },
+  // 新成就：累计游戏时长
+  play_10_hours: {
+    id: 'play_10_hours' as const,
+    name: '沉浸体验',
+    description: '累计游戏时长达到10小时',
+    icon: '⏰',
+    rarity: 'epic' as AchievementRarity,
+  },
 }
 
 export type AchievementId = keyof typeof ACHIEVEMENTS_CONFIG
