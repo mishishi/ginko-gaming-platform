@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
+export type LeaderboardFilter = 'all' | 'week'
+
 export interface LeaderboardEntry {
   rank: number
   playerName: string
@@ -23,17 +25,17 @@ export interface UseLeaderboardReturn {
   refresh: () => void
 }
 
-export function useLeaderboard(gameSlug?: string, limit: number = 10): UseLeaderboardReturn {
+export function useLeaderboard(gameSlug?: string, limit: number = 10, filter: LeaderboardFilter = 'all'): UseLeaderboardReturn {
   const [rankings, setRankings] = useState<LeaderboardEntry[]>([])
   const [playerRank, setPlayerRank] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchLeaderboard = useCallback(async (slug: string) => {
+  const fetchLeaderboard = useCallback(async (slug: string, filterType: LeaderboardFilter) => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/leaderboard?game=${encodeURIComponent(slug)}&limit=${limit}`)
+      const response = await fetch(`/api/leaderboard?game=${encodeURIComponent(slug)}&limit=${limit}&filter=${filterType}`)
       if (!response.ok) {
         throw new Error('Failed to fetch leaderboard')
       }
@@ -60,9 +62,9 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10): UseLeader
 
   useEffect(() => {
     if (gameSlug) {
-      fetchLeaderboard(gameSlug)
+      fetchLeaderboard(gameSlug, filter)
     }
-  }, [gameSlug, fetchLeaderboard])
+  }, [gameSlug, filter, fetchLeaderboard])
 
   const submitScore = useCallback(async (
     slug: string,
@@ -87,7 +89,7 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10): UseLeader
       const result = await response.json()
 
       // Refresh leaderboard after score submission
-      fetchLeaderboard(slug)
+      fetchLeaderboard(slug, filter)
 
       // Refresh player rank
       if (playerName) {
@@ -99,13 +101,13 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10): UseLeader
       console.error('Score submission error:', err)
       return null
     }
-  }, [fetchLeaderboard, fetchPlayerRank])
+  }, [fetchLeaderboard, fetchPlayerRank, filter])
 
   const refresh = useCallback(() => {
     if (gameSlug) {
-      fetchLeaderboard(gameSlug)
+      fetchLeaderboard(gameSlug, filter)
     }
-  }, [gameSlug, fetchLeaderboard])
+  }, [gameSlug, filter, fetchLeaderboard])
 
   return {
     rankings,

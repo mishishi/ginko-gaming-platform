@@ -2,7 +2,9 @@
 
 import Head from 'next/head'
 import { useState } from 'react'
+import Link from 'next/link'
 import LeaderboardPanel from '@/components/LeaderboardPanel'
+import { useUserContext } from '@/contexts/UserContext'
 
 const GAMES = [
   { slug: 'idol', name: '偶像', icon: '🎤', description: '音乐节奏游戏' },
@@ -12,6 +14,7 @@ const GAMES = [
 
 export default function LeaderboardPage() {
   const [selectedGame, setSelectedGame] = useState('idol')
+  const { displayName } = useUserContext()
 
   const currentGame = GAMES.find(g => g.slug === selectedGame) || GAMES[0]
 
@@ -81,7 +84,7 @@ export default function LeaderboardPage() {
                 </span>
               </div>
             </div>
-            <LeaderboardPanel gameSlug={selectedGame} />
+            <LeaderboardPanel gameSlug={selectedGame} currentPlayerName={displayName} />
           </div>
 
           {/* Tips */}

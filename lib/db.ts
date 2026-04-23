@@ -151,6 +151,43 @@ export function getTopScores(gameSlug: string, limit: number = 10): ScoreEntry[]
   }))
 }
 
+export function getTopScoresThisWeek(gameSlug: string, limit: number = 10): ScoreEntry[] {
+  const database = getDb()
+
+  // Get start of current week (Monday 00:00:00)
+  const now = new Date()
+  const dayOfWeek = now.getDay()
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - daysToMonday)
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  const stmt = database.prepare(`
+    SELECT id, game_slug, player_name, score, updated_at
+    FROM scores
+    WHERE game_slug = ?
+      AND updated_at >= ?
+    ORDER BY score DESC
+    LIMIT ?
+  `)
+
+  const rows = stmt.all(gameSlug, startOfWeek.toISOString(), limit) as Array<{
+    id: number
+    game_slug: string
+    player_name: string
+    score: number
+    updated_at: string
+  }>
+
+  return rows.map(row => ({
+    id: row.id,
+    gameSlug: row.game_slug,
+    playerName: row.player_name,
+    score: row.score,
+    updatedAt: row.updated_at,
+  }))
+}
+
 export function submitScore(
   gameSlug: string,
   playerName: string,

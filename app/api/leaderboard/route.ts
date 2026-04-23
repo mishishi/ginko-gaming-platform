@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getTopScores } from '@/lib/db'
+import { getTopScores, getTopScoresThisWeek } from '@/lib/db'
 
 export const runtime = 'nodejs'
 
@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const gameSlug = searchParams.get('game')
     const limitParam = searchParams.get('limit')
+    const filter = searchParams.get('filter') || 'all'
     const limit = limitParam ? parseInt(limitParam, 10) : 10
 
     if (!gameSlug) {
@@ -17,7 +18,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const rankings = await getTopScores(gameSlug, limit)
+    const rankings = filter === 'week'
+      ? await getTopScoresThisWeek(gameSlug, limit)
+      : await getTopScores(gameSlug, limit)
 
     return NextResponse.json({
       rankings: rankings.map((entry, index) => ({

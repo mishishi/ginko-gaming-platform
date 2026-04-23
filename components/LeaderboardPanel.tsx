@@ -1,6 +1,7 @@
 'use client'
 
-import { useLeaderboard, LeaderboardEntry } from '@/hooks/useLeaderboard'
+import { useState } from 'react'
+import { useLeaderboard, LeaderboardEntry, LeaderboardFilter } from '@/hooks/useLeaderboard'
 import { useToast } from '@/contexts/ToastContext'
 
 interface LeaderboardPanelProps {
@@ -74,7 +75,8 @@ function LoadingSkeleton() {
 }
 
 export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = '排行榜' }: LeaderboardPanelProps) {
-  const { rankings, playerRank, isLoading, error, refresh } = useLeaderboard(gameSlug, 10)
+  const [filter, setFilter] = useState<LeaderboardFilter>('all')
+  const { rankings, playerRank, isLoading, error, refresh } = useLeaderboard(gameSlug, 10, filter)
   const { showToast } = useToast()
 
   const handleRefresh = () => {
@@ -100,29 +102,54 @@ export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = 
             {title}
           </h3>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
-          aria-label="刷新排行榜"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={isLoading ? 'animate-spin' : ''}
+        <div className="flex items-center gap-1">
+          {/* Filter tabs */}
+          <div className="flex rounded-lg p-0.5" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-3 py-1 text-xs rounded-md transition-all duration-200 ${
+                filter === 'all'
+                  ? 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              全部
+            </button>
+            <button
+              onClick={() => setFilter('week')}
+              className={`px-3 py-1 text-xs rounded-md transition-all duration-200 ${
+                filter === 'week'
+                  ? 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              本周
+            </button>
+          </div>
+          <button
+            onClick={handleRefresh}
+            className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+            aria-label="刷新排行榜"
           >
-            <path d="M21 2v6h-6" />
-            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-            <path d="M3 22v-6h6" />
-            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={isLoading ? 'animate-spin' : ''}
+            >
+              <path d="M21 2v6h-6" />
+              <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+              <path d="M3 22v-6h6" />
+              <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Content */}
