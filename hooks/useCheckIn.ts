@@ -26,7 +26,6 @@ export const CHECKIN_MILESTONES: CheckInMilestone[] = [
 // Check-in history entry
 export interface CheckInEntry {
   date: string       // ISO date string "2026-04-22"
-  isMakeUp: boolean  // Whether this was a make-up check-in
 }
 
 export interface CheckInData {
@@ -34,8 +33,7 @@ export interface CheckInData {
   streak: number              // Consecutive check-in days
   totalDays: number           // Total check-in days
   rewardsClaimed: Record<string, boolean>  // milestone days string → claimed
-  streakFreeze: number        // Number of streak freezes available
-  missedDays: number          // Track consecutive missed days for grace period
+  streakFreeze: number        // Number of streak freezes available (max 3)
   checkInHistory: CheckInEntry[]  // Array of all check-in entries
 }
 
@@ -43,7 +41,6 @@ export interface CheckInResult {
   success: boolean
   alreadyCheckedIn: boolean
   newStreak: number
-  isMakeUp: boolean
   expGained: number
   reward?: {
     type: 'achievement' | 'streak_bonus'
@@ -140,7 +137,6 @@ export function useCheckIn() {
     totalDays: 0,
     rewardsClaimed: {},
     streakFreeze: 0,
-    missedDays: 0,
     checkInHistory: [],
   })
   const { showToast } = useToast()
@@ -163,7 +159,6 @@ export function useCheckIn() {
         const parsed = JSON.parse(stored) as CheckInData
         // Ensure new fields exist
         if (parsed.streakFreeze === undefined) parsed.streakFreeze = 0
-        if (parsed.missedDays === undefined) parsed.missedDays = 0
         if (parsed.checkInHistory === undefined) parsed.checkInHistory = []
         // Migrate old string[] rewardsClaimed to object
         if (Array.isArray(parsed.rewardsClaimed)) {
@@ -174,24 +169,17 @@ export function useCheckIn() {
         const todayStr = getDateString(new Date())
         if (parsed.lastCheckIn && parsed.streak > 0) {
           if (!isYesterday(parsed.lastCheckIn, todayStr) && parsed.lastCheckIn !== todayStr) {
-            // User missed a day - apply grace period logic
-            if (parsed.missedDays === 0) {
-              // First miss - grant grace period (1 day buffer)
-              parsed.missedDays = 1
-              localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
+            // User missed a day
+            if (parsed.streakFreeze > 0) {
+              // Auto-consume streak freeze to protect the streak
+              parsed.streakFreeze -= 1
+              // Streak stays at current value (freeze absorbed the miss)
+              toastRef.current(`🔒 补签卡自动使用了！连续 ${parsed.streak} 天已保护`, 'info', 5000)
             } else {
-              // Already had grace period used, streak is now broken
+              // No freeze available, streak breaks
               parsed.streak = 0
-              parsed.missedDays = 0
-              // Use streak freeze if available
-              if (parsed.streakFreeze > 0) {
-                parsed.streakFreeze -= 1
-                parsed.streak = 1 // Restore minimal streak
-                parsed.missedDays = 0
-                toastRef.current('🔒 使用了补签卡，你的连续签到已恢复！', 'info')
-              }
-              localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
             }
+            localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
           }
         }
         setCheckInData(parsed)
@@ -212,34 +200,25 @@ export function useCheckIn() {
         success: false,
         alreadyCheckedIn: true,
         newStreak: current.streak,
-        isMakeUp: false,
         expGained: 0,
         milestonesReached: [],
       }
     }
 
     let newStreak: number
-    let isMakeUp = false
 
     if (current.lastCheckIn && isYesterday(current.lastCheckIn, todayStr)) {
       // Continue streak normally
       newStreak = current.streak + 1
-      current.missedDays = 0
-    } else if (current.lastCheckIn && current.missedDays > 0) {
-      // Using grace period - streak preserved but not incremented
-      newStreak = current.streak
-      isMakeUp = true
-      current.missedDays = 0
     } else {
       // Start new streak (first time or after streak break)
       newStreak = 1
-      current.missedDays = 0
     }
 
-    // Check if we should grant a streak freeze (at 7-day multiples)
+    // Check if we should grant a streak freeze (at 7-day multiples, max 3)
     let newStreakFreeze = current.streakFreeze
-    if (newStreak > 0 && newStreak % 7 === 0 && !isMakeUp) {
-      newStreakFreeze += 1
+    if (newStreak > 0 && newStreak % 7 === 0) {
+      newStreakFreeze = Math.min(newStreakFreeze + 1, 3)
     }
 
     const newTotalDays = current.totalDays + 1
@@ -250,7 +229,7 @@ export function useCheckIn() {
     const expGained = isWeekendDay ? baseExp * 2 : baseExp
 
     // Append to check-in history
-    const newHistoryEntry: CheckInEntry = { date: todayStr, isMakeUp }
+    const newHistoryEntry: CheckInEntry = { date: todayStr }
     const existingIndex = current.checkInHistory.findIndex(e => e.date === todayStr)
     const newHistory = existingIndex >= 0
       ? current.checkInHistory.map((e, i) => i === existingIndex ? newHistoryEntry : e)
@@ -271,7 +250,6 @@ export function useCheckIn() {
       totalDays: newTotalDays,
       rewardsClaimed: newRewardsClaimed,
       streakFreeze: newStreakFreeze,
-      missedDays: 0,
       checkInHistory: newHistory,
     }
 
@@ -287,9 +265,7 @@ export function useCheckIn() {
 
     // Build toast message
     let toastMsg = ''
-    if (isMakeUp) {
-      toastMsg = `补签成功！连续${newStreak}天 🔒`
-    } else if (isWeekendDay) {
+    if (isWeekendDay) {
       toastMsg = `🌟 周六/日双倍 EXP！+${expGained} EXP${milestoneMsg}`
     } else {
       toastMsg = `签到成功！连续${newStreak}天 +${expGained} EXP${milestoneMsg}`
@@ -304,7 +280,7 @@ export function useCheckIn() {
     } catch (e) {
       console.warn('Failed to save check-in data to localStorage:', e)
       toastRef.current('签到失败，请重试', 'error')
-      return { success: false, alreadyCheckedIn: false, newStreak, isMakeUp, expGained: 0, milestonesReached: [] }
+      return { success: false, alreadyCheckedIn: false, newStreak, expGained: 0, milestonesReached: [] }
     }
 
     setCheckInData(newData)
@@ -313,7 +289,6 @@ export function useCheckIn() {
       success: true,
       alreadyCheckedIn: false,
       newStreak,
-      isMakeUp,
       expGained,
       reward,
       milestonesReached,
@@ -325,14 +300,11 @@ export function useCheckIn() {
     return checkInData.lastCheckIn === todayStr
   }, [checkInData.lastCheckIn])
 
-  // Check if user can do a make-up check-in (has grace period available)
+  // Check if user has streak freeze available
   const canMakeUpCheckIn = useCallback((): boolean => {
-    if (isCheckedInToday()) return false
-    const todayStr = getDateString(new Date())
-    if (!checkInData.lastCheckIn) return false
-    // Can make up if: had a previous streak, missed yesterday (grace period active)
-    return checkInData.streak > 0 && checkInData.missedDays > 0
-  }, [checkInData.lastCheckIn, checkInData.streak, checkInData.missedDays, isCheckedInToday])
+    // Streak freeze is now auto-consumed on miss, so manual make-up is not applicable
+    return false
+  }, [])
 
   // Check if user has streak freeze available
   const hasStreakFreeze = useCallback((): boolean => {

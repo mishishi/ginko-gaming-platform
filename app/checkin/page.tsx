@@ -53,12 +53,7 @@ export default function CheckInCalendarPage() {
         }
       }
 
-      let msg = ''
-      if (result.isMakeUp) {
-        msg = `补签成功！连续${result.newStreak}天`
-      } else {
-        msg = `签到成功！连续${result.newStreak}天 +${result.expGained} EXP`
-      }
+      let msg = `签到成功！连续${result.newStreak}天 +${result.expGained} EXP`
       if (result.milestonesReached.length > 0) {
         const parts = result.milestonesReached.map(m => `${m.label}+${m.exp}EXP`)
         msg += ' | ' + parts.join(' ')
@@ -115,14 +110,6 @@ export default function CheckInCalendarPage() {
     const set = new Set<string>()
     for (const entry of checkInData.checkInHistory) {
       set.add(entry.date)
-    }
-    return set
-  }, [checkInData.checkInHistory])
-
-  const isMakeUpSet = useMemo(() => {
-    const set = new Set<string>()
-    for (const entry of checkInData.checkInHistory) {
-      if (entry.isMakeUp) set.add(entry.date)
     }
     return set
   }, [checkInData.checkInHistory])
@@ -255,7 +242,6 @@ export default function CheckInCalendarPage() {
               const isCheckedIn = day.dateStr && checkInSet.has(day.dateStr)
               const isToday = mounted && day.dateStr === todayStr
               const isFuture = mounted && day.dateStr && new Date(day.dateStr) > new Date()
-              const isMakeUp = day.dateStr && isMakeUpSet.has(day.dateStr)
 
               return (
                 <div
@@ -264,7 +250,7 @@ export default function CheckInCalendarPage() {
                 >
                   {day.date && (
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300 ${isCheckedIn ? 'animate-checkin-glow' : ''} ${isToday ? 'ring-2 ring-[var(--accent-copper)]' : ''} ${isFuture ? 'opacity-30' : ''} ${isMakeUp ? 'border-2 border-dashed border-[var(--accent-amber)]' : ''}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300 ${isCheckedIn ? 'animate-checkin-glow' : ''} ${isToday ? 'ring-2 ring-[var(--accent-copper)]' : ''} ${isFuture ? 'opacity-30' : ''}`}
                       style={{
                         backgroundColor: isCheckedIn ? 'rgba(184,149,110,0.2)' : 'transparent',
                         color: isCheckedIn ? 'var(--accent-copper)' : isFuture ? 'var(--text-muted)' : 'var(--text-primary)',
@@ -320,10 +306,6 @@ export default function CheckInCalendarPage() {
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full ring-2 ring-[var(--accent-copper)]" />
             <span>今天</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full border-2 border-dashed border-[var(--accent-amber)]" />
-            <span>补签</span>
           </div>
         </div>
       </div>
