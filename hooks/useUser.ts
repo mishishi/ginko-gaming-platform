@@ -421,6 +421,7 @@ export function useUser() {
     consecutiveDays: number
     lastCheckIn: string
     totalCheckIns: number
+    streakFreeze: number
   }): Promise<{ success: boolean; error?: string; expGained?: number }> => {
     try {
       // First register if not registered

@@ -57,6 +57,7 @@ interface UserCheckin {
   consecutiveDays: number
   lastCheckIn: string
   totalCheckIns: number
+  streakFreeze: number
 }
 
 const UserContext = createContext<UserContextValue | null>(null)

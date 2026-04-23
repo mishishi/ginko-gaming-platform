@@ -5,20 +5,46 @@ import { useToast } from '@/contexts/ToastContext'
 
 const CHECKIN_KEY = 'yinqiu-checkin'
 
+// Check-in milestone config
+export interface CheckInMilestone {
+  days: number
+  exp: number
+  label: string
+}
+
+export const CHECKIN_MILESTONES: CheckInMilestone[] = [
+  { days: 1,  exp: 5,   label: '首次签到' },
+  { days: 3,  exp: 10,  label: '连续3天' },
+  { days: 7,  exp: 20,  label: '连续7天' },
+  { days: 14, exp: 15,  label: '连续14天' },
+  { days: 21, exp: 25,  label: '连续21天' },
+  { days: 30, exp: 50,  label: '连续30天' },
+  { days: 60, exp: 50,  label: '连续60天' },
+  { days: 90, exp: 100, label: '连续90天' },
+]
+
+// Check-in history entry
+export interface CheckInEntry {
+  date: string       // ISO date string "2026-04-22"
+  isMakeUp: boolean  // Whether this was a make-up check-in
+}
+
 export interface CheckInData {
   lastCheckIn: string | null  // ISO date string "2026-04-22"
   streak: number              // Consecutive check-in days
   totalDays: number           // Total check-in days
-  rewardsClaimed: string[]    // Array of reward dates claimed
+  rewardsClaimed: Record<string, boolean>  // milestone days string → claimed
   streakFreeze: number        // Number of streak freezes available
   missedDays: number          // Track consecutive missed days for grace period
-  checkInHistory: string[]    // Array of all check-in dates (ISO strings)
+  checkInHistory: CheckInEntry[]  // Array of all check-in entries
 }
 
 export interface CheckInResult {
   success: boolean
   alreadyCheckedIn: boolean
   newStreak: number
+  isMakeUp: boolean
+  expGained: number
   reward?: {
     type: 'achievement' | 'streak_bonus'
     id: string
@@ -26,6 +52,7 @@ export interface CheckInResult {
     description: string
     icon: string
   }
+  milestonesReached: CheckInMilestone[]
 }
 
 // Check-in achievements config
@@ -97,12 +124,21 @@ function getRewardForStreak(streak: number): { type: 'achievement' | 'streak_bon
   return undefined
 }
 
+function isWeekend(date: Date): boolean {
+  const day = date.getDay()
+  return day === 0 || day === 6
+}
+
+function getMilestonesReached(streak: number, rewardsClaimed: Record<string, boolean>): CheckInMilestone[] {
+  return CHECKIN_MILESTONES.filter(m => m.days === streak && !rewardsClaimed[String(m.days)])
+}
+
 export function useCheckIn() {
   const [checkInData, setCheckInData] = useState<CheckInData>({
     lastCheckIn: null,
     streak: 0,
     totalDays: 0,
-    rewardsClaimed: [],
+    rewardsClaimed: {},
     streakFreeze: 0,
     missedDays: 0,
     checkInHistory: [],
@@ -129,6 +165,10 @@ export function useCheckIn() {
         if (parsed.streakFreeze === undefined) parsed.streakFreeze = 0
         if (parsed.missedDays === undefined) parsed.missedDays = 0
         if (parsed.checkInHistory === undefined) parsed.checkInHistory = []
+        // Migrate old string[] rewardsClaimed to object
+        if (Array.isArray(parsed.rewardsClaimed)) {
+          parsed.rewardsClaimed = {}
+        }
 
         // Check if streak should be reset (missed a day)
         const todayStr = getDateString(new Date())
@@ -148,7 +188,7 @@ export function useCheckIn() {
                 parsed.streakFreeze -= 1
                 parsed.streak = 1 // Restore minimal streak
                 parsed.missedDays = 0
-                toastRef.current('🔒 使用了补签卡，你的 streak 已恢复！', 'info')
+                toastRef.current('🔒 使用了补签卡，你的连续签到已恢复！', 'info')
               }
               localStorage.setItem(CHECKIN_KEY, JSON.stringify(parsed))
             }
@@ -164,6 +204,7 @@ export function useCheckIn() {
   const checkIn = useCallback((): CheckInResult => {
     const todayStr = getDateString(new Date())
     const current = checkInDataRef.current
+    const today = new Date()
 
     // Already checked in today
     if (current.lastCheckIn === todayStr) {
@@ -171,12 +212,14 @@ export function useCheckIn() {
         success: false,
         alreadyCheckedIn: true,
         newStreak: current.streak,
+        isMakeUp: false,
+        expGained: 0,
+        milestonesReached: [],
       }
     }
 
     let newStreak: number
     let isMakeUp = false
-    let usedStreakFreeze = false
 
     if (current.lastCheckIn && isYesterday(current.lastCheckIn, todayStr)) {
       // Continue streak normally
@@ -201,23 +244,59 @@ export function useCheckIn() {
 
     const newTotalDays = current.totalDays + 1
 
+    // Weekend double EXP
+    const isWeekendDay = isWeekend(today)
+    const baseExp = 5
+    const expGained = isWeekendDay ? baseExp * 2 : baseExp
+
     // Append to check-in history
-    const newHistory = current.checkInHistory.includes(todayStr)
-      ? current.checkInHistory
-      : [...current.checkInHistory, todayStr]
+    const newHistoryEntry: CheckInEntry = { date: todayStr, isMakeUp }
+    const existingIndex = current.checkInHistory.findIndex(e => e.date === todayStr)
+    const newHistory = existingIndex >= 0
+      ? current.checkInHistory.map((e, i) => i === existingIndex ? newHistoryEntry : e)
+      : [...current.checkInHistory, newHistoryEntry]
+
+    // Check for milestone rewards reached
+    const milestonesReached = getMilestonesReached(newStreak, current.rewardsClaimed)
+
+    // Mark milestones as claimed
+    const newRewardsClaimed = { ...current.rewardsClaimed }
+    for (const m of milestonesReached) {
+      newRewardsClaimed[String(m.days)] = true
+    }
 
     const newData: CheckInData = {
       lastCheckIn: todayStr,
       streak: newStreak,
       totalDays: newTotalDays,
-      rewardsClaimed: current.rewardsClaimed,
+      rewardsClaimed: newRewardsClaimed,
       streakFreeze: newStreakFreeze,
       missedDays: 0,
       checkInHistory: newHistory,
     }
 
-    // Check for reward
+    // Check for achievement reward
     const reward = getRewardForStreak(newStreak)
+
+    // Build milestone message
+    let milestoneMsg = ''
+    if (milestonesReached.length > 0) {
+      const parts = milestonesReached.map(m => `${m.label} +${m.exp} EXP`)
+      milestoneMsg = ' ' + parts.join(' ')
+    }
+
+    // Build toast message
+    let toastMsg = ''
+    if (isMakeUp) {
+      toastMsg = `补签成功！连续${newStreak}天 🔒`
+    } else if (isWeekendDay) {
+      toastMsg = `🌟 周六/日双倍 EXP！+${expGained} EXP${milestoneMsg}`
+    } else {
+      toastMsg = `签到成功！连续${newStreak}天 +${expGained} EXP${milestoneMsg}`
+    }
+    if (reward) {
+      toastMsg += ` ${reward.icon} ${reward.name}`
+    }
 
     // Persist
     try {
@@ -225,7 +304,7 @@ export function useCheckIn() {
     } catch (e) {
       console.warn('Failed to save check-in data to localStorage:', e)
       toastRef.current('签到失败，请重试', 'error')
-      return { success: false, alreadyCheckedIn: false, newStreak }
+      return { success: false, alreadyCheckedIn: false, newStreak, isMakeUp, expGained: 0, milestonesReached: [] }
     }
 
     setCheckInData(newData)
@@ -234,7 +313,10 @@ export function useCheckIn() {
       success: true,
       alreadyCheckedIn: false,
       newStreak,
+      isMakeUp,
+      expGained,
       reward,
+      milestonesReached,
     }
   }, [])
 

@@ -39,6 +39,8 @@ interface SyncBody {
     lastCheckIn: string
     totalCheckIns: number
     lastSyncedDate?: string
+    streakFreeze?: number
+    rewardsClaimed?: Record<string, boolean>
   }
 }
 

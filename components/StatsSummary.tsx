@@ -1,6 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { GameStats } from '@/hooks/useGameStats'
+import GameComparisonChart from './charts/GameComparisonChart'
+import PlayHistoryChart from './charts/PlayHistoryChart'
+import WinRateChart from './charts/WinRateChart'
+import WeeklyComparisonChart from './charts/WeeklyComparisonChart'
+import SkillRadarChart from './charts/SkillRadarChart'
+
+type ViewMode = 'text' | 'chart'
 
 interface StatsSummaryProps {
   stats: GameStats
@@ -111,6 +119,8 @@ function getWeeklyComparison(weeklyStats: GameStats['weeklyStats']): { thisWeek:
 }
 
 export default function StatsSummary({ stats }: StatsSummaryProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>('text')
+
   const totalPlays = Object.values(stats.playCount).reduce((sum, count) => sum + count, 0)
   const totalPlayTime = Object.values(stats.totalPlayTime || {}).reduce((sum, t) => sum + t, 0)
   const gameSlugs = ['idol', 'quiz', 'fate']
@@ -149,125 +159,181 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
       aria-label="游戏统计数据"
     >
       {/* Header */}
-      <div className="flex items-center gap-2" style={{ color: 'var(--accent-copper)' }}>
-        <span className="text-lg" aria-hidden="true">📊</span>
-        <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-          游戏统计
-        </h3>
-      </div>
-
-      {/* Top Stats Row */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Total Plays */}
-        <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-          <span className="text-base" aria-hidden="true">🎮</span>
-          <div className="flex-1">
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>总游戏次数</div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{totalPlays}</div>
-          </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2" style={{ color: 'var(--accent-copper)' }}>
+          <span className="text-lg" aria-hidden="true">📊</span>
+          <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+            游戏统计
+          </h3>
         </div>
-
-        {/* Total Play Time */}
-        <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-          <span className="text-base" aria-hidden="true">⏱️</span>
-          <div className="flex-1">
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>累计时长</div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{formatDuration(totalPlayTime)}</div>
-          </div>
-        </div>
-
-        {/* Consecutive Days */}
-        <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-          <span className="text-base" aria-hidden="true">🔥</span>
-          <div className="flex-1">
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>连续游玩</div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--accent-amber)' }}>
-              {consecutiveDays > 0 ? `${consecutiveDays} 天` : '-'}
-            </div>
-          </div>
-        </div>
-
-        {/* Weekly Trend */}
-        <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-          <span className="text-base" aria-hidden="true">📈</span>
-          <div className="flex-1">
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>本周趋势</div>
-            <div className="text-lg font-semibold" style={{ color: trendColor }}>
-              {weekly.thisWeek.plays > 0 || weekly.lastWeek.plays > 0 ? (
-                <span className="flex items-center gap-1">
-                  {trendIcon} {weekly.thisWeek.plays}
-                </span>
-              ) : '-'}
-            </div>
-          </div>
+        <div className="flex rounded overflow-hidden border" style={{ borderColor: 'var(--border-subtle)' }}>
+          <button
+            onClick={() => setViewMode('text')}
+            className="px-2 py-1 text-xs transition-colors"
+            style={{
+              backgroundColor: viewMode === 'text' ? 'var(--accent-copper)' : 'transparent',
+              color: viewMode === 'text' ? 'var(--bg-primary)' : 'var(--text-secondary)',
+            }}
+          >
+            文字
+          </button>
+          <button
+            onClick={() => setViewMode('chart')}
+            className="px-2 py-1 text-xs transition-colors"
+            style={{
+              backgroundColor: viewMode === 'chart' ? 'var(--accent-copper)' : 'transparent',
+              color: viewMode === 'chart' ? 'var(--bg-primary)' : 'var(--text-secondary)',
+            }}
+          >
+            图表
+          </button>
         </div>
       </div>
 
-      {/* Per-Game Stats */}
-      <div className="space-y-3 pt-2" style={{ borderTop: '1px solid rgba(184, 148, 95, 0.2)' }}>
-        <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-          各游戏详情
-        </div>
-        {gameSlugs.map((slug) => {
-          const playCount = stats.playCount[slug] || 0
-          const highScore = stats.highScore[slug] || 0
-          const lastPlayed = stats.lastPlayedAt[slug]
-          const playTime = stats.totalPlayTime?.[slug] || 0
-          const winRate = getWinRate(slug)
+      {viewMode === 'text' ? (
+        <>
+          {/* Top Stats Row */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Total Plays */}
+            <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <span className="text-base" aria-hidden="true">🎮</span>
+              <div className="flex-1">
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>总游戏次数</div>
+                <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{totalPlays}</div>
+              </div>
+            </div>
 
-          return (
-            <div
-              key={slug}
-              className="flex items-center gap-3 p-2 rounded"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}
-            >
-              <span className="text-base" aria-hidden="true">{GAME_ICONS[slug]}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-                  {GAME_NAMES[slug]}
+            {/* Total Play Time */}
+            <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <span className="text-base" aria-hidden="true">⏱️</span>
+              <div className="flex-1">
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>累计时长</div>
+                <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{formatDuration(totalPlayTime)}</div>
+              </div>
+            </div>
+
+            {/* Consecutive Days */}
+            <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <span className="text-base" aria-hidden="true">🔥</span>
+              <div className="flex-1">
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>连续游玩</div>
+                <div className="text-lg font-semibold" style={{ color: 'var(--accent-amber)' }}>
+                  {consecutiveDays > 0 ? `${consecutiveDays} 天` : '-'}
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    次数: <span style={{ color: 'var(--accent-copper)' }}>{playCount}</span>
+              </div>
+            </div>
+
+            {/* Weekly Trend */}
+            <div className="flex items-center gap-3 p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <span className="text-base" aria-hidden="true">📈</span>
+              <div className="flex-1">
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>本周趋势</div>
+                <div className="text-lg font-semibold" style={{ color: trendColor }}>
+                  {weekly.thisWeek.plays > 0 || weekly.lastWeek.plays > 0 ? (
+                    <span className="flex items-center gap-1">
+                      {trendIcon} {weekly.thisWeek.plays}
+                    </span>
+                  ) : '-'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Per-Game Stats */}
+          <div className="space-y-3 pt-2" style={{ borderTop: '1px solid rgba(184, 148, 95, 0.2)' }}>
+            <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+              各游戏详情
+            </div>
+            {gameSlugs.map((slug) => {
+              const playCount = stats.playCount[slug] || 0
+              const highScore = stats.highScore[slug] || 0
+              const lastPlayed = stats.lastPlayedAt[slug]
+              const playTime = stats.totalPlayTime?.[slug] || 0
+              const winRate = getWinRate(slug)
+
+              return (
+                <div
+                  key={slug}
+                  className="flex items-center gap-3 p-2 rounded"
+                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}
+                >
+                  <span className="text-base" aria-hidden="true">{GAME_ICONS[slug]}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                      {GAME_NAMES[slug]}
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        次数: <span style={{ color: 'var(--accent-copper)' }}>{playCount}</span>
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        最高分: <span style={{ color: 'var(--accent-glow)' }}>{highScore}</span>
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        时长: <span style={{ color: 'var(--accent-amber)' }}>{formatDuration(playTime)}</span>
+                      </div>
+                      {winRate > 0 && (
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                          胜率: <span style={{ color: 'var(--accent-green)' }}>{winRate}%</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    最高分: <span style={{ color: 'var(--accent-glow)' }}>{highScore}</span>
-                  </div>
-                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    时长: <span style={{ color: 'var(--accent-amber)' }}>{formatDuration(playTime)}</span>
-                  </div>
-                  {winRate > 0 && (
+                  {lastPlayed && (
                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      胜率: <span style={{ color: 'var(--accent-green)' }}>{winRate}%</span>
+                      {formatTimestamp(lastPlayed)}
                     </div>
                   )}
                 </div>
-              </div>
-              {lastPlayed && (
-                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  {formatTimestamp(lastPlayed)}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+              )
+            })}
+          </div>
 
-      {/* Weekly Comparison Detail */}
-      {(weekly.thisWeek.plays > 0 || weekly.lastWeek.plays > 0) && (
-        <div className="pt-2" style={{ borderTop: '1px solid rgba(184, 148, 95, 0.2)' }}>
-          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <div className="flex items-center gap-4">
-              <div>
-                本周: <span style={{ color: 'var(--accent-copper)' }}>{weekly.thisWeek.plays}次</span>
-                <span style={{ color: 'var(--text-muted)' }}> ({formatDuration(weekly.thisWeek.duration)})</span>
-              </div>
-              <div>
-                上周: <span style={{ color: 'var(--text-muted)' }}>{weekly.lastWeek.plays}次</span>
-                <span style={{ color: 'var(--text-muted)' }}> ({formatDuration(weekly.lastWeek.duration)})</span>
+          {/* Weekly Comparison Detail */}
+          {(weekly.thisWeek.plays > 0 || weekly.lastWeek.plays > 0) && (
+            <div className="pt-2" style={{ borderTop: '1px solid rgba(184, 148, 95, 0.2)' }}>
+              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <div className="flex items-center gap-4">
+                  <div>
+                    本周: <span style={{ color: 'var(--accent-copper)' }}>{weekly.thisWeek.plays}次</span>
+                    <span style={{ color: 'var(--text-muted)' }}> ({formatDuration(weekly.thisWeek.duration)})</span>
+                  </div>
+                  <div>
+                    上周: <span style={{ color: 'var(--text-muted)' }}>{weekly.lastWeek.plays}次</span>
+                    <span style={{ color: 'var(--text-muted)' }}> ({formatDuration(weekly.lastWeek.duration)})</span>
+                  </div>
+                </div>
+                <div style={{ color: trendColor }}>{trendIcon}</div>
               </div>
             </div>
-            <div style={{ color: trendColor }}>{trendIcon}</div>
+          )}
+        </>
+      ) : (
+        /* Chart Mode */
+        <div className="space-y-4 pt-2">
+          {/* Top Charts Row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <GameComparisonChart stats={stats} />
+            </div>
+            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <WeeklyComparisonChart stats={stats} />
+            </div>
+          </div>
+
+          {/* Middle Charts Row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <WinRateChart stats={stats} />
+            </div>
+            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+              <PlayHistoryChart stats={stats} />
+            </div>
+          </div>
+
+          {/* Full Width Radar Chart */}
+          <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+            <SkillRadarChart stats={stats} />
           </div>
         </div>
       )}

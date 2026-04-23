@@ -90,6 +90,7 @@ export default function UserProfileCard({ onClose }: UserProfileCardProps) {
         consecutiveDays: checkInData.streak,
         lastCheckIn: checkInData.lastCheckIn || '',
         totalCheckIns: checkInData.totalDays,
+        streakFreeze: checkInData.streakFreeze,
       })
     } else {
       showToast(result.error || '登录失败', 'error')
@@ -110,6 +111,7 @@ export default function UserProfileCard({ onClose }: UserProfileCardProps) {
         consecutiveDays: checkInData.streak,
         lastCheckIn: checkInData.lastCheckIn || '',
         totalCheckIns: checkInData.totalDays,
+        streakFreeze: checkInData.streakFreeze,
       })
     } else {
       showToast(result.error || '注册失败', 'error')
@@ -123,6 +125,7 @@ export default function UserProfileCard({ onClose }: UserProfileCardProps) {
         consecutiveDays: checkInData.streak,
         lastCheckIn: checkInData.lastCheckIn || '',
         totalCheckIns: checkInData.totalDays,
+        streakFreeze: checkInData.streakFreeze,
       })
 
       if (result.success) {
@@ -144,6 +147,7 @@ export default function UserProfileCard({ onClose }: UserProfileCardProps) {
       consecutiveDays: checkInData.streak,
       lastCheckIn: checkInData.lastCheckIn || '',
       totalCheckIns: checkInData.totalDays,
+      streakFreeze: checkInData.streakFreeze,
     })
 
     if (result.success) {

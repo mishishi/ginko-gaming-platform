@@ -81,6 +81,7 @@ export default function UserPage() {
         consecutiveDays: checkInData.streak,
         lastCheckIn: checkInData.lastCheckIn || '',
         totalCheckIns: checkInData.totalDays,
+        streakFreeze: checkInData.streakFreeze,
       })
     }
   }
@@ -98,6 +99,7 @@ export default function UserPage() {
         consecutiveDays: checkInData.streak,
         lastCheckIn: checkInData.lastCheckIn || '',
         totalCheckIns: checkInData.totalDays,
+        streakFreeze: checkInData.streakFreeze,
       })
     }
   }
@@ -107,6 +109,7 @@ export default function UserPage() {
       consecutiveDays: checkInData.streak,
       lastCheckIn: checkInData.lastCheckIn || '',
       totalCheckIns: checkInData.totalDays,
+      streakFreeze: checkInData.streakFreeze,
     })
   }
 
