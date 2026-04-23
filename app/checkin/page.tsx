@@ -3,12 +3,16 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useCheckInContext } from '@/contexts/CheckInContext'
+import { useUserContext } from '@/contexts/UserContext'
+import { useGameStats } from '@/hooks/useGameStats'
 import { useToast } from '@/contexts/ToastContext'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
 export default function CheckInCalendarPage() {
   const { checkInData, checkIn, isCheckedInToday } = useCheckInContext()
+  const { isLoggedIn, syncToCloud } = useUserContext()
+  const { stats } = useGameStats()
   const { showToast } = useToast()
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [mounted, setMounted] = useState(false)
@@ -25,7 +29,7 @@ export default function CheckInCalendarPage() {
   const getDateString = (date: Date) => date.toISOString().split('T')[0]
   const todayStr = mounted ? getDateString(new Date()) : ''
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
     if (checkedInToday) {
       showToast(`今日已签到 ${checkInData.streak}天连续 🔥`, 'info')
       return
@@ -37,6 +41,15 @@ export default function CheckInCalendarPage() {
         msg = `${result.reward.icon} ${result.reward.name}！${msg}`
       }
       showToast(msg, 'success')
+
+      // Sync to cloud if logged in
+      if (isLoggedIn) {
+        await syncToCloud(stats, {
+          consecutiveDays: result.newStreak,
+          lastCheckIn: new Date().toISOString().split('T')[0],
+          totalCheckIns: checkInData.totalDays + 1,
+        })
+      }
     }
   }
 

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createUser, getUserByAnonymousId, getUserByNickname } from '@/lib/db'
+import { createUser, getUserByAnonymousId, getUserByNickname, setPasswordHash } from '@/lib/db'
+import bcrypt from 'bcryptjs'
 
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { anonymousId, nickname } = body
+    const { anonymousId, nickname, password } = body
 
     if (!anonymousId) {
       return NextResponse.json(
@@ -37,6 +38,12 @@ export async function POST(request: NextRequest) {
 
     // Create new user
     const user = createUser(anonymousId, nickname)
+
+    // Set password if provided
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10)
+      setPasswordHash(user.id!, passwordHash)
+    }
 
     return NextResponse.json({
       success: true,

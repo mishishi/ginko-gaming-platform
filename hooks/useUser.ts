@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 const USER_KEY = 'yinqiu-user'
 const MIGRATED_KEY = 'yinqiu-migrated'
+const SYNCED_AT_KEY = 'yinqiu-synced-at'
+const OFFLINE_QUEUE_KEY = 'yinqiu-offline-queue'
 
 export interface UserData {
   anonymousId: string      // "旅人#2847"
@@ -25,6 +27,11 @@ export interface CloudUser {
   exp: number
   createdAt: string
   lastActiveAt: string
+  loginHistory?: Array<{
+    timestamp: string
+    userAgent: string
+    ip: string
+  }>
 }
 
 function generateAnonymousId(): string {
@@ -50,7 +57,12 @@ export function useUser() {
   const [cloudUser, setCloudUser] = useState<CloudUser | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null)
+  const [levelUpTo, setLevelUpTo] = useState<number | null>(null)
+  const [newTitle, setNewTitle] = useState<string | null>(null)
+  const [isOnline, setIsOnline] = useState(true)
+  const [offlineQueue, setOfflineQueue] = useState<Array<{ id: string; type: string; payload: unknown; timestamp: string; retries: number }>>([])
   const storageErrorRef = useRef(false)
+  const syncToCloudRef = useRef<typeof syncToCloud | null>(null)
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -82,6 +94,115 @@ export function useUser() {
     setIsLoaded(true)
   }, [])
 
+  // Network status listener
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    setIsOnline(navigator.onLine)
+
+    // Load offline queue from localStorage
+    try {
+      const queue = localStorage.getItem(OFFLINE_QUEUE_KEY)
+      if (queue) {
+        setOfflineQueue(JSON.parse(queue))
+      }
+    } catch (e) {
+      console.warn('Failed to load offline queue:', e)
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  // Save offline queue to localStorage
+  const saveOfflineQueue = useCallback((queue: typeof offlineQueue) => {
+    try {
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue))
+    } catch (e) {
+      console.warn('Failed to save offline queue:', e)
+    }
+  }, [])
+
+  // Enqueue operation for offline processing
+  const enqueueOperation = useCallback((type: string, payload: unknown) => {
+    const operation = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      type,
+      payload,
+      timestamp: new Date().toISOString(),
+      retries: 0,
+    }
+    setOfflineQueue(prev => {
+      const newQueue = [...prev, operation]
+      saveOfflineQueue(newQueue)
+      return newQueue
+    })
+    return operation.id
+  }, [saveOfflineQueue])
+
+  // Process offline queue
+  const processQueue = useCallback(async () => {
+    if (!userData.cloudId || offlineQueue.length === 0) return
+
+    const failedIds: string[] = []
+
+    for (const operation of offlineQueue) {
+      try {
+        // Process based on operation type
+        if (operation.type === 'sync' && syncToCloudRef.current) {
+          const result = await syncToCloudRef.current(
+            (operation.payload as { stats: Parameters<typeof syncToCloud>[0] }).stats,
+            (operation.payload as { checkin: Parameters<typeof syncToCloud>[1] }).checkin
+          )
+          if (!result.success && operation.retries >= 3) {
+            failedIds.push(operation.id)
+          }
+        }
+        // Remove successful operations from queue
+        setOfflineQueue(prev => {
+          const newQueue = prev.filter(op => op.id !== operation.id)
+          saveOfflineQueue(newQueue)
+          return newQueue
+        })
+      } catch (e) {
+        console.warn('Failed to process offline operation:', operation.id, e)
+        // Increment retry count
+        if (operation.retries < 3) {
+          setOfflineQueue(prev => {
+            const newQueue = prev.map(op =>
+              op.id === operation.id ? { ...op, retries: op.retries + 1 } : op
+            )
+            saveOfflineQueue(newQueue)
+            return newQueue
+          })
+        } else {
+          failedIds.push(operation.id)
+        }
+      }
+    }
+
+    // Remove failed operations after max retries
+    if (failedIds.length > 0) {
+      setOfflineQueue(prev => {
+        const newQueue = prev.filter(op => !failedIds.includes(op.id))
+        saveOfflineQueue(newQueue)
+        return newQueue
+      })
+    }
+  }, [userData.cloudId, offlineQueue, saveOfflineQueue])
+
+  // Process queue when coming back online
+  useEffect(() => {
+    if (isOnline && offlineQueue.length > 0) {
+      processQueue()
+    }
+  }, [isOnline, processQueue, offlineQueue.length])
+
   // Save to localStorage whenever userData changes
   const saveToLocalStorage = useCallback((data: UserData) => {
     try {
@@ -98,6 +219,89 @@ export function useUser() {
     saveToLocalStorage(newData)
     setUserData(newData)
   }, [userData, saveToLocalStorage])
+
+  // Update nickname on cloud
+  const updateNicknameCloud = useCallback(async (nickname: string): Promise<{ success: boolean; error?: string }> => {
+    if (!userData.cloudId) {
+      return { success: false, error: 'Not registered' }
+    }
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userData.cloudId, nickname }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        const cloudU = result.user as CloudUser
+        setCloudUser(cloudU)
+        // Update local nickname too
+        const newData = { ...userData, nickname }
+        saveToLocalStorage(newData)
+        setUserData(newData)
+        return { success: true }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (e) {
+      console.error('Update nickname error:', e)
+      return { success: false, error: 'Network error' }
+    }
+  }, [userData, saveToLocalStorage])
+
+  // Pull cloud data to local (for new device login)
+  const pullFromCloud = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    if (!userData.cloudId) {
+      return { success: false, error: 'Not registered' }
+    }
+
+    try {
+      const response = await fetch(`/api/user/data?userId=${userData.cloudId}`)
+      const result = await response.json()
+
+      if (result.success && result.user) {
+        const cloudU = result.user as CloudUser
+        setCloudUser(cloudU)
+        return { success: true }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (e) {
+      console.error('Pull from cloud error:', e)
+      return { success: false, error: 'Network error' }
+    }
+  }, [userData.cloudId])
+
+  // Export user data as JSON download
+  const exportData = useCallback(async () => {
+    if (!userData.cloudId) {
+      return { success: false, error: 'Not registered' }
+    }
+
+    try {
+      const response = await fetch(`/api/user/export?userId=${userData.cloudId}`)
+      if (!response.ok) {
+        throw new Error('Export failed')
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `yinqiu-data-${userData.anonymousId}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      return { success: true }
+    } catch (e) {
+      console.error('Export data error:', e)
+      return { success: false, error: 'Export failed' }
+    }
+  }, [userData.cloudId, userData.anonymousId])
 
   const recordGamePlayed = useCallback((gameSlug: string, playTimeMinutes: number) => {
     const gamesPlayed = userData.gamesPlayed.includes(gameSlug)
@@ -116,12 +320,12 @@ export function useUser() {
   }, [userData, saveToLocalStorage])
 
   // Login with nickname
-  const login = useCallback(async (nickname: string): Promise<{ success: boolean; error?: string }> => {
+  const login = useCallback(async (nickname: string, password?: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch('/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, anonymousId: userData.anonymousId }),
+        body: JSON.stringify({ nickname, anonymousId: userData.anonymousId, password }),
       })
 
       const result = await response.json()
@@ -140,6 +344,9 @@ export function useUser() {
         }
         saveToLocalStorage(newData)
         setUserData(newData)
+
+        // Pull cloud data (new device login scenario)
+        await pullFromCloud()
 
         return { success: true }
       } else {
@@ -149,15 +356,15 @@ export function useUser() {
       console.error('Login error:', e)
       return { success: false, error: 'Network error' }
     }
-  }, [userData, saveToLocalStorage])
+  }, [userData, saveToLocalStorage, pullFromCloud])
 
   // Register (create cloud account)
-  const register = useCallback(async (nickname?: string): Promise<{ success: boolean; error?: string }> => {
+  const register = useCallback(async (nickname?: string, password?: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch('/api/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ anonymousId: userData.anonymousId, nickname }),
+        body: JSON.stringify({ anonymousId: userData.anonymousId, nickname, password }),
       })
 
       const result = await response.json()
@@ -177,6 +384,9 @@ export function useUser() {
         saveToLocalStorage(newData)
         setUserData(newData)
 
+        // Pull cloud data (new device login scenario)
+        await pullFromCloud()
+
         return { success: true }
       } else {
         return { success: false, error: result.error }
@@ -185,7 +395,7 @@ export function useUser() {
       console.error('Register error:', e)
       return { success: false, error: 'Network error' }
     }
-  }, [userData, saveToLocalStorage])
+  }, [userData, saveToLocalStorage, pullFromCloud])
 
   // Migrate local data to cloud
   const migrateData = useCallback(async (stats: {
@@ -300,8 +510,23 @@ export function useUser() {
 
       if (result.success) {
         setLastSyncAt(getDateString(new Date()))
+        localStorage.setItem(SYNCED_AT_KEY, getDateString(new Date()))
+
         if (result.user) {
+          const prevLevel = cloudUser?.level ?? 1
+          const prevTitle = cloudUser?.title ?? ''
+
           setCloudUser(result.user)
+
+          // Detect level-up
+          if (result.user.level > prevLevel) {
+            setLevelUpTo(result.user.level)
+          }
+
+          // Detect title change
+          if (result.newTitle && result.newTitle !== prevTitle) {
+            setNewTitle(result.newTitle)
+          }
         }
         return { success: true }
       } else {
@@ -313,7 +538,12 @@ export function useUser() {
     } finally {
       setIsSyncing(false)
     }
-  }, [userData])
+  }, [userData, cloudUser?.level, cloudUser?.title])
+
+  // Keep syncToCloudRef updated
+  useEffect(() => {
+    syncToCloudRef.current = syncToCloud
+  }, [syncToCloud])
 
   // Logout (clear cloud state only, keep local)
   const logout = useCallback(() => {
@@ -329,6 +559,59 @@ export function useUser() {
     setUserData(newData)
   }, [userData, saveToLocalStorage])
 
+  // Delete account (soft delete)
+  const deleteAccount = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    if (!userData.cloudId) {
+      return { success: false, error: 'Not registered' }
+    }
+
+    try {
+      const response = await fetch(`/api/user/account?userId=${userData.cloudId}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Clear all cloud state and local data
+        setCloudUser(null)
+        setIsLoggedIn(false)
+
+        // Clear cloud-related localStorage keys
+        try {
+          localStorage.removeItem(SYNCED_AT_KEY)
+          localStorage.removeItem(MIGRATED_KEY)
+          localStorage.removeItem(OFFLINE_QUEUE_KEY)
+        } catch (e) {
+          console.warn('Failed to clear localStorage keys:', e)
+        }
+
+        // Clear in-memory offline queue
+        setOfflineQueue([])
+
+        const newData = {
+          ...userData,
+          cloudId: undefined,
+          isRegistered: false,
+        }
+        saveToLocalStorage(newData)
+        setUserData(newData)
+        return { success: true }
+      } else {
+        return { success: false, error: result.error }
+      }
+    } catch (e) {
+      console.error('Delete account error:', e)
+      return { success: false, error: 'Network error' }
+    }
+  }, [userData, saveToLocalStorage])
+
+  // Clear level-up and title unlock animation states
+  const clearAnimations = useCallback(() => {
+    setLevelUpTo(null)
+    setNewTitle(null)
+  }, [])
+
   const displayName = userData.nickname || userData.anonymousId
 
   return {
@@ -340,12 +623,23 @@ export function useUser() {
     isSyncing,
     lastSyncAt,
     hasStorageError: storageErrorRef.current,
+    isOnline,
+    levelUpTo,
+    newTitle,
+    clearAnimations,
     updateNickname,
+    updateNicknameCloud,
     recordGamePlayed,
     login,
     register,
     logout,
+    deleteAccount,
     migrateData,
     syncToCloud,
+    pullFromCloud,
+    exportData,
+    offlineQueue,
+    enqueueOperation,
+    processQueue,
   }
 }

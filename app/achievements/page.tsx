@@ -267,7 +267,7 @@ export default function AchievementsPage() {
         {/* Empty state for unlocked */}
         {unlockedCount === 0 && (
           <div
-            className="text-center py-16 px-4 rounded-2xl"
+            className="mt-6 text-center py-16 px-4 rounded-2xl"
             style={{
               backgroundColor: 'var(--bg-elevated)',
               border: '1px dashed var(--border-subtle)',

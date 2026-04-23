@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserById, updateUserProfile, addExp, calculateLevel, calculateTitle } from '@/lib/db'
+import { getUserById, updateUserProfile, getLoginHistory, setPasswordHash } from '@/lib/db'
+import bcrypt from 'bcryptjs'
 
 export const runtime = 'nodejs'
 
@@ -22,6 +23,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const loginHistory = getLoginHistory(user.id!)
+
     return NextResponse.json({
       success: true,
       user: {
@@ -34,6 +37,7 @@ export async function GET(request: NextRequest) {
         createdAt: user.created_at,
         lastActiveAt: user.last_active_at,
       },
+      loginHistory,
     })
   } catch (error) {
     console.error('Get profile error:', error)
@@ -47,7 +51,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, nickname, title, level, exp } = body
+    const { userId, nickname, title, level, exp, password } = body
 
     if (!userId) {
       return NextResponse.json(
@@ -68,6 +72,12 @@ export async function PUT(request: NextRequest) {
         { success: false, error: 'User not found' },
         { status: 404 }
       )
+    }
+
+    // Update password if provided
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10)
+      setPasswordHash(user.id!, passwordHash)
     }
 
     return NextResponse.json({

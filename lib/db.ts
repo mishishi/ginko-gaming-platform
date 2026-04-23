@@ -1,11 +1,12 @@
 import Database from 'better-sqlite3'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs'
 import { join, dirname } from 'path'
 
 let db: Database.Database | null = null
 
 // Use a file path for Node.js persistence
-const DB_PATH = join(process.cwd(), '.leaderboard.db')
+const DB_PATH = join(process.cwd(), '.yinqiu.db')
+const MIGRATIONS_DIR = join(process.cwd(), 'migrations')
 
 export interface ScoreEntry {
   id?: number
@@ -55,10 +56,57 @@ function initDb(): Database.Database {
   // Enable WAL mode for better performance
   database.pragma('journal_mode = WAL')
 
-  // Initialize user tables
-  initUserTables(database)
+  // Auto-migrate: apply any pending migrations
+  autoMigrate(database)
 
   return database
+}
+
+function autoMigrate(database: Database.Database) {
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      version TEXT PRIMARY KEY,
+      applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  const applied = new Set(
+    (database.prepare('SELECT version FROM schema_migrations').all() as { version: string }[]).map(r => r.version)
+  )
+  console.log('[db] Already applied migrations:', Array.from(applied))
+
+  let files: string[] = []
+  try {
+    files = readdirSync(MIGRATIONS_DIR)
+      .filter(f => f.endsWith('.sql'))
+      .sort()
+    console.log('[db] Found migration files:', files)
+  } catch (e) {
+    console.warn('[db] Cannot read migrations directory:', e)
+    return
+  }
+
+  if (files.length === 0) {
+    console.warn('[db] No migration files found')
+    return
+  }
+
+  for (const file of files) {
+    const version = file.replace('.sql', '')
+    console.log('[db] Checking migration:', version, 'applied:', applied.has(version))
+    if (!applied.has(version)) {
+      console.log('[db] Applying migration:', version)
+      const sql = readFileSync(join(MIGRATIONS_DIR, file), 'utf8')
+      try {
+        database.exec(sql)
+        database.prepare('INSERT INTO schema_migrations (version) VALUES (?)').run(version)
+        console.log('[db] Applied migration:', version)
+      } catch (e) {
+        console.error('[db] Migration failed:', version, e)
+        throw e
+      }
+    }
+  }
 }
 
 function saveDb(database: Database.Database) {
@@ -185,11 +233,14 @@ export interface User {
   id?: number
   anonymous_id: string
   nickname: string | null
+  password_hash: string | null
   title: string
   level: number
   exp: number
+  login_history: string
   created_at: string
   last_active_at: string
+  deleted_at?: string | null
 }
 
 export interface UserData {
@@ -208,59 +259,13 @@ export interface DailyActive {
   checked_in: boolean
 }
 
-function initUserTables(database: Database.Database) {
-  // Users table
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      anonymous_id TEXT UNIQUE,
-      nickname TEXT UNIQUE,
-      title TEXT DEFAULT '新晋旅人',
-      level INTEGER DEFAULT 1,
-      exp INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `)
-
-  // User data table (for stats backup)
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS user_data (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-      data_type TEXT NOT NULL,
-      data_json TEXT NOT NULL,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `)
-
-  // Daily active table
-  database.exec(`
-    CREATE TABLE IF NOT EXISTS daily_active (
-      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-      date TEXT NOT NULL,
-      games_played INTEGER DEFAULT 0,
-      play_time INTEGER DEFAULT 0,
-      checked_in BOOLEAN DEFAULT FALSE,
-      PRIMARY KEY (user_id, date)
-    )
-  `)
-
-  // Indexes
-  database.exec(`CREATE INDEX IF NOT EXISTS idx_users_anonymous_id ON users(anonymous_id)`)
-  database.exec(`CREATE INDEX IF NOT EXISTS idx_users_nickname ON users(nickname)`)
-  database.exec(`CREATE INDEX IF NOT EXISTS idx_user_data_user_id ON user_data(user_id)`)
-  database.exec(`CREATE INDEX IF NOT EXISTS idx_daily_active_user_date ON daily_active(user_id, date)`)
-}
-
 // User CRUD operations
 export function createUser(anonymousId: string, nickname?: string): User {
   const database = getDb()
-  initUserTables(database)
 
   const stmt = database.prepare(`
-    INSERT INTO users (anonymous_id, nickname, title, level, exp, created_at, last_active_at)
-    VALUES (?, ?, '新晋旅人', 1, 0, datetime('now'), datetime('now'))
+    INSERT INTO users (anonymous_id, nickname, title, level, exp, login_history, created_at, last_active_at)
+    VALUES (?, ?, '新晋旅人', 1, 0, '[]', datetime('now'), datetime('now'))
   `)
 
   const result = stmt.run(anonymousId, nickname || null)
@@ -271,19 +276,21 @@ export function createUser(anonymousId: string, nickname?: string): User {
 
 export function getUserById(id: number): User | null {
   const database = getDb()
-  initUserTables(database)
   const row = database.prepare(`
-    SELECT id, anonymous_id, nickname, title, level, exp, created_at, last_active_at
+    SELECT id, anonymous_id, nickname, password_hash, title, level, exp, login_history, created_at, last_active_at, deleted_at
     FROM users WHERE id = ?
   `).get(id) as {
     id: number
     anonymous_id: string
     nickname: string | null
+    password_hash: string | null
     title: string
     level: number
     exp: number
+    login_history: string
     created_at: string
     last_active_at: string
+    deleted_at: string | null
   } | undefined
 
   if (!row) return null
@@ -291,29 +298,34 @@ export function getUserById(id: number): User | null {
     id: row.id,
     anonymous_id: row.anonymous_id,
     nickname: row.nickname,
+    password_hash: row.password_hash,
     title: row.title,
     level: row.level,
     exp: row.exp,
+    login_history: row.login_history,
     created_at: row.created_at,
     last_active_at: row.last_active_at,
+    deleted_at: row.deleted_at,
   }
 }
 
 export function getUserByAnonymousId(anonymousId: string): User | null {
   const database = getDb()
-  initUserTables(database)
   const row = database.prepare(`
-    SELECT id, anonymous_id, nickname, title, level, exp, created_at, last_active_at
+    SELECT id, anonymous_id, nickname, password_hash, title, level, exp, login_history, created_at, last_active_at, deleted_at
     FROM users WHERE anonymous_id = ?
   `).get(anonymousId) as {
     id: number
     anonymous_id: string
     nickname: string | null
+    password_hash: string | null
     title: string
     level: number
     exp: number
+    login_history: string
     created_at: string
     last_active_at: string
+    deleted_at: string | null
   } | undefined
 
   if (!row) return null
@@ -321,29 +333,34 @@ export function getUserByAnonymousId(anonymousId: string): User | null {
     id: row.id,
     anonymous_id: row.anonymous_id,
     nickname: row.nickname,
+    password_hash: row.password_hash,
     title: row.title,
     level: row.level,
     exp: row.exp,
+    login_history: row.login_history,
     created_at: row.created_at,
     last_active_at: row.last_active_at,
+    deleted_at: row.deleted_at,
   }
 }
 
 export function getUserByNickname(nickname: string): User | null {
   const database = getDb()
-  initUserTables(database)
   const row = database.prepare(`
-    SELECT id, anonymous_id, nickname, title, level, exp, created_at, last_active_at
+    SELECT id, anonymous_id, nickname, password_hash, title, level, exp, login_history, created_at, last_active_at, deleted_at
     FROM users WHERE nickname = ?
   `).get(nickname) as {
     id: number
     anonymous_id: string
     nickname: string | null
+    password_hash: string | null
     title: string
     level: number
     exp: number
+    login_history: string
     created_at: string
     last_active_at: string
+    deleted_at: string | null
   } | undefined
 
   if (!row) return null
@@ -351,11 +368,14 @@ export function getUserByNickname(nickname: string): User | null {
     id: row.id,
     anonymous_id: row.anonymous_id,
     nickname: row.nickname,
+    password_hash: row.password_hash,
     title: row.title,
     level: row.level,
     exp: row.exp,
+    login_history: row.login_history,
     created_at: row.created_at,
     last_active_at: row.last_active_at,
+    deleted_at: row.deleted_at,
   }
 }
 
@@ -437,7 +457,6 @@ export function calculateTitle(level: number, consecutiveDays: number, legendary
 // User data operations
 export function saveUserData(userId: number, dataType: 'stats' | 'checkin' | 'achievements', dataJson: string): void {
   const database = getDb()
-  initUserTables(database)
 
   // Upsert: delete existing then insert new
   database.prepare(`DELETE FROM user_data WHERE user_id = ? AND data_type = ?`).run(userId, dataType)
@@ -467,7 +486,6 @@ export function recordDailyActive(
   checkedIn: boolean = false
 ): void {
   const database = getDb()
-  initUserTables(database)
 
   database.prepare(`
     INSERT INTO daily_active (user_id, date, games_played, play_time, checked_in)
@@ -512,4 +530,64 @@ export function getActiveDaysInRange(userId: number, startDate: string, endDate:
   `).get(userId, startDate, endDate) as { count: number }
 
   return result.count
+}
+
+// Login history functions
+export function addLoginHistory(userId: number, entry: { timestamp: string; userAgent: string; ip: string }): void {
+  const database = getDb()
+  const user = getUserById(userId)
+  if (!user) return
+
+  let history: Array<{ timestamp: string; userAgent: string; ip: string }> = []
+  try {
+    history = JSON.parse(user.login_history || '[]')
+  } catch {
+    history = []
+  }
+
+  // Add new entry and keep only last 10
+  history.unshift(entry)
+  if (history.length > 10) {
+    history = history.slice(0, 10)
+  }
+
+  database.prepare(`
+    UPDATE users SET login_history = ? WHERE id = ?
+  `).run(JSON.stringify(history), userId)
+
+  saveDb(database)
+}
+
+export function getLoginHistory(userId: number): Array<{ timestamp: string; userAgent: string; ip: string }> {
+  const user = getUserById(userId)
+  if (!user) return []
+
+  try {
+    return JSON.parse(user.login_history || '[]')
+  } catch {
+    return []
+  }
+}
+
+// Password functions
+export function setPasswordHash(userId: number, passwordHash: string): void {
+  const database = getDb()
+  database.prepare(`
+    UPDATE users SET password_hash = ? WHERE id = ?
+  `).run(passwordHash, userId)
+  saveDb(database)
+}
+
+export function getPasswordHash(userId: number): string | null {
+  const user = getUserById(userId)
+  return user?.password_hash || null
+}
+
+// Soft delete user
+export function softDeleteUser(userId: number): void {
+  const database = getDb()
+  database.prepare(`
+    UPDATE users SET deleted_at = datetime('now') WHERE id = ?
+  `).run(userId)
+  saveDb(database)
 }

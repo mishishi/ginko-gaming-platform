@@ -6,6 +6,7 @@ import {
   addExp,
   calculateLevel,
   calculateTitle,
+  getUserData,
 } from '@/lib/db'
 
 export const runtime = 'nodejs'
@@ -37,6 +38,7 @@ interface SyncBody {
     consecutiveDays: number
     lastCheckIn: string
     totalCheckIns: number
+    lastSyncedDate?: string
   }
 }
 
@@ -82,9 +84,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Checkin: 5 exp per day
-    if (checkin?.totalCheckIns) {
-      expGained += checkin.totalCheckIns * 5
+    // Checkin: 5 exp per day (only for NEW check-ins, not cumulative)
+    if (checkin?.lastCheckIn) {
+      // Load stored check-in data to find last synced date
+      const storedCheckinData = getUserData(userId, 'checkin')
+      let lastSyncedDate = ''
+      if (storedCheckinData) {
+        try {
+          const parsed = JSON.parse(storedCheckinData)
+          lastSyncedDate = parsed.lastSyncedDate || ''
+        } catch (e) {
+          // ignore parse errors
+        }
+      }
+
+      // Only award exp if this is a NEW check-in date (not yet synced)
+      if (checkin.lastCheckIn !== lastSyncedDate) {
+        expGained += 5
+        // Store the new synced date
+        checkin.lastSyncedDate = checkin.lastCheckIn
+      }
     }
 
     // Add exp if any gained
@@ -117,11 +136,16 @@ export async function POST(request: NextRequest) {
     // Get updated user
     const updatedUser = getUserByAnonymousId(anonymousId)
     if (updatedUser) {
+      const prevLevel = user.level
+      const prevTitle = user.title
       const newLevel = calculateLevel(updatedUser.exp)
       const legendaryCount = (stats?.achievements || []).filter((id: string) =>
         id.includes('legendary') || id.includes('marathoner') || id.includes('perfect_score')
       ).length
       const newTitle = calculateTitle(newLevel, checkin?.consecutiveDays || 0, legendaryCount)
+
+      // Check if title changed (return as newTitle only if changed)
+      const titleChanged = newTitle !== prevTitle
 
       return NextResponse.json({
         success: true,
@@ -136,6 +160,7 @@ export async function POST(request: NextRequest) {
           lastActiveAt: updatedUser.last_active_at,
         },
         expGained,
+        newTitle: titleChanged ? newTitle : undefined,
       })
     }
 

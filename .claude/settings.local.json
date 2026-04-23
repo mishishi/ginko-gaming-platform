@@ -42,7 +42,15 @@
       "Bash(curl:*)",
       "Bash(git:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm list:*)"
+      "Bash(npm list:*)",
+      "Bash(pkill -f \"next\")",
+      "Bash(grep -oE \"Phase [0-9]+\\\\.[0-9]+[^'\\\\`\\\\\\\\n]*\" \"C:\\\\Users\\\\zrb03\\\\.claude\\\\projects\\\\D--claude-workspace-ginko-gaming-platform\\\\5bd337f1-52a1-44d1-a53f-fba7a6d5e585.jsonl\")",
+      "Bash(node scripts/migrate.js)",
+      "Bash(ls -la D:/claude/workspace/ginko-gaming-platform/.yinqiu.db*)",
+      "Bash(sqlite3 D:/claude/workspace/ginko-gaming-platform/.yinqiu.db \"SELECT * FROM schema_migrations;\")",
+      "Bash(wmic process:*)",
+      "Bash(sqlite3:*)",
+      "Bash(node:*)"
     ]
   }
 }
