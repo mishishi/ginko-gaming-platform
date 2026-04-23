@@ -12,6 +12,7 @@ import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistratio
 import KeyboardShortcutsProvider from '@/components/KeyboardShortcutsProvider'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { CheckInProvider } from '@/contexts/CheckInContext'
+import { UserProvider } from '@/contexts/UserContext'
 import { AudioProvider } from '@/contexts/AudioContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import MusicToggle from '@/components/MusicToggle'
@@ -45,6 +46,7 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <GameStatusProvider>
           <ToastProvider>
+            <UserProvider>
             <CheckInProvider>
             <FavoritesProvider>
               <ThemeProvider>
@@ -70,6 +72,7 @@ export default function RootLayout({
               </ThemeProvider>
             </FavoritesProvider>
             </CheckInProvider>
+            </UserProvider>
           </ToastProvider>
         </GameStatusProvider>
       </body>

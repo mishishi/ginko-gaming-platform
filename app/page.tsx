@@ -2,7 +2,6 @@ import Link from 'next/link'
 import GameGrid from '@/components/GameGrid'
 import FavoritesSection from '@/components/FavoritesSection'
 import ScrollReveal from '@/components/ScrollReveal'
-import StatsSection from '@/components/StatsSection'
 import ScrollToTop from '@/components/ScrollToTop'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -178,9 +177,6 @@ export default function HomePage() {
           </ErrorBoundary>
         </ScrollReveal>
       </section>
-
-      {/* Stats & Achievements Section */}
-      <StatsSection />
 
       <ScrollToTop />
 

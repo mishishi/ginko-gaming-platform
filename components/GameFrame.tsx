@@ -44,19 +44,7 @@ export default function GameFrame({ game }: GameFrameProps) {
     setIsLoading(false)
     setHasError(false)
     markPlayed(game.slug)
-    // Record play and notify if achievements unlocked
-    const { newlyUnlocked } = recordPlay(game.slug, 0)
-    if (newlyUnlocked.length > 0) {
-      // Show first achievement as fullscreen modal, rest as toasts
-      setUnlockedAchievement(newlyUnlocked[0])
-      showToast(`🏆 成就解锁: ${newlyUnlocked[0].name}`, 'achievement', 4000, newlyUnlocked[0].icon, newlyUnlocked[0].rarity)
-      // Queue remaining achievements as toasts
-      for (let i = 1; i < newlyUnlocked.length; i++) {
-        const achievement = newlyUnlocked[i]
-        showToast(`🏆 成就解锁: ${achievement.name}`, 'achievement', 4000, achievement.icon, achievement.rarity)
-      }
-    }
-  }, [markPlayed, recordPlay, showToast, game.slug])
+  }, [markPlayed, game.slug])
 
   const handleError = useCallback(() => {
     setIsLoading(false)
@@ -171,9 +159,24 @@ export default function GameFrame({ game }: GameFrameProps) {
   // Listen for postMessage from games (score reports, etc.)
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      const { type, score, playerName } = event.data || {}
+      const { type, score, playerName, duration, won } = event.data || {}
 
       if (type === 'SCORE_REPORT' && typeof score === 'number') {
+        // Record game stats
+        const { newlyUnlocked } = recordPlay(game.slug, score, {
+          duration: typeof duration === 'number' ? duration : undefined,
+          won: typeof won === 'boolean' ? won : undefined,
+        })
+        // Show achievement notifications
+        if (newlyUnlocked.length > 0) {
+          setUnlockedAchievement(newlyUnlocked[0])
+          showToast(`🏆 成就解锁: ${newlyUnlocked[0].name}`, 'achievement', 4000, newlyUnlocked[0].icon, newlyUnlocked[0].rarity)
+          for (let i = 1; i < newlyUnlocked.length; i++) {
+            showToast(`🏆 成就解锁: ${newlyUnlocked[i].name}`, 'achievement', 4000, newlyUnlocked[i].icon, newlyUnlocked[i].rarity)
+          }
+        }
+
+        // Submit to leaderboard
         const result = await submitLeaderboardScore(game.slug, score, playerName)
         if (result) {
           if (result.isNewHighScore) {
@@ -193,7 +196,7 @@ export default function GameFrame({ game }: GameFrameProps) {
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [game.slug, submitLeaderboardScore, showToast])
+  }, [game.slug, recordPlay, submitLeaderboardScore, showToast])
 
   // Listen for fullscreen changes
   useEffect(() => {

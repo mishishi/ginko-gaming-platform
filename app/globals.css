@@ -27,6 +27,7 @@
   /* 点睛色 - 银 & 铜 */
   --accent-silver: #c9c5c0;
   --accent-copper: #b8956e;
+  --accent-amber: #d4a574;
   --accent-glow: #d4a574;
   --accent-green: #6b9b7a;
   --accent-orange: #d4845a;
@@ -62,8 +63,9 @@
   --text-muted: #8a827a;
 
   --accent-silver: #7a7670;
-  --accent-copper: #8b6914;
-  --accent-glow: #b8956e;
+  --accent-copper: #b8956e;
+  --accent-amber: #d4a574;
+  --accent-glow: #d4a574;
   --accent-green: #4a7a5a;
   --accent-orange: #b86c3a;
   --accent-purple: #6a5a7b;
@@ -511,17 +513,6 @@ a:not(.no-underline):hover {
   animation: fade-in-up 0.4s ease-out forwards;
 }
 
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* ============================================
    SCROLL REVEAL
    ============================================ */
@@ -599,11 +590,6 @@ a:not(.no-underline):hover {
   50% { transform: translateY(-8px); }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.9; }
@@ -611,10 +597,6 @@ a:not(.no-underline):hover {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
 }
 
 .animate-breathe {

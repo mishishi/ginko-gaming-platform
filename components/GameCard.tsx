@@ -120,13 +120,37 @@ interface TouchGesturesProps {
   isFavorited: boolean
   onFavorite: (e?: React.MouseEvent | React.TouchEvent) => void
   children: React.ReactNode
+  showGestureHint?: boolean
 }
 
-function TouchGestures({ game, isFavorited, onFavorite, children }: TouchGesturesProps) {
+const GESTURE_HINT_KEY = 'yinqiu-gesture-hint-shown'
+
+function TouchGestures({ game, isFavorited, onFavorite, children, showGestureHint }: TouchGesturesProps) {
   const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const swipeStartXRef = useRef<number | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [previewPos, setPreviewPos] = useState({ x: 0, y: 0 })
+  const [showHint, setShowHint] = useState(false)
+
+  // Show gesture hint for first-time users (once per session)
+  useEffect(() => {
+    if (!showGestureHint) return
+    try {
+      const hasSeenHint = sessionStorage.getItem(GESTURE_HINT_KEY)
+      if (!hasSeenHint) {
+        // Small delay to let page settle
+        const timer = setTimeout(() => {
+          setShowHint(true)
+          sessionStorage.setItem(GESTURE_HINT_KEY, 'true')
+          // Auto-hide after 4 seconds
+          setTimeout(() => setShowHint(false), 4000)
+        }, 1000)
+        return () => clearTimeout(timer)
+      }
+    } catch {
+      // localStorage may not be available
+    }
+  }, [showGestureHint])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0]
@@ -183,6 +207,36 @@ function TouchGestures({ game, isFavorited, onFavorite, children }: TouchGesture
       className="relative"
     >
       {children}
+
+      {/* Gesture hint for first-time users */}
+      {showHint && (
+        <div
+          className="absolute inset-x-0 bottom-0 z-30 flex justify-center gap-4 p-3 pointer-events-none"
+          style={{
+            background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+            animation: 'fadeIn 0.3s ease-out',
+          }}
+        >
+          <div className="flex items-center gap-1.5 text-[11px] text-white/80">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8" />
+              <path d="M10 19v-3.96 3.15" />
+              <path d="M7 19h5.5" />
+              <path d="M18 12h.01" />
+              <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+              <path d="M14 12h.01" />
+            </svg>
+            长按预览
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px] text-white/80">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+            右滑收藏
+          </div>
+        </div>
+      )}
 
       {/* Long press preview */}
       {showPreview && (
@@ -244,7 +298,7 @@ function RatingStars({ stats, onRate }: RatingStarsProps) {
 
   return (
     <div className="flex items-center gap-1">
-      <div className="flex">
+      <div className="flex" role="group" aria-label="评分">
         {[1, 2, 3, 4, 5].map(star => (
           <button
             key={star}
@@ -260,7 +314,7 @@ function RatingStars({ stats, onRate }: RatingStarsProps) {
               color: star <= displayRating ? 'var(--accent-copper)' : 'var(--text-muted)',
               opacity: star <= displayRating ? 1 : 0.3,
             }}
-            aria-label={`Rate ${star} stars`}
+            aria-label={`${star}星`}
           >
             ★
           </button>
@@ -414,7 +468,7 @@ const GameCard = memo(function GameCard({ game, index, onKeyDown, tabIndex = 0, 
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}
     >
-      <TouchGestures game={game} isFavorited={isFavorited} onFavorite={handleFavoriteClick}>
+      <TouchGestures game={game} isFavorited={isFavorited} onFavorite={handleFavoriteClick} showGestureHint={index === 0}>
       <TiltCard>
         <div className={`
           group relative bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden

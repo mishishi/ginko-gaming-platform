@@ -133,7 +133,7 @@ export default function GameGrid() {
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="radiogroup" aria-label="筛选游戏">
           {([
             { value: 'all', label: '全部' },
             { value: 'playable', label: '可玩' },
@@ -142,6 +142,8 @@ export default function GameGrid() {
           ] as { value: FilterOption; label: string }[]).map((option) => (
             <button
               key={option.value}
+              role="radio"
+              aria-checked={filter === option.value}
               onClick={() => handleFilterClick(option.value)}
               className={`px-4 py-3 text-xs rounded transition-all duration-200 active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
                 filter === option.value
@@ -150,7 +152,6 @@ export default function GameGrid() {
                     : 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
                   : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
               }`}
-              aria-pressed={filter === option.value}
             >
               {option.label}
             </button>

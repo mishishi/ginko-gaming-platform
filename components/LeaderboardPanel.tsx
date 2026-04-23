@@ -129,8 +129,14 @@ export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = 
       {isLoading && <LoadingSkeleton />}
 
       {error && (
-        <div className="text-center py-8 text-sm text-[var(--text-muted)]">
-          加载失败，请重试
+        <div className="text-center py-8">
+          <p className="text-sm text-[var(--text-muted)] mb-3">加载失败，请重试</p>
+          <button
+            onClick={refresh}
+            className="px-4 py-2 text-xs rounded border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-copper)] hover:border-[var(--accent-copper)] transition-all duration-200 active:scale-95"
+          >
+            重试
+          </button>
         </div>
       )}
 

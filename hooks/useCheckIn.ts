@@ -12,6 +12,7 @@ export interface CheckInData {
   rewardsClaimed: string[]    // Array of reward dates claimed
   streakFreeze: number        // Number of streak freezes available
   missedDays: number          // Track consecutive missed days for grace period
+  checkInHistory: string[]    // Array of all check-in dates (ISO strings)
 }
 
 export interface CheckInResult {
@@ -104,6 +105,7 @@ export function useCheckIn() {
     rewardsClaimed: [],
     streakFreeze: 0,
     missedDays: 0,
+    checkInHistory: [],
   })
   const { showToast } = useToast()
   const toastRef = useRef(showToast)
@@ -126,6 +128,7 @@ export function useCheckIn() {
         // Ensure new fields exist
         if (parsed.streakFreeze === undefined) parsed.streakFreeze = 0
         if (parsed.missedDays === undefined) parsed.missedDays = 0
+        if (parsed.checkInHistory === undefined) parsed.checkInHistory = []
 
         // Check if streak should be reset (missed a day)
         const todayStr = getDateString(new Date())
@@ -198,6 +201,11 @@ export function useCheckIn() {
 
     const newTotalDays = current.totalDays + 1
 
+    // Append to check-in history
+    const newHistory = current.checkInHistory.includes(todayStr)
+      ? current.checkInHistory
+      : [...current.checkInHistory, todayStr]
+
     const newData: CheckInData = {
       lastCheckIn: todayStr,
       streak: newStreak,
@@ -205,6 +213,7 @@ export function useCheckIn() {
       rewardsClaimed: current.rewardsClaimed,
       streakFreeze: newStreakFreeze,
       missedDays: 0,
+      checkInHistory: newHistory,
     }
 
     // Check for reward
@@ -247,6 +256,35 @@ export function useCheckIn() {
   const hasStreakFreeze = useCallback((): boolean => {
     return checkInData.streakFreeze > 0
   }, [checkInData.streakFreeze])
+
+  // Show check-in reminder when user returns to tab after absence
+  useEffect(() => {
+    // Only remind users who have used check-in before (streak > 0)
+    if (checkInData.totalDays === 0) return
+
+    let hasShownReminder = false
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        hasShownReminder = false
+        return
+      }
+      if (hasShownReminder) return
+      if (isCheckedInToday()) return
+
+      hasShownReminder = true
+      // Delay slightly to not interrupt their focus transition
+      setTimeout(() => {
+        const message = checkInData.streak > 0
+          ? `好久不见！你的连续签到已 ${checkInData.streak} 天了，今日还未签到`
+          : '今日还未签到，快来签到吧！'
+        showToast(message, 'info', 5000)
+      }, 500)
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [checkInData.totalDays, checkInData.streak, isCheckedInToday, showToast])
 
   return {
     checkInData,

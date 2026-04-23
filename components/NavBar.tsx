@@ -8,6 +8,7 @@ import { useKeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp'
 import SoundToggle from '@/components/SoundToggle'
 import { useCheckInContext } from '@/contexts/CheckInContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useUserContext } from '@/contexts/UserContext'
 
 const games = [
   { slug: 'idol', name: '偶像' },
@@ -64,6 +65,7 @@ export default function NavBar() {
   const [isMd, setIsMd] = useState(true)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -77,13 +79,52 @@ export default function NavBar() {
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden'
+      // Focus the close button when menu opens
+      closeButtonRef.current?.focus()
     } else {
       document.body.style.overflow = ''
+      // Return focus to hamburger when menu closes
+      hamburgerRef.current?.focus()
     }
     return () => {
       document.body.style.overflow = ''
     }
   }, [isMobileMenuOpen])
+
+  // Focus trap for mobile drawer
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+
+      const focusableElements = mobileMenuRef.current?.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      )
+      if (!focusableElements || focusableElements.length === 0) return
+
+      const firstElement = focusableElements[0] as HTMLElement
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement.focus()
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isMobileMenuOpen])
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
+  const openMobileMenu = () => setIsMobileMenuOpen(true)
 
   const isGamePage = pathname.startsWith('/games/')
 
@@ -146,6 +187,60 @@ export default function NavBar() {
                 aria-hidden="true"
               />
             </Link>
+
+            {/* Achievements */}
+            <Link
+              href="/achievements"
+              className={`group relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
+                pathname === '/achievements'
+                  ? 'text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              成就
+              <span
+                className={`absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-copper)] to-transparent transition-opacity duration-300 ${
+                  pathname === '/achievements' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
+                aria-hidden="true"
+              />
+            </Link>
+
+            {/* Check-in Calendar */}
+            <Link
+              href="/checkin"
+              className={`group relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
+                pathname === '/checkin'
+                  ? 'text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              签到
+              <span
+                className={`absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-copper)] to-transparent transition-opacity duration-300 ${
+                  pathname === '/checkin' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
+                aria-hidden="true"
+              />
+            </Link>
+
+            {/* User Profile */}
+            <Link
+              href="/user"
+              className={`group relative text-sm tracking-wide transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded px-1 ${
+                pathname === '/user'
+                  ? 'text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              我的
+              <span
+                className={`absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-copper)] to-transparent transition-opacity duration-300 ${
+                  pathname === '/user' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
+                aria-hidden="true"
+              />
+            </Link>
           </div>
 
           {/* Compact Check-in Button */}
@@ -197,7 +292,7 @@ export default function NavBar() {
           <button
             ref={hamburgerRef}
             type="button"
-            onClick={() => setIsMobileMenuOpen(true)}
+            onClick={openMobileMenu}
             className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-300 active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-2 focus:ring-offset-bg-primary focus:rounded"
             aria-label="打开导航菜单"
             aria-expanded={isMobileMenuOpen}
@@ -237,7 +332,7 @@ export default function NavBar() {
       >
         <div
           className="absolute inset-0 bg-[var(--bg-primary)]/80 backdrop-blur-sm"
-          onClick={() => setIsMobileMenuOpen(false)}
+          onClick={closeMobileMenu}
         />
       </div>
 
@@ -262,8 +357,9 @@ export default function NavBar() {
               银古客栈
             </span>
             <button
+              ref={closeButtonRef}
               type="button"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
               className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors active:scale-95 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:rounded"
               aria-label="关闭导航菜单"
             >
@@ -285,7 +381,7 @@ export default function NavBar() {
                       ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
                   }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {game.name}
                 </Link>
@@ -302,10 +398,58 @@ export default function NavBar() {
                   ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
               }`}
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
             >
               <span>🏆</span>
               <span>排行榜</span>
+            </Link>
+          </div>
+
+          {/* Mobile Achievements Link */}
+          <div className="px-4 pt-2">
+            <Link
+              href="/achievements"
+              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+                pathname === '/achievements'
+                  ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span>🏅</span>
+              <span>成就</span>
+            </Link>
+          </div>
+
+          {/* Mobile Check-in Calendar Link */}
+          <div className="px-4 pt-2">
+            <Link
+              href="/checkin"
+              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+                pathname === '/checkin'
+                  ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span>📅</span>
+              <span>签到日历</span>
+            </Link>
+          </div>
+
+          {/* Mobile User Profile Link */}
+          <div className="px-4 pt-2">
+            <Link
+              href="/user"
+              className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[var(--accent-copper)] focus:ring-offset-1 ${
+                pathname === '/user'
+                  ? 'bg-[var(--bg-card)] text-[var(--accent-copper)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span>🏮</span>
+              <span>我的</span>
             </Link>
           </div>
         </div>
