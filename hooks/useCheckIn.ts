@@ -26,6 +26,7 @@ export const CHECKIN_MILESTONES: CheckInMilestone[] = [
 // Check-in history entry
 export interface CheckInEntry {
   date: string       // ISO date string "2026-04-22"
+  isMakeUp?: boolean // Whether this was a make-up check-in using streak freeze
 }
 
 export interface CheckInData {
@@ -300,16 +301,67 @@ export function useCheckIn() {
     return checkInData.lastCheckIn === todayStr
   }, [checkInData.lastCheckIn])
 
-  // Check if user has streak freeze available
+  // Check if user can manually make up a check-in (for missed days)
   const canMakeUpCheckIn = useCallback((): boolean => {
-    // Streak freeze is now auto-consumed on miss, so manual make-up is not applicable
-    return false
-  }, [])
+    // Manual make-up is not implemented; streak freeze is auto-consumed on miss
+    // This returns true only if user has freeze AND missed yesterday
+    if (checkInData.streakFreeze <= 0) return false
+    const todayStr = getDateString(new Date())
+    const yesterdayStr = getDateString(new Date(Date.now() - 86400000))
+    return checkInData.lastCheckIn !== todayStr
+  }, [checkInData.streakFreeze, checkInData.lastCheckIn])
 
   // Check if user has streak freeze available
   const hasStreakFreeze = useCallback((): boolean => {
     return checkInData.streakFreeze > 0
   }, [checkInData.streakFreeze])
+
+  // Make up a missed check-in using a streak freeze
+  const makeUpCheckIn = useCallback((): { success: boolean; message: string } => {
+    if (checkInData.streakFreeze <= 0) {
+      return { success: false, message: '没有补签卡可用' }
+    }
+    if (isCheckedInToday()) {
+      return { success: false, message: '今日已签到，无需补签' }
+    }
+
+    // Find the most recent missed day (yesterday or earlier)
+    const todayStr = getDateString(new Date())
+    const yesterdayStr = getDateString(new Date(Date.now() - 86400000))
+
+    // Can only make up if last check-in was not today and not yesterday (i.e., we missed at least one day)
+    if (checkInData.lastCheckIn === todayStr) {
+      return { success: false, message: '今日已签到，无需补签' }
+    }
+
+    // Use the streak freeze to recover
+    const newStreakFreeze = checkInData.streakFreeze - 1
+    // The streak stays intact since freeze protected it
+    // We just need to record a "virtual" check-in for yesterday
+    const missedDate = checkInData.lastCheckIn && isYesterday(checkInData.lastCheckIn, todayStr)
+      ? checkInData.lastCheckIn
+      : yesterdayStr
+
+    const newData: CheckInData = {
+      ...checkInData,
+      streakFreeze: newStreakFreeze,
+      checkInHistory: [
+        ...checkInData.checkInHistory,
+        { date: missedDate, isMakeUp: true },
+      ],
+    }
+
+    try {
+      localStorage.setItem(CHECKIN_KEY, JSON.stringify(newData))
+    } catch (e) {
+      console.warn('Failed to save make-up check-in:', e)
+      return { success: false, message: '保存失败，请重试' }
+    }
+
+    setCheckInData(newData)
+    toastRef.current(`🔒 补签成功！连续 ${checkInData.streak} 天已保护`, 'success', 4000)
+    return { success: true, message: '补签成功' }
+  }, [checkInData, isCheckedInToday])
 
   // Show check-in reminder when user returns to tab after absence
   useEffect(() => {
@@ -346,5 +398,6 @@ export function useCheckIn() {
     isCheckedInToday,
     canMakeUpCheckIn,
     hasStreakFreeze,
+    makeUpCheckIn,
   }
 }

@@ -1,68 +1,72 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { GameStats } from '@/hooks/useGameStats'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts'
 
-const GAME_NAMES: Record<string, string> = {
-  idol: '偶像大师',
-  quiz: '知识问答',
-  fate: '命运之轮',
-}
-
-const GAME_COLORS: Record<string, string> = {
-  idol: '#b8956e',
-  quiz: '#6e8bb8',
-  fate: '#8bb86e',
+interface GameData {
+  game: string
+  plays: number
+  color?: string
 }
 
 interface GameComparisonChartProps {
-  stats: GameStats
+  data: GameData[]
 }
 
-export default function GameComparisonChart({ stats }: GameComparisonChartProps) {
-  const gameSlugs = ['idol', 'quiz', 'fate']
+const COLORS = ['#b8956f', '#4a5c4f', '#8b7355', '#6b8e6b', '#9b8b7a']
 
-  const data = gameSlugs.map(slug => ({
-    name: GAME_NAMES[slug] || slug,
-    playCount: stats.playCount[slug] || 0,
-    playTime: Math.round((stats.totalPlayTime?.[slug] || 0) / 60), // minutes
-    color: GAME_COLORS[slug] || '#b8956e',
-  }))
-
+export default function GameComparisonChart({ data }: GameComparisonChartProps) {
   return (
-    <div className="w-full">
-      <div className="text-xs text-center mb-2" style={{ color: 'var(--text-muted)' }}>
-        各游戏游玩次数
-      </div>
-      <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+    <div className="w-full h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(184, 149, 110, 0.1)"
+            vertical={false}
+          />
           <XAxis
-            dataKey="name"
-            tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
-            axisLine={{ stroke: 'var(--border-subtle)' }}
+            dataKey="game"
+            tick={{
+              fill: 'rgba(184, 149, 110, 0.7)',
+              fontSize: 11,
+            }}
+            axisLine={{ stroke: 'rgba(184, 149, 110, 0.2)' }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
+            tick={{
+              fill: 'rgba(184, 149, 110, 0.5)',
+              fontSize: 10,
+            }}
             axisLine={false}
             tickLine={false}
+            width={30}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '8px',
-              fontSize: 12,
-              color: 'var(--text-primary)',
+              backgroundColor: 'rgba(26, 24, 20, 0.95)',
+              border: '1px solid rgba(184, 149, 110, 0.3)',
+              borderRadius: 8,
+              color: '#b8956f',
             }}
-            formatter={(value, name) => [
-              name === 'playCount' ? `${value} 次` : `${value} 分钟`,
-              name === 'playCount' ? '游玩次数' : '游玩时长',
-            ]}
+            cursor={{ fill: 'rgba(184, 149, 110, 0.1)' }}
           />
-          <Bar dataKey="playCount" radius={[4, 4, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+          <Bar dataKey="plays" radius={[4, 4, 0, 0]}>
+            {data.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={data[index]?.color || COLORS[index % COLORS.length]}
+                fillOpacity={0.8}
+              />
             ))}
           </Bar>
         </BarChart>

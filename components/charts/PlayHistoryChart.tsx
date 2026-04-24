@@ -1,74 +1,108 @@
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { GameStats } from '@/hooks/useGameStats'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from 'recharts'
 
-interface PlayHistoryChartProps {
-  stats: GameStats
+interface PlaySession {
+  date: string  // ISO date string
+  duration: number  // in seconds
 }
 
-export default function PlayHistoryChart({ stats }: PlayHistoryChartProps) {
-  // Build daily play time from sessions
-  const dailyMap: Record<string, number> = {}
-  for (const session of stats.gameSessions || []) {
-    dailyMap[session.date] = (dailyMap[session.date] || 0) + session.duration
-  }
+interface PlayHistoryChartProps {
+  data: PlaySession[]
+}
 
-  const last14 = Object.entries(dailyMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-14)
+export default function PlayHistoryChart({ data }: PlayHistoryChartProps) {
+  // Group by date and sum durations
+  const chartData = data.reduce((acc, session) => {
+    const existing = acc.find((d) => d.date === session.date)
+    if (existing) {
+      existing.duration += session.duration
+    } else {
+      acc.push({ date: session.date, duration: session.duration })
+    }
+    return acc
+  }, [] as { date: string; duration: number }[])
 
-  const data = last14.map(([date, duration]) => ({
-    date: date.slice(5), // MM-DD
-    duration: Math.round(duration / 60), // minutes
-  }))
-
-  if (data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-40 text-sm" style={{ color: 'var(--text-muted)' }}>
-        暂无游戏记录
-      </div>
-    )
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return `${date.getMonth() + 1}/${date.getDate()}`
   }
 
   return (
-    <div className="w-full">
-      <div className="text-xs text-center mb-2" style={{ color: 'var(--text-muted)' }}>
-        近14天游玩时长（分钟）
-      </div>
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" opacity={0.3} />
+    <div className="w-full h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
+          <defs>
+            <linearGradient id="durationGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#b8956f" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#b8956f" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(184, 149, 110, 0.1)"
+            vertical={false}
+          />
           <XAxis
             dataKey="date"
-            tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
-            axisLine={{ stroke: 'var(--border-subtle)' }}
+            tickFormatter={formatDate}
+            tick={{
+              fill: 'rgba(184, 149, 110, 0.7)',
+              fontSize: 10,
+            }}
+            axisLine={{ stroke: 'rgba(184, 149, 110, 0.2)' }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
+            tickFormatter={(value) => `${Math.round(value / 60)}m`}
+            tick={{
+              fill: 'rgba(184, 149, 110, 0.5)',
+              fontSize: 10,
+            }}
             axisLine={false}
             tickLine={false}
+            width={35}
           />
           <Tooltip
+            formatter={(value) => [`${Math.round(Number(value) / 60)} 分钟`, '游戏时长']}
             contentStyle={{
-              backgroundColor: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '8px',
-              fontSize: 12,
-              color: 'var(--text-primary)',
+              backgroundColor: 'rgba(26, 24, 20, 0.95)',
+              border: '1px solid rgba(184, 149, 110, 0.3)',
+              borderRadius: 8,
+              color: '#b8956f',
             }}
-            formatter={(value) => [`${value} 分钟`, '游玩时长']}
+            labelFormatter={(label) => formatDate(String(label))}
           />
-          <Line
+          <Area
             type="monotone"
             dataKey="duration"
-            stroke="var(--accent-copper)"
+            stroke="#b8956f"
             strokeWidth={2}
-            dot={{ fill: 'var(--accent-copper)', r: 3 }}
-            activeDot={{ r: 5 }}
+            fill="url(#durationGradient)"
+            dot={{
+              r: 3,
+              fill: '#b8956f',
+              strokeWidth: 0,
+            }}
+            activeDot={{
+              r: 5,
+              fill: '#b8956f',
+              stroke: '#fff',
+              strokeWidth: 2,
+            }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )

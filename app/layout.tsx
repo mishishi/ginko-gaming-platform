@@ -17,6 +17,7 @@ import { AudioProvider } from '@/contexts/AudioContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import MusicToggle from '@/components/MusicToggle'
 import OfflineIndicator from '@/components/OfflineIndicator'
+import OnboardingModal from '@/components/OnboardingModal'
 
 export const metadata: Metadata = {
   title: '银古客栈',
@@ -68,6 +69,7 @@ export default function RootLayout({
                     </PageTransition>
                   </main>
                   <MusicToggle key="music-toggle" />
+                  <OnboardingModal />
                 </AudioProvider>
               </ThemeProvider>
             </FavoritesProvider>

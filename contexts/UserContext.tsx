@@ -58,6 +58,7 @@ interface UserCheckin {
   lastCheckIn: string
   totalCheckIns: number
   streakFreeze: number
+  rewardsClaimed?: Record<string, boolean>
 }
 
 const UserContext = createContext<UserContextValue | null>(null)

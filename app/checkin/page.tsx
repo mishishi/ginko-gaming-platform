@@ -12,7 +12,7 @@ import DailyTasksCard from '@/components/daily-tasks/DailyTasksCard'
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
 export default function CheckInCalendarPage() {
-  const { checkInData, checkIn, isCheckedInToday } = useCheckInContext()
+  const { checkInData, checkIn, isCheckedInToday, canMakeUpCheckIn, makeUpCheckIn } = useCheckInContext()
   const { isLoggedIn, syncToCloud } = useUserContext()
   const { stats } = useGameStats()
   const { showToast } = useToast()
@@ -34,6 +34,11 @@ export default function CheckInCalendarPage() {
   const month = currentDate.getMonth()
 
   const checkedInToday = isCheckedInToday()
+
+  const isWeekendDay = () => {
+    const day = new Date().getDay()
+    return day === 0 || day === 6
+  }
 
   const getDateString = (date: Date) => date.toISOString().split('T')[0]
   const todayStr = mounted ? getDateString(new Date()) : ''
@@ -70,8 +75,26 @@ export default function CheckInCalendarPage() {
           lastCheckIn: new Date().toISOString().split('T')[0],
           totalCheckIns: checkInData.totalDays + 1,
           streakFreeze: checkInData.streakFreeze,
+          rewardsClaimed: checkInData.rewardsClaimed,
         })
       }
+    }
+  }
+
+  const handleMakeUp = async () => {
+    const result = makeUpCheckIn()
+    if (result.success) {
+      if (isLoggedIn) {
+        await syncToCloud(stats, {
+          consecutiveDays: checkInData.streak,
+          lastCheckIn: checkInData.lastCheckIn || new Date().toISOString().split('T')[0],
+          totalCheckIns: checkInData.totalDays,
+          streakFreeze: Math.max(0, (checkInData.streakFreeze || 0) - 1),
+          rewardsClaimed: checkInData.rewardsClaimed,
+        })
+      }
+    } else {
+      showToast(result.message, 'error')
     }
   }
 
@@ -240,6 +263,7 @@ export default function CheckInCalendarPage() {
               }
 
               const isCheckedIn = day.dateStr && checkInSet.has(day.dateStr)
+              const isMakeUp = day.dateStr && checkInData.checkInHistory.some(e => e.date === day.dateStr && e.isMakeUp)
               const isToday = mounted && day.dateStr === todayStr
               const isFuture = mounted && day.dateStr && new Date(day.dateStr) > new Date()
 
@@ -250,11 +274,11 @@ export default function CheckInCalendarPage() {
                 >
                   {day.date && (
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300 ${isCheckedIn ? 'animate-checkin-glow' : ''} ${isToday ? 'ring-2 ring-[var(--accent-copper)]' : ''} ${isFuture ? 'opacity-30' : ''}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300 ${isCheckedIn && !isMakeUp ? 'animate-checkin-glow' : ''} ${isToday ? 'ring-2 ring-[var(--accent-copper)]' : ''} ${isFuture ? 'opacity-30' : ''} ${isMakeUp && isCheckedIn ? 'border-2 border-dashed border-[var(--accent-copper)]' : ''}`}
                       style={{
-                        backgroundColor: isCheckedIn ? 'rgba(184,149,110,0.2)' : 'transparent',
-                        color: isCheckedIn ? 'var(--accent-copper)' : isFuture ? 'var(--text-muted)' : 'var(--text-primary)',
-                        boxShadow: isCheckedIn ? '0 0 12px rgba(184,149,110,0.4)' : 'none',
+                        backgroundColor: isCheckedIn && !isMakeUp ? 'rgba(184,149,110,0.2)' : isMakeUp && isCheckedIn ? 'rgba(74, 92, 79, 0.3)' : 'transparent',
+                        color: isCheckedIn ? (isMakeUp ? 'var(--accent-green)' : 'var(--accent-copper)') : isFuture ? 'var(--text-muted)' : 'var(--text-primary)',
+                        boxShadow: isCheckedIn && !isMakeUp ? '0 0 12px rgba(184,149,110,0.4)' : 'none',
                       }}
                     >
                       {day.date}
@@ -266,7 +290,21 @@ export default function CheckInCalendarPage() {
           </div>
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center space-y-3">
+          {canMakeUpCheckIn() && (
+            <button
+              onClick={handleMakeUp}
+              className="w-full max-w-xs mx-auto block px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95"
+              style={{
+                backgroundColor: 'rgba(74, 92, 79, 0.3)',
+                color: 'var(--accent-copper)',
+                border: '1px solid rgba(184, 149, 110, 0.3)',
+              }}
+            >
+              🔒 使用补签卡补签昨天
+            </button>
+          )}
+
           <button
             onClick={handleCheckIn}
             disabled={checkedInToday}
@@ -287,13 +325,14 @@ export default function CheckInCalendarPage() {
               <>
                 <span className="mr-2">📅</span>
                 立即签到
+                {isWeekendDay() && <span className="ml-2 text-xs opacity-80">🌟 双倍EXP</span>}
               </>
             )}
           </button>
 
           {!checkedInToday && (
-            <p className="mt-3 text-xs text-[var(--text-muted)]">
-              连续签到7天可获得补签卡
+            <p className="text-xs text-[var(--text-muted)]">
+              {isWeekendDay() ? '周六/周日签到双倍 EXP！' : '连续签到7天可获得补签卡'}
             </p>
           )}
         </div>
@@ -302,6 +341,10 @@ export default function CheckInCalendarPage() {
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(184,149,110,0.2)', boxShadow: '0 0 6px rgba(184,149,110,0.4)' }} />
             <span>已签到</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full border-2 border-dashed border-[var(--accent-copper)]" style={{ backgroundColor: 'rgba(74, 92, 79, 0.3)' }} />
+            <span>补签</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full ring-2 ring-[var(--accent-copper)]" />

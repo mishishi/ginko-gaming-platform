@@ -14,6 +14,7 @@ import KeyboardHints from './KeyboardHints'
 import GameFrameControls from './GameFrameControls'
 import { useLeaderboard } from '@/hooks/useLeaderboard'
 import AchievementUnlockModal from './AchievementUnlockModal'
+import ShareCardModal from './ShareCardModal'
 
 interface GameFrameProps {
   game: Game
@@ -32,6 +33,12 @@ export default function GameFrame({ game }: GameFrameProps) {
     icon: string
     rarity: 'common' | 'rare' | 'epic' | 'legendary'
   } | null>(null)
+  const [shareCardData, setShareCardData] = useState<{
+    isOpen: boolean
+    achievementId?: string
+    achievementName?: string
+    achievementIcon?: string
+  }>({ isOpen: false })
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -170,6 +177,13 @@ export default function GameFrame({ game }: GameFrameProps) {
         // Show achievement notifications
         if (newlyUnlocked.length > 0) {
           setUnlockedAchievement(newlyUnlocked[0])
+          // Open share card for the first unlocked achievement
+          setShareCardData({
+            isOpen: true,
+            achievementId: newlyUnlocked[0].id,
+            achievementName: newlyUnlocked[0].name,
+            achievementIcon: newlyUnlocked[0].icon,
+          })
           showToast(`🏆 成就解锁: ${newlyUnlocked[0].name}`, 'achievement', 4000, newlyUnlocked[0].icon, newlyUnlocked[0].rarity)
           for (let i = 1; i < newlyUnlocked.length; i++) {
             showToast(`🏆 成就解锁: ${newlyUnlocked[i].name}`, 'achievement', 4000, newlyUnlocked[i].icon, newlyUnlocked[i].rarity)
@@ -271,6 +285,17 @@ export default function GameFrame({ game }: GameFrameProps) {
       <AchievementUnlockModal
         achievement={unlockedAchievement}
         onClose={() => setUnlockedAchievement(null)}
+      />
+
+      {/* Share card modal for achievements */}
+      <ShareCardModal
+        isOpen={shareCardData.isOpen}
+        onClose={() => setShareCardData({ isOpen: false })}
+        type="achievement"
+        data={{
+          achievementName: shareCardData.achievementName,
+          achievementIcon: shareCardData.achievementIcon,
+        }}
       />
     </div>
   )

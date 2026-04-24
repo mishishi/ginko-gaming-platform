@@ -311,29 +311,68 @@ export default function StatsSummary({ stats }: StatsSummaryProps) {
       ) : (
         /* Chart Mode */
         <div className="space-y-4 pt-2">
-          {/* Top Charts Row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-              <GameComparisonChart stats={stats} />
-            </div>
-            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-              <WeeklyComparisonChart stats={stats} />
-            </div>
+          {/* Game Comparison Chart */}
+          <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+            <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>各游戏游玩次数</div>
+            <GameComparisonChart
+              data={gameSlugs.map((slug, i) => ({
+                game: GAME_NAMES[slug] || slug,
+                plays: stats.playCount[slug] || 0,
+              }))}
+            />
           </div>
 
-          {/* Middle Charts Row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-              <WinRateChart stats={stats} />
-            </div>
-            <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-              <PlayHistoryChart stats={stats} />
-            </div>
+          {/* Weekly Comparison Chart */}
+          <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+            <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>本周 vs 上周</div>
+            <WeeklyComparisonChart
+              data={[
+                { week: '本周', thisWeek: weekly.thisWeek.plays, lastWeek: weekly.lastWeek.plays },
+              ]}
+            />
+          </div>
+
+          {/* Win Rate Chart */}
+          <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+            <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>胜率分布</div>
+            <WinRateChart
+              data={gameSlugs
+                .filter((slug) => {
+                  const sessions = stats.gameSessions?.filter((s) => s.gameSlug === slug && s.won !== undefined) || []
+                  return sessions.length > 0
+                })
+                .map((slug) => ({
+                  name: GAME_NAMES[slug] || slug,
+                  value: stats.wins?.[slug] || 0,
+                  color: ['#b8956f', '#4a5c4f', '#8b7355'][gameSlugs.indexOf(slug) % 3],
+                }))}
+            />
+          </div>
+
+          {/* Play History Chart */}
+          <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
+            <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>游戏时长趋势</div>
+            <PlayHistoryChart
+              data={stats.gameSessions || []}
+            />
           </div>
 
           {/* Full Width Radar Chart */}
           <div className="p-2 rounded" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)' }}>
-            <SkillRadarChart stats={stats} />
+            <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>综合能力</div>
+            <SkillRadarChart
+              playCount={totalPlays}
+              highScore={Math.max(...Object.values(stats.highScore), 0)}
+              winRate={
+                (() => {
+                  const totalWins = Object.values(stats.wins || {}).reduce((a, b) => a + b, 0)
+                  const totalWithResult = stats.gameSessions?.filter((s) => s.won !== undefined).length || 0
+                  return totalWithResult > 0 ? (totalWins / totalWithResult) * 100 : 0
+                })()
+              }
+              totalPlayTime={totalPlayTime}
+              consecutiveDays={consecutiveDays}
+            />
           </div>
         </div>
       )}

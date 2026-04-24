@@ -1,87 +1,67 @@
 'use client'
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { GameStats } from '@/hooks/useGameStats'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts'
 
-const GAME_NAMES: Record<string, string> = {
-  idol: '偶像大师',
-  quiz: '知识问答',
-  fate: '命运之轮',
+interface WinRateData {
+  name: string
+  value: number
+  color: string
 }
-
-const COLORS = ['#b8956e', '#6e8bb8', '#8bb86e', '#b86e8b', '#8b6eb8']
 
 interface WinRateChartProps {
-  stats: GameStats
+  data: WinRateData[]
 }
 
-export default function WinRateChart({ stats }: WinRateChartProps) {
-  const gameSlugs = ['idol', 'quiz', 'fate']
-
-  const data = gameSlugs
-    .map((slug, index) => {
-      const wins = stats.wins?.[slug] || 0
-      const sessions = stats.gameSessions?.filter(s => s.gameSlug === slug && s.won !== undefined) || []
-      return {
-        name: GAME_NAMES[slug] || slug,
-        wins,
-        total: sessions.length,
-        color: COLORS[index % COLORS.length],
-      }
-    })
-    .filter(d => d.total > 0)
-
-  if (data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-40 text-sm" style={{ color: 'var(--text-muted)' }}>
-        暂无胜率数据
-      </div>
-    )
-  }
-
-  const pieData = data.map(d => ({
-    name: d.name,
-    value: d.wins,
-    total: d.total,
-  }))
+export default function WinRateChart({ data }: WinRateChartProps) {
+  const total = data.reduce((sum, item) => sum + item.value, 0)
 
   return (
-    <div className="w-full">
-      <div className="text-xs text-center mb-2" style={{ color: 'var(--text-muted)' }}>
-        各游戏胜率
-      </div>
-      <ResponsiveContainer width="100%" height={180}>
+    <div className="w-full h-64">
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={pieData}
+            data={data}
             cx="50%"
             cy="50%"
-            innerRadius={40}
-            outerRadius={65}
-            paddingAngle={3}
+            innerRadius={50}
+            outerRadius={80}
+            paddingAngle={2}
             dataKey="value"
           >
-            {pieData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                stroke="transparent"
+              />
             ))}
           </Pie>
           <Tooltip
+            formatter={(value) => [
+              `${value} 场 (${total > 0 ? Math.round((Number(value) / total) * 100) : 0}%)`,
+              '场次',
+            ]}
             contentStyle={{
-              backgroundColor: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '8px',
-              fontSize: 12,
-              color: 'var(--text-primary)',
-            }}
-            formatter={(value, name, props) => {
-              const total = (props.payload as { total?: number }).total || 0
-              const rate = total > 0 ? Math.round((Number(value) / total) * 100) : 0
-              return [`${value}胜 / ${total}局 (${rate}%)`, name]
+              backgroundColor: 'rgba(26, 24, 20, 0.95)',
+              border: '1px solid rgba(184, 149, 110, 0.3)',
+              borderRadius: 8,
+              color: '#b8956f',
             }}
           />
           <Legend
-            formatter={(value: string) => (
-              <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{value}</span>
+            verticalAlign="bottom"
+            height={36}
+            formatter={(value) => (
+              <span style={{ color: 'rgba(184, 149, 110, 0.7)', fontSize: 11 }}>
+                {value}
+              </span>
             )}
           />
         </PieChart>

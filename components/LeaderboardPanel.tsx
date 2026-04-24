@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLeaderboard, LeaderboardEntry, LeaderboardFilter } from '@/hooks/useLeaderboard'
+import { useFriends } from '@/hooks/useFriends'
 import { useToast } from '@/contexts/ToastContext'
 
 interface LeaderboardPanelProps {
@@ -76,7 +77,16 @@ function LoadingSkeleton() {
 
 export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = '排行榜' }: LeaderboardPanelProps) {
   const [filter, setFilter] = useState<LeaderboardFilter>('all')
-  const { rankings, playerRank, isLoading, error, refresh } = useLeaderboard(gameSlug, 10, filter)
+  const { friends } = useFriends()
+  const friendIds = useMemo(() => friends.map(f => f.anonymousId), [friends])
+  const friendNicknames = useMemo(() => friends.map(f => f.nickname).filter((n): n is string => n !== null), [friends])
+  const { rankings, playerRank, isLoading, error, refresh } = useLeaderboard(
+    gameSlug,
+    10,
+    filter,
+    friendIds,
+    friendNicknames
+  )
   const { showToast } = useToast()
 
   const handleRefresh = () => {
@@ -125,6 +135,21 @@ export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = 
             >
               本周
             </button>
+            <button
+              onClick={() => setFilter('friends')}
+              className={`px-3 py-1 text-xs rounded-md transition-all duration-200 flex items-center gap-1 ${
+                filter === 'friends'
+                  ? 'bg-[var(--accent-copper)] text-[var(--bg-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <span>好友</span>
+              {friends.length > 0 && (
+                <span className={`text-[10px] ${filter === 'friends' ? 'opacity-80' : ''}`}>
+                  ({friends.length})
+                </span>
+              )}
+            </button>
           </div>
           <button
             onClick={handleRefresh}
@@ -169,9 +194,21 @@ export default function LeaderboardPanel({ gameSlug, currentPlayerName, title = 
 
       {!isLoading && !error && rankings.length === 0 && (
         <div className="text-center py-8">
-          <div className="text-4xl mb-2" role="img" aria-hidden="true">📝</div>
-          <p className="text-sm text-[var(--text-muted)]">暂无记录</p>
-          <p className="text-xs text-[var(--text-muted)] mt-1">成为第一个上榜的玩家吧！</p>
+          <div className="text-4xl mb-2" role="img" aria-hidden="true">
+            {filter === 'friends' ? '👥' : '📝'}
+          </div>
+          <p className="text-sm text-[var(--text-muted)]">
+            {filter === 'friends'
+              ? friends.length === 0
+                ? '暂无好友'
+                : '好友暂无记录'
+              : '暂无记录'}
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            {filter === 'friends' && friends.length === 0
+              ? '在设置中添加好友'
+              : '成为第一个上榜的玩家吧！'}
+          </p>
         </div>
       )}
 

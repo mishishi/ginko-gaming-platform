@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-export type LeaderboardFilter = 'all' | 'week'
+export type LeaderboardFilter = 'all' | 'week' | 'friends'
 
 export interface LeaderboardEntry {
   rank: number
@@ -25,22 +25,44 @@ export interface UseLeaderboardReturn {
   refresh: () => void
 }
 
-export function useLeaderboard(gameSlug?: string, limit: number = 10, filter: LeaderboardFilter = 'all'): UseLeaderboardReturn {
+export function useLeaderboard(
+  gameSlug?: string,
+  limit: number = 10,
+  filter: LeaderboardFilter = 'all',
+  friendIds: string[] = [],
+  friendNicknames: string[] = []
+): UseLeaderboardReturn {
   const [rankings, setRankings] = useState<LeaderboardEntry[]>([])
   const [playerRank, setPlayerRank] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchLeaderboard = useCallback(async (slug: string, filterType: LeaderboardFilter) => {
+  const fetchLeaderboard = useCallback(async (slug: string, filterType: LeaderboardFilter, friendIdList: string[], friendNicknameList: string[]) => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/leaderboard?game=${encodeURIComponent(slug)}&limit=${limit}&filter=${filterType}`)
+      // For friends filter, we fetch all and filter locally since we don't have backend friends data
+      const fetchFilter = filterType === 'friends' ? 'all' : filterType
+      const response = await fetch(`/api/leaderboard?game=${encodeURIComponent(slug)}&limit=${limit}&filter=${fetchFilter}`)
       if (!response.ok) {
         throw new Error('Failed to fetch leaderboard')
       }
       const data = await response.json()
-      setRankings(data.rankings)
+      let rankings = data.rankings
+
+      // Apply friends filter locally
+      if (filterType === 'friends' && (friendIdList.length > 0 || friendNicknameList.length > 0)) {
+        rankings = rankings.filter((entry: LeaderboardEntry) =>
+          friendIdList.includes(entry.playerName) || friendNicknameList.includes(entry.playerName)
+        )
+        // Re-rank after filtering
+        rankings = rankings.map((entry: LeaderboardEntry, index: number) => ({
+          ...entry,
+          rank: index + 1,
+        }))
+      }
+
+      setRankings(rankings)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -62,9 +84,9 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10, filter: Le
 
   useEffect(() => {
     if (gameSlug) {
-      fetchLeaderboard(gameSlug, filter)
+      fetchLeaderboard(gameSlug, filter, friendIds, friendNicknames)
     }
-  }, [gameSlug, filter, fetchLeaderboard])
+  }, [gameSlug, filter, friendIds, friendNicknames, fetchLeaderboard])
 
   const submitScore = useCallback(async (
     slug: string,
@@ -89,7 +111,7 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10, filter: Le
       const result = await response.json()
 
       // Refresh leaderboard after score submission
-      fetchLeaderboard(slug, filter)
+      fetchLeaderboard(slug, filter, friendIds, friendNicknames)
 
       // Refresh player rank
       if (playerName) {
@@ -101,13 +123,13 @@ export function useLeaderboard(gameSlug?: string, limit: number = 10, filter: Le
       console.error('Score submission error:', err)
       return null
     }
-  }, [fetchLeaderboard, fetchPlayerRank, filter])
+  }, [fetchLeaderboard, fetchPlayerRank, filter, friendIds, friendNicknames])
 
   const refresh = useCallback(() => {
     if (gameSlug) {
-      fetchLeaderboard(gameSlug, filter)
+      fetchLeaderboard(gameSlug, filter, friendIds, friendNicknames)
     }
-  }, [gameSlug, filter, fetchLeaderboard])
+  }, [gameSlug, filter, friendIds, friendNicknames, fetchLeaderboard])
 
   return {
     rankings,
